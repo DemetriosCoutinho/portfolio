@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demetrios A. M. Coutinho — Professor, Researcher & Tech Leader</title>
+
+  <meta name="description" content="Prof. Dr. Demetrios A. M. Coutinho — Professor, Researcher and Tech Leader at IFRN. Specialist in HPC, distributed systems, IoT, AI, and R&D&I. Open for international partnerships." />
+  <meta name="keywords" content="Demetrios Coutinho, IFRN, distributed systems, HPC, research, professor, IoT, AI, R&D, IT outsourcing, Brazil" />
+  <meta name="author" content="Demetrios A. M. Coutinho" />
+  <meta name="robots" content="index, follow" />
+
+  <meta property="og:title" content="Demetrios A. M. Coutinho — Professor, Researcher & Tech Leader" />
+  <meta property="og:description" content="Bridging research and real-world innovation from northeastern Brazil to the world." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://demetrioscoutinho.github.io/portfolio" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Demetrios A. M. Coutinho" />
+  <meta name="twitter:description" content="Professor, Researcher & Tech Leader | IFRN | HPC · AI · Distributed Systems" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Demetrios A. M. Coutinho",
+    "givenName": "Demetrios",
+    "familyName": "Coutinho",
+    "honorificPrefix": "Prof. Dr.",
+    "jobTitle": "Professor, Researcher & Tech Leader",
+    "affiliation": {
+      "@type": "EducationalOrganization",
+      "name": "Instituto Federal de Educação, Ciência e Tecnologia do Rio Grande do Norte",
+      "alternateName": "IFRN",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Pau dos Ferros",
+        "addressRegion": "RN",
+        "addressCountry": "BR"
+      }
+    },
+    "alumniOf": [
+      { "@type": "EducationalOrganization", "name": "Universidade Federal do Rio Grande do Norte", "alternateName": "UFRN" },
+      { "@type": "EducationalOrganization", "name": "University of Bristol" },
+      { "@type": "EducationalOrganization", "name": "Instituto Politécnico da Guarda" }
+    ],
+    "knowsAbout": ["High-Performance Computing", "Distributed Systems", "IoT", "Artificial Intelligence", "Energy Efficiency", "Parallel Computing", "Medical Imaging", "Data Analysis"],
+    "email": "demetrios.coutinho@ifrn.edu.br",
+    "url": "https://demetrioscoutinho.github.io/portfolio",
+    "sameAs": ["https://www.linkedin.com/in/demetrios-coutinho/"]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #07080D;
+      --bg-surface: #0E1118;
+      --bg-card: #141720;
+      --gold: #C9A96E;
+      --gold-dim: rgba(201, 169, 110, 0.18);
+      --gold-border: rgba(201, 169, 110, 0.25);
+      --text: #DDD5C8;
+      --text-muted: #6B7585;
+      --text-faint: #3A404D;
+      --accent-blue: #4A8FAB;
+      --nav-h: 68px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 20% 10%, rgba(201,169,110,0.045) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(74,143,171,0.035) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* NOISE OVERLAY */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 max(5vw, 24px);
+      z-index: 100;
+      transition: background 0.3s, backdrop-filter 0.3s, border-color 0.3s;
+      border-bottom: 1px solid transparent;
+    }
+
+    nav.scrolled {
+      background: rgba(7,8,13,0.88);
+      backdrop-filter: blur(12px);
+      border-color: var(--gold-border);
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+    }
+
+    .nav-logo span { color: var(--gold); }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--gold); }
+
+    .lang-toggle {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      background: var(--gold-dim);
+      border: 1px solid var(--gold-border);
+      border-radius: 4px;
+      padding: 4px;
+    }
+
+    .lang-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      padding: 4px 8px;
+      border-radius: 2px;
+      color: var(--text-muted);
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .lang-btn.active {
+      background: var(--gold);
+      color: var(--bg);
+      font-weight: 500;
+    }
+
+    /* ── SECTIONS WRAPPER ── */
+    section { position: relative; z-index: 1; }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 max(5vw, 24px);
+    }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding-top: var(--nav-h);
+      border-bottom: 1px solid var(--text-faint);
+    }
+
+    .hero-inner {
+      padding: 80px 0;
+    }
+
+    .hero-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hero-label::before {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 1px;
+      background: var(--gold);
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.8rem, 7vw, 6.5rem);
+      font-weight: 700;
+      line-height: 1.05;
+      color: #EDE6D8;
+      margin-bottom: 8px;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1rem, 2.5vw, 1.5rem);
+      font-weight: 400;
+      font-style: italic;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+      margin-top: 12px;
+    }
+
+    .hero-desc {
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: var(--text);
+      max-width: 640px;
+      margin-bottom: 48px;
+    }
+
+    .hero-ctas {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 64px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 28px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: 2px;
+      transition: all 0.25s;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: var(--bg);
+    }
+
+    .btn-gold:hover { background: #D8B97E; transform: translateY(-1px); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--gold-border);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      transform: translateY(-1px);
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 32px;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .meta-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .meta-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* ── SECTION HEADER ── */
+    .section-wrap {
+      padding: 96px 0;
+      border-bottom: 1px solid var(--text-faint);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 56px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .section-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 600;
+      line-height: 1.15;
+      color: #EDE6D8;
+    }
+
+    h2 em { font-style: italic; color: var(--gold); }
+
+    h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #DDD5C8;
+      margin-bottom: 8px;
+    }
+
+    /* ── ABOUT ── */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 64px;
+      align-items: start;
+    }
+
+    .avatar-wrap {
+      position: relative;
+    }
+
+    .avatar-frame {
+      width: 100%;
+      aspect-ratio: 3/4;
+      background: var(--bg-card);
+      border: 1px solid var(--gold-border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .avatar-frame::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent 60%, rgba(201,169,110,0.12));
+    }
+
+    .avatar-initials {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 5rem;
+      font-weight: 700;
+      color: var(--gold-border);
+      letter-spacing: -0.02em;
+    }
+
+    .avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .avatar-img.loaded { display: block; }
+
+    .avatar-caption {
+      margin-top: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .avatar-corner {
+      position: absolute;
+      bottom: -10px;
+      right: -10px;
+      width: 60px;
+      height: 60px;
+      border-right: 2px solid var(--gold);
+      border-bottom: 2px solid var(--gold);
+    }
+
+    .about-text p {
+      color: var(--text);
+      margin-bottom: 16px;
+      font-size: 1rem;
+    }
+
+    .collab-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 28px;
+    }
+
+    .pill {
+      background: var(--gold-dim);
+      border: 1px solid var(--gold-border);
+      padding: 5px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      color: var(--gold);
+      border-radius: 2px;
+    }
+
+    /* ── RESEARCH ── */
+    .research-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2px;
+    }
+
+    .research-card {
+      background: var(--bg-card);
+      padding: 32px;
+      border: 1px solid var(--text-faint);
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .research-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 0;
+      background: var(--gold);
+      transition: height 0.3s;
+    }
+
+    .research-card:hover { border-color: var(--gold-border); }
+    .research-card:hover::before { height: 100%; }
+
+    .research-icon {
+      font-size: 1.8rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .research-card h3 { font-size: 1rem; margin-bottom: 8px; }
+
+    .research-card p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* ── TEACHING ── */
+    .teaching-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 24px;
+    }
+
+    .course-card {
+      background: var(--bg-card);
+      border: 1px solid var(--text-faint);
+      padding: 32px;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      transition: border-color 0.25s, transform 0.25s;
+      position: relative;
+    }
+
+    .course-card:hover {
+      border-color: var(--gold-border);
+      transform: translateY(-3px);
+    }
+
+    .course-level {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+
+    .course-card h3 { font-size: 1.1rem; margin-bottom: 8px; }
+
+    .course-card p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .course-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      color: var(--gold);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .course-link::after {
+      content: '→';
+      transition: transform 0.2s;
+    }
+
+    .course-card:hover .course-link::after { transform: translateX(4px); }
+
+    /* ── RDI ── */
+    .rdi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    .rdi-services { display: flex; flex-direction: column; gap: 16px; }
+
+    .service-row {
+      display: flex;
+      gap: 20px;
+      padding: 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--text-faint);
+      transition: border-color 0.2s;
+    }
+
+    .service-row:hover { border-color: var(--gold-border); }
+
+    .service-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--gold-border);
+      line-height: 1;
+      flex-shrink: 0;
+      width: 40px;
+    }
+
+    .service-content h3 { font-size: 0.95rem; margin-bottom: 6px; }
+    .service-content p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+
+    .rdi-highlight {
+      background: var(--bg-card);
+      border: 1px solid var(--gold-border);
+      padding: 40px;
+      position: relative;
+    }
+
+    .rdi-highlight::before {
+      content: '"';
+      font-family: 'Playfair Display', serif;
+      font-size: 8rem;
+      color: var(--gold-dim);
+      position: absolute;
+      top: -20px;
+      left: 24px;
+      line-height: 1;
+    }
+
+    .rdi-quote {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-style: italic;
+      line-height: 1.7;
+      color: #DDD5C8;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .rdi-quote-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* ── LEADERSHIP / PROJECTS ── */
+    .projects-list { display: flex; flex-direction: column; gap: 2px; }
+
+    .project-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: center;
+      padding: 24px 28px;
+      background: var(--bg-card);
+      border: 1px solid var(--text-faint);
+      transition: border-color 0.2s, padding-left 0.2s;
+    }
+
+    .project-row:hover {
+      border-color: var(--gold-border);
+      padding-left: 36px;
+    }
+
+    .project-name {
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .project-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .project-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent-blue);
+      border: 1px solid rgba(74,143,171,0.3);
+      padding: 4px 10px;
+      border-radius: 2px;
+      white-space: nowrap;
+    }
+
+    /* ── CONTACT ── */
+    #contact {
+      border-bottom: none;
+    }
+
+    .contact-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .contact-links { display: flex; flex-direction: column; gap: 16px; margin-top: 32px; }
+
+    .contact-link {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--text-faint);
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .contact-link:hover { border-color: var(--gold); color: var(--gold); }
+
+    .contact-link-icon {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .contact-link-text { font-size: 0.9rem; }
+
+    .contact-link-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+
+    .form-group label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      background: var(--bg-card);
+      border: 1px solid var(--text-faint);
+      padding: 12px 16px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      border-radius: 2px;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus { border-color: var(--gold); }
+
+    .form-group textarea { resize: vertical; min-height: 120px; }
+
+    .form-group select option { background: var(--bg-card); }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 40px max(5vw, 24px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      border-top: 1px solid var(--text-faint);
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-left {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .footer-left span { color: var(--gold); }
+
+    .footer-right {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+
+    /* ── REVEAL ANIMATIONS ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+
+      .about-grid { grid-template-columns: 1fr; }
+      .avatar-wrap { max-width: 200px; }
+
+      .rdi-grid { grid-template-columns: 1fr; }
+      .contact-inner { grid-template-columns: 1fr; gap: 40px; }
+
+      .project-row { grid-template-columns: 1fr; }
+      .project-tag { width: fit-content; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="nav">
+    <a href="#hero" class="nav-logo">DAM <span>Coutinho</span></a>
+    <div class="nav-right">
+      <ul class="nav-links">
+        <li><a href="#about" data-i18n="nav.about">About</a></li>
+        <li><a href="#research" data-i18n="nav.research">Research</a></li>
+        <li><a href="#teaching" data-i18n="nav.teaching">Teaching</a></li>
+        <li><a href="#rdi" data-i18n="nav.rdi">RD&amp;I</a></li>
+        <li><a href="#contact" data-i18n="nav.contact">Contact</a></li>
+      </ul>
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" id="btn-pt" onclick="setLang('pt')">PT</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="container">
+      <div class="hero-inner">
+        <div class="hero-label" data-i18n="hero.label">Professor · Researcher · Tech Leader</div>
+        <h1>Prof. Dr.<br>Demetrios<br><em>A. M. Coutinho</em></h1>
+        <p class="hero-title" data-i18n="hero.subtitle">IFRN · Pau dos Ferros, Brazil</p>
+        <p class="hero-desc" data-i18n="hero.desc">
+          Advancing distributed computing, energy efficiency and real-world innovation — from northeastern Brazil to the world. Bridging academia, industry and international R&amp;D partnerships.
+        </p>
+        <div class="hero-ctas">
+          <a href="#contact" class="btn btn-gold" data-i18n="hero.cta1">Partner With Me</a>
+          <a href="#research" class="btn btn-outline" data-i18n="hero.cta2">View Research</a>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-item">
+            <span class="meta-num">12+</span>
+            <span class="meta-label" data-i18n="meta.years">Years of Experience</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-num">4</span>
+            <span class="meta-label" data-i18n="meta.countries">Countries</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-num">10+</span>
+            <span class="meta-label" data-i18n="meta.projects">R&amp;D Projects</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-num">22</span>
+            <span class="meta-label" data-i18n="meta.states">Brazilian States (RIEH)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="container">
+      <div class="section-wrap">
+        <div class="section-header">
+          <div>
+            <div class="section-tag" data-i18n="about.tag">01 — About</div>
+            <h2 data-i18n="about.title">Researcher.<br>Professor. <em>Leader.</em></h2>
+          </div>
+        </div>
+        <div class="about-grid reveal">
+          <div class="avatar-wrap">
+            <div class="avatar-frame">
+              <img src="assets/img/photo.jpg" alt="Prof. Dr. Demetrios A. M. Coutinho" class="avatar-img" id="avatar-img" />
+              <div class="avatar-initials" id="avatar-initials">DC</div>
+              <div class="avatar-corner"></div>
+            </div>
+            <p class="avatar-caption">IFRN · Pau dos Ferros</p>
+          </div>
+          <div class="about-text">
+            <p data-i18n="about.p1">Full professor at IFRN since 2012, holding a B.Sc., M.Sc. and Ph.D. in Electrical and Computer Engineering from UFRN. Conducted doctoral research on energy efficiency at the Trustworthy Systems Laboratory, University of Bristol (UK, 2019–2020).</p>
+            <p data-i18n="about.p2">Over more than a decade, he has led high-impact projects at the intersection of high-performance computing, IoT, artificial intelligence, and data analysis — collaborating with industry, government, and academic institutions across four continents.</p>
+            <p data-i18n="about.p3">As a product manager, researcher and technical coordinator, he has delivered innovations ranging from smart city infrastructure to medical imaging reconstruction and national hybrid education platforms.</p>
+            <div class="collab-pills">
+              <span class="pill">University of Bristol 🇬🇧</span>
+              <span class="pill">Università di Pisa 🇮🇹</span>
+              <span class="pill">U. Southern Denmark 🇩🇰</span>
+              <span class="pill">Instituto Politécnico da Guarda 🇵🇹</span>
+              <span class="pill">UFRN 🇧🇷</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESEARCH -->
+  <section id="research">
+    <div class="container">
+      <div class="section-wrap">
+        <div class="section-header reveal">
+          <div>
+            <div class="section-tag" data-i18n="research.tag">02 — Research & Innovation</div>
+            <h2 data-i18n="research.title">Areas of <em>Expertise</em></h2>
+          </div>
+        </div>
+        <div class="research-grid">
+          <div class="research-card reveal">
+            <span class="research-icon">⚡</span>
+            <h3 data-i18n="r1.title">HPC & Energy Efficiency</h3>
+            <p data-i18n="r1.desc">High-performance computing architectures with a focus on power optimization in embedded and industrial systems. International research at Bristol and Pisa.</p>
+          </div>
+          <div class="research-card reveal">
+            <span class="research-icon">🔗</span>
+            <h3 data-i18n="r2.title">Distributed & Parallel Systems</h3>
+            <p data-i18n="r2.desc">Design and implementation of distributed architectures, inter-process communication, threads, sockets, RPC, and microservices at scale.</p>
+          </div>
+          <div class="research-card reveal">
+            <span class="research-icon">🌐</span>
+            <h3 data-i18n="r3.title">IoT & Embedded Systems</h3>
+            <p data-i18n="r3.desc">Smart devices, sensor networks, and automation solutions applied to smart cities, healthcare, and industrial environments.</p>
+          </div>
+          <div class="research-card reveal">
+            <span class="research-icon">🤖</span>
+            <h3 data-i18n="r4.title">AI & Data Analysis</h3>
+            <p data-i18n="r4.desc">Machine learning applied to predictive maintenance, license plate recognition, battery life estimation, and medical image reconstruction.</p>
+          </div>
+          <div class="research-card reveal">
+            <span class="research-icon">🏥</span>
+            <h3 data-i18n="r5.title">Medical Imaging Technology</h3>
+            <p data-i18n="r5.desc">Technical coordination of HAPI — advanced software for 3D tomographic image reconstruction integrating AI and experimental validation.</p>
+          </div>
+          <div class="research-card reveal">
+            <span class="research-icon">🏙️</span>
+            <h3 data-i18n="r6.title">Smart Cities & Digital Gov.</h3>
+            <p data-i18n="r6.desc">SIADE: digital transformation of endemic disease data collection processes, deployed for municipal government in 2016.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEACHING -->
+  <section id="teaching">
+    <div class="container">
+      <div class="section-wrap">
+        <div class="section-header reveal">
+          <div>
+            <div class="section-tag" data-i18n="teaching.tag">03 — Teaching</div>
+            <h2 data-i18n="teaching.title">Courses &amp; <em>Materials</em></h2>
+          </div>
+        </div>
+        <div class="teaching-grid">
+          <a href="sistemas-distribuidos/" class="course-card reveal">
+            <div class="course-level" data-i18n="course.level.undergrad">Undergraduate · Computer Science</div>
+            <h3 data-i18n="sd.title">Distributed Systems</h3>
+            <p data-i18n="sd.desc">Processes, threads, sockets, RPC, web services, and cloud computing. Slides, code examples, and exercises freely available.</p>
+            <span class="course-link" data-i18n="course.access">Access materials</span>
+          </a>
+          <a href="int_prog/" class="course-card reveal">
+            <div class="course-level" data-i18n="course.level.intro">Introductory · Computing</div>
+            <h3 data-i18n="ip.title">Introduction to Programming</h3>
+            <p data-i18n="ip.desc">Fundamentals of programming logic and algorithms using practical, accessible tools. HTML slides and interactive activities.</p>
+            <span class="course-link" data-i18n="course.access">Access materials</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RDI & OUTSOURCING -->
+  <section id="rdi">
+    <div class="container">
+      <div class="section-wrap">
+        <div class="section-header reveal">
+          <div>
+            <div class="section-tag" data-i18n="rdi.tag">04 — RD&amp;I &amp; IT Outsourcing</div>
+            <h2 data-i18n="rdi.title">International <em>Partnerships</em></h2>
+          </div>
+        </div>
+        <div class="rdi-grid reveal">
+          <div class="rdi-services">
+            <div class="service-row">
+              <div class="service-num">01</div>
+              <div class="service-content">
+                <h3 data-i18n="svc1.title">Applied R&amp;D Partnerships</h3>
+                <p data-i18n="svc1.desc">Co-develop research projects with universities, institutes, and companies. Track record with Bristol, Pisa, SDU, and multiple Brazilian industries.</p>
+              </div>
+            </div>
+            <div class="service-row">
+              <div class="service-num">02</div>
+              <div class="service-content">
+                <h3 data-i18n="svc2.title">IT Team Outsourcing</h3>
+                <p data-i18n="svc2.desc">Provide skilled Brazilian tech talent — developers, data scientists, and engineers — for international projects at competitive cost.</p>
+              </div>
+            </div>
+            <div class="service-row">
+              <div class="service-num">03</div>
+              <div class="service-content">
+                <h3 data-i18n="svc3.title">Technology Consulting</h3>
+                <p data-i18n="svc3.desc">Strategic guidance on HPC, AI integration, IoT architectures, and digital transformation for industry and government.</p>
+              </div>
+            </div>
+            <div class="service-row">
+              <div class="service-num">04</div>
+              <div class="service-content">
+                <h3 data-i18n="svc4.title">Innovation &amp; PDI Management</h3>
+                <p data-i18n="svc4.desc">Full-cycle management of innovation projects — from ideation to delivery — bridging academia and industrial application.</p>
+              </div>
+            </div>
+          </div>
+          <div class="rdi-highlight">
+            <p class="rdi-quote" data-i18n="rdi.quote">"I believe in the power of international collaboration to solve real-world problems. My goal is to connect talented people and institutions across borders to build technology that matters."</p>
+            <div class="rdi-quote-meta">— Demetrios A. M. Coutinho</div>
+            <br />
+            <a href="#contact" class="btn btn-gold" style="margin-top: 8px" data-i18n="rdi.cta">Let's build together</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEADERSHIP -->
+  <section id="leadership">
+    <div class="container">
+      <div class="section-wrap">
+        <div class="section-header reveal">
+          <div>
+            <div class="section-tag" data-i18n="lead.tag">05 — Leadership &amp; Projects</div>
+            <h2 data-i18n="lead.title">Notable <em>Initiatives</em></h2>
+          </div>
+        </div>
+        <div class="projects-list reveal">
+          <div class="project-row">
+            <div>
+              <div class="project-name">Thalocan — Dermatological Data Products</div>
+              <div class="project-desc" data-i18n="proj.thalocan">Product Manager & primary international contact. Leading development of 3 innovative products for dermatological data collection and analysis.</div>
+            </div>
+            <span class="project-tag">International</span>
+          </div>
+          <div class="project-row">
+            <div>
+              <div class="project-name">HAPI — Advanced Hardware for Medical Imaging</div>
+              <div class="project-desc" data-i18n="proj.hapi">Technical coordination at IFRN: 3D tomographic image reconstruction, AI integration, and experimental validation for healthcare innovation.</div>
+            </div>
+            <span class="project-tag">R&amp;D</span>
+          </div>
+          <div class="project-row">
+            <div>
+              <div class="project-name">RIEH — Brazilian Hybrid Education Network</div>
+              <div class="project-desc" data-i18n="proj.rieh">Leading development of the administrative module. Deployed across 22 Brazilian states, impacting thousands of students and educators.</div>
+            </div>
+            <span class="project-tag">National Scale</span>
+          </div>
+          <div class="project-row">
+            <div>
+              <div class="project-name">Flextronics / Projeto Astro</div>
+              <div class="project-desc" data-i18n="proj.astro">Developed HMI interfaces and speech recognition systems to optimize human-machine interaction in industrial environments.</div>
+            </div>
+            <span class="project-tag">Industry</span>
+          </div>
+          <div class="project-row">
+            <div>
+              <div class="project-name">Restic36 — Software Residency</div>
+              <div class="project-desc" data-i18n="proj.restic">Technology Analyst and Data Analysis professor. Mentoring the next generation of Brazilian software engineers.</div>
+            </div>
+            <span class="project-tag">Education</span>
+          </div>
+          <div class="project-row">
+            <div>
+              <div class="project-name">MCM — Battery Life Estimator</div>
+              <div class="project-desc" data-i18n="proj.mcm">ML-powered UPS battery lifespan prediction system. Delivered directly with client, anticipating maintenance needs.</div>
+            </div>
+            <span class="project-tag">AI / Industry</span>
+          </div>
+          <div class="project-row">
+            <div>
+              <div class="project-name">SIADE — Endemic Disease Data System</div>
+              <div class="project-desc" data-i18n="proj.siade">Led digital transformation of endemic data collection processes. Implemented for the municipal government of Pau dos Ferros in 2016.</div>
+            </div>
+            <span class="project-tag">Gov-Tech</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="container">
+      <div class="section-wrap">
+        <div class="section-header reveal">
+          <div>
+            <div class="section-tag" data-i18n="contact.tag">06 — Contact &amp; Partnerships</div>
+            <h2 data-i18n="contact.title">Let's <em>Connect</em></h2>
+          </div>
+        </div>
+        <div class="contact-inner reveal">
+          <div>
+            <p style="color:var(--text-muted); max-width: 400px; margin-bottom: 8px;" data-i18n="contact.desc">
+              Open to international partnerships in R&amp;D, IT outsourcing, academic collaborations, and innovation consulting. Reach out to start a conversation.
+            </p>
+            <div class="contact-links">
+              <a href="mailto:demetrios.coutinho@ifrn.edu.br" class="contact-link">
+                <span class="contact-link-icon">✉</span>
+                <div>
+                  <div class="contact-link-text">demetrios.coutinho@ifrn.edu.br</div>
+                  <div class="contact-link-sub" data-i18n="contact.email.sub">Academic & Research</div>
+                </div>
+              </a>
+              <a href="https://www.linkedin.com/in/demetrios-coutinho/" target="_blank" rel="noopener" class="contact-link">
+                <span class="contact-link-icon">in</span>
+                <div>
+                  <div class="contact-link-text">linkedin.com/in/demetrios-coutinho</div>
+                  <div class="contact-link-sub" data-i18n="contact.linkedin.sub">Professional Network</div>
+                </div>
+              </a>
+            </div>
+          </div>
+          <form class="contact-form" onsubmit="handleForm(event)">
+            <div class="form-group">
+              <label for="f-name" data-i18n="form.name">Name</label>
+              <input type="text" id="f-name" required placeholder="Your full name" />
+            </div>
+            <div class="form-group">
+              <label for="f-email" data-i18n="form.email">Email</label>
+              <input type="email" id="f-email" required placeholder="your@email.com" />
+            </div>
+            <div class="form-group">
+              <label for="f-subject" data-i18n="form.subject">Subject</label>
+              <select id="f-subject">
+                <option value="" data-i18n="form.subject.placeholder">Select a topic...</option>
+                <option value="rdi" data-i18n="form.subject.rdi">R&amp;D Partnership</option>
+                <option value="outsourcing" data-i18n="form.subject.outsourcing">IT Outsourcing</option>
+                <option value="research" data-i18n="form.subject.research">Academic Collaboration</option>
+                <option value="consulting" data-i18n="form.subject.consulting">Technology Consulting</option>
+                <option value="other" data-i18n="form.subject.other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="f-message" data-i18n="form.message">Message</label>
+              <textarea id="f-message" required placeholder="Tell me about your project or opportunity..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-gold" data-i18n="form.submit">Send Message</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-left">
+      Prof. Dr. Demetrios A. M. <span>Coutinho</span> · IFRN
+    </div>
+    <div class="footer-right" id="footer-year"></div>
+  </footer>
+
+  <script>
+    // ── i18n ──
+    const T = {
+      en: {
+        'nav.about': 'About',
+        'nav.research': 'Research',
+        'nav.teaching': 'Teaching',
+        'nav.rdi': 'RD&I',
+        'nav.contact': 'Contact',
+        'hero.label': 'Professor · Researcher · Tech Leader',
+        'hero.subtitle': 'IFRN · Pau dos Ferros, Brazil',
+        'hero.desc': 'Advancing distributed computing, energy efficiency and real-world innovation — from northeastern Brazil to the world. Bridging academia, industry and international R&D partnerships.',
+        'hero.cta1': 'Partner With Me',
+        'hero.cta2': 'View Research',
+        'meta.years': 'Years of Experience',
+        'meta.countries': 'Countries',
+        'meta.projects': 'R&D Projects',
+        'meta.states': 'Brazilian States (RIEH)',
+        'about.tag': '01 — About',
+        'about.title': 'Researcher.<br>Professor. <em>Leader.</em>',
+        'about.p1': 'Full professor at IFRN since 2012, holding a B.Sc., M.Sc. and Ph.D. in Electrical and Computer Engineering from UFRN. Conducted doctoral research on energy efficiency at the Trustworthy Systems Laboratory, University of Bristol (UK, 2019–2020).',
+        'about.p2': 'Over more than a decade, he has led high-impact projects at the intersection of high-performance computing, IoT, artificial intelligence, and data analysis — collaborating with industry, government, and academic institutions across four continents.',
+        'about.p3': 'As a product manager, researcher and technical coordinator, he has delivered innovations ranging from smart city infrastructure to medical imaging reconstruction and national hybrid education platforms.',
+        'research.tag': '02 — Research & Innovation',
+        'research.title': 'Areas of <em>Expertise</em>',
+        'r1.title': 'HPC & Energy Efficiency',
+        'r1.desc': 'High-performance computing architectures with a focus on power optimization in embedded and industrial systems. International research at Bristol and Pisa.',
+        'r2.title': 'Distributed & Parallel Systems',
+        'r2.desc': 'Design and implementation of distributed architectures, inter-process communication, threads, sockets, RPC, and microservices at scale.',
+        'r3.title': 'IoT & Embedded Systems',
+        'r3.desc': 'Smart devices, sensor networks, and automation solutions applied to smart cities, healthcare, and industrial environments.',
+        'r4.title': 'AI & Data Analysis',
+        'r4.desc': 'Machine learning applied to predictive maintenance, license plate recognition, battery life estimation, and medical image reconstruction.',
+        'r5.title': 'Medical Imaging Technology',
+        'r5.desc': 'Technical coordination of HAPI — advanced software for 3D tomographic image reconstruction integrating AI and experimental validation.',
+        'r6.title': 'Smart Cities & Digital Gov.',
+        'r6.desc': 'SIADE: digital transformation of endemic disease data collection processes, deployed for municipal government in 2016.',
+        'teaching.tag': '03 — Teaching',
+        'teaching.title': 'Courses &amp; <em>Materials</em>',
+        'course.level.undergrad': 'Undergraduate · Computer Science',
+        'course.level.intro': 'Introductory · Computing',
+        'sd.title': 'Distributed Systems',
+        'sd.desc': 'Processes, threads, sockets, RPC, web services, and cloud computing. Slides, code examples, and exercises freely available.',
+        'ip.title': 'Introduction to Programming',
+        'ip.desc': 'Fundamentals of programming logic and algorithms using practical, accessible tools. HTML slides and interactive activities.',
+        'course.access': 'Access materials',
+        'rdi.tag': '04 — RD&I & IT Outsourcing',
+        'rdi.title': 'International <em>Partnerships</em>',
+        'svc1.title': 'Applied R&D Partnerships',
+        'svc1.desc': 'Co-develop research projects with universities, institutes, and companies. Track record with Bristol, Pisa, SDU, and multiple Brazilian industries.',
+        'svc2.title': 'IT Team Outsourcing',
+        'svc2.desc': 'Provide skilled Brazilian tech talent — developers, data scientists, and engineers — for international projects at competitive cost.',
+        'svc3.title': 'Technology Consulting',
+        'svc3.desc': 'Strategic guidance on HPC, AI integration, IoT architectures, and digital transformation for industry and government.',
+        'svc4.title': 'Innovation & PDI Management',
+        'svc4.desc': 'Full-cycle management of innovation projects — from ideation to delivery — bridging academia and industrial application.',
+        'rdi.quote': '"I believe in the power of international collaboration to solve real-world problems. My goal is to connect talented people and institutions across borders to build technology that matters."',
+        'rdi.cta': 'Let\'s build together',
+        'lead.tag': '05 — Leadership & Projects',
+        'lead.title': 'Notable <em>Initiatives</em>',
+        'proj.thalocan': 'Product Manager & primary international contact. Leading development of 3 innovative products for dermatological data collection and analysis.',
+        'proj.hapi': 'Technical coordination at IFRN: 3D tomographic image reconstruction, AI integration, and experimental validation for healthcare innovation.',
+        'proj.rieh': 'Leading development of the administrative module. Deployed across 22 Brazilian states, impacting thousands of students and educators.',
+        'proj.astro': 'Developed HMI interfaces and speech recognition systems to optimize human-machine interaction in industrial environments.',
+        'proj.restic': 'Technology Analyst and Data Analysis professor. Mentoring the next generation of Brazilian software engineers.',
+        'proj.mcm': 'ML-powered UPS battery lifespan prediction system. Delivered directly with client, anticipating maintenance needs.',
+        'proj.siade': 'Led digital transformation of endemic data collection processes. Implemented for the municipal government of Pau dos Ferros in 2016.',
+        'contact.tag': '06 — Contact & Partnerships',
+        'contact.title': 'Let\'s <em>Connect</em>',
+        'contact.desc': 'Open to international partnerships in R&D, IT outsourcing, academic collaborations, and innovation consulting. Reach out to start a conversation.',
+        'contact.email.sub': 'Academic & Research',
+        'contact.linkedin.sub': 'Professional Network',
+        'form.name': 'Name',
+        'form.email': 'Email',
+        'form.subject': 'Subject',
+        'form.subject.placeholder': 'Select a topic...',
+        'form.subject.rdi': 'R&D Partnership',
+        'form.subject.outsourcing': 'IT Outsourcing',
+        'form.subject.research': 'Academic Collaboration',
+        'form.subject.consulting': 'Technology Consulting',
+        'form.subject.other': 'Other',
+        'form.message': 'Message',
+        'form.submit': 'Send Message',
+      },
+      pt: {
+        'nav.about': 'Sobre',
+        'nav.research': 'Pesquisa',
+        'nav.teaching': 'Ensino',
+        'nav.rdi': 'PDI',
+        'nav.contact': 'Contato',
+        'hero.label': 'Professor · Pesquisador · Líder Tecnológico',
+        'hero.subtitle': 'IFRN · Pau dos Ferros, Brasil',
+        'hero.desc': 'Avançando a computação distribuída, eficiência energética e inovação aplicada — do nordeste brasileiro para o mundo. Conectando academia, indústria e parcerias internacionais em P&D.',
+        'hero.cta1': 'Vamos Colaborar',
+        'hero.cta2': 'Ver Pesquisas',
+        'meta.years': 'Anos de Experiência',
+        'meta.countries': 'Países',
+        'meta.projects': 'Projetos de P&D',
+        'meta.states': 'Estados Brasileiros (RIEH)',
+        'about.tag': '01 — Sobre',
+        'about.title': 'Pesquisador.<br>Professor. <em>Líder.</em>',
+        'about.p1': 'Professor Efetivo do IFRN desde 2012, com graduação, mestrado e doutorado em Engenharia Elétrica e de Computação pela UFRN. Realizou pesquisa doutoral em eficiência energética no Trustworthy Systems Laboratory, University of Bristol (Reino Unido, 2019–2020).',
+        'about.p2': 'Ao longo de mais de uma década, liderou projetos de alto impacto na interseção de computação de alto desempenho, IoT, inteligência artificial e análise de dados — colaborando com indústria, governo e instituições acadêmicas em quatro continentes.',
+        'about.p3': 'Como gerente de produto, pesquisador e coordenador técnico, entregou inovações que vão de infraestrutura para cidades inteligentes à reconstrução de imagens médicas e plataformas nacionais de ensino híbrido.',
+        'research.tag': '02 — Pesquisa & Inovação',
+        'research.title': 'Áreas de <em>Atuação</em>',
+        'r1.title': 'CAD & Eficiência Energética',
+        'r1.desc': 'Arquiteturas de computação de alto desempenho com foco em otimização de energia em sistemas embarcados e industriais. Pesquisa internacional em Bristol e Pisa.',
+        'r2.title': 'Sistemas Distribuídos e Paralelos',
+        'r2.desc': 'Projeto e implementação de arquiteturas distribuídas, comunicação entre processos, threads, sockets, RPC e microsserviços em escala.',
+        'r3.title': 'IoT & Sistemas Embarcados',
+        'r3.desc': 'Dispositivos inteligentes, redes de sensores e soluções de automação aplicadas a cidades inteligentes, saúde e ambientes industriais.',
+        'r4.title': 'IA & Análise de Dados',
+        'r4.desc': 'Aprendizado de máquina aplicado à manutenção preditiva, reconhecimento de placas automotivas, estimativa de vida útil de baterias e reconstrução de imagens médicas.',
+        'r5.title': 'Tecnologia em Imagens Médicas',
+        'r5.desc': 'Coordenação técnica do HAPI — software avançado para reconstrução tomográfica 3D integrando IA e validação experimental.',
+        'r6.title': 'Cidades Inteligentes & Gov. Digital',
+        'r6.desc': 'SIADE: transformação digital dos processos de coleta de dados de agentes de endemias, implantado na prefeitura de Pau dos Ferros em 2016.',
+        'teaching.tag': '03 — Ensino',
+        'teaching.title': 'Disciplinas &amp; <em>Materiais</em>',
+        'course.level.undergrad': 'Graduação · Ciência da Computação',
+        'course.level.intro': 'Introdutório · Computação',
+        'sd.title': 'Sistemas Distribuídos',
+        'sd.desc': 'Processos, threads, sockets, RPC, web services e computação em nuvem. Slides, exemplos de código e exercícios disponíveis gratuitamente.',
+        'ip.title': 'Introdução à Programação',
+        'ip.desc': 'Fundamentos de lógica de programação e algoritmos com ferramentas práticas e acessíveis. Slides em HTML e atividades interativas.',
+        'course.access': 'Acessar materiais',
+        'rdi.tag': '04 — PDI & Outsourcing de TI',
+        'rdi.title': 'Parcerias <em>Internacionais</em>',
+        'svc1.title': 'Parcerias em P&D Aplicado',
+        'svc1.desc': 'Co-desenvolva projetos de pesquisa com universidades, institutos e empresas. Histórico com Bristol, Pisa, SDU e múltiplas indústrias brasileiras.',
+        'svc2.title': 'Outsourcing de Times de TI',
+        'svc2.desc': 'Disponibilize talentos tecnológicos brasileiros — desenvolvedores, cientistas de dados e engenheiros — para projetos internacionais com custo competitivo.',
+        'svc3.title': 'Consultoria Tecnológica',
+        'svc3.desc': 'Orientação estratégica em CAD, integração de IA, arquiteturas IoT e transformação digital para indústria e governo.',
+        'svc4.title': 'Gestão de Inovação & PDI',
+        'svc4.desc': 'Gestão completa de projetos de inovação — da ideação à entrega — conectando academia e aplicação industrial.',
+        'rdi.quote': '"Acredito no poder da colaboração internacional para resolver problemas reais. Meu objetivo é conectar pessoas e instituições talentosas além-fronteiras para construir tecnologia que importa."',
+        'rdi.cta': 'Vamos construir juntos',
+        'lead.tag': '05 — Liderança & Projetos',
+        'lead.title': 'Iniciativas em <em>Destaque</em>',
+        'proj.thalocan': 'Gerente de Produto e principal ponto de contato internacional. Liderando o desenvolvimento de 3 produtos inovadores para análise e coleta de dados dermatológicos.',
+        'proj.hapi': 'Coordenação técnica no IFRN: reconstrução tomográfica 3D, integração de IA e validação experimental para inovação em saúde.',
+        'proj.rieh': 'Liderando o desenvolvimento do módulo administrativo. Implantado em 22 estados brasileiros, impactando milhares de alunos e educadores.',
+        'proj.astro': 'Desenvolveu interfaces de usuário e sistemas de reconhecimento de voz para otimizar a interação homem-máquina em ambientes industriais.',
+        'proj.restic': 'Analista de Tecnologia e professor de Análise de Dados. Formando a próxima geração de engenheiros de software brasileiros.',
+        'proj.mcm': 'Sistema de predição da vida útil de baterias UPS com aprendizado de máquina. Entregue diretamente ao cliente, antecipando necessidades de manutenção.',
+        'proj.siade': 'Liderou a transformação digital dos processos de coleta de dados de endemias. Implementado na prefeitura de Pau dos Ferros em 2016.',
+        'contact.tag': '06 — Contato & Parcerias',
+        'contact.title': 'Vamos <em>Conectar</em>',
+        'contact.desc': 'Aberto a parcerias internacionais em P&D, outsourcing de TI, colaborações acadêmicas e consultoria em inovação. Entre em contato para iniciar uma conversa.',
+        'contact.email.sub': 'Acadêmico & Pesquisa',
+        'contact.linkedin.sub': 'Rede Profissional',
+        'form.name': 'Nome',
+        'form.email': 'E-mail',
+        'form.subject': 'Assunto',
+        'form.subject.placeholder': 'Selecione um tópico...',
+        'form.subject.rdi': 'Parceria em P&D',
+        'form.subject.outsourcing': 'Outsourcing de TI',
+        'form.subject.research': 'Colaboração Acadêmica',
+        'form.subject.consulting': 'Consultoria Tecnológica',
+        'form.subject.other': 'Outro',
+        'form.message': 'Mensagem',
+        'form.submit': 'Enviar Mensagem',
+      }
+    };
+
+    let currentLang = localStorage.getItem('lang') || 'en';
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('lang', lang);
+      document.documentElement.lang = lang;
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+      document.getElementById('btn-pt').classList.toggle('active', lang === 'pt');
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (T[lang][key] !== undefined) el.innerHTML = T[lang][key];
+      });
+    }
+
+    // ── NAV scroll ──
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    }, { passive: true });
+
+    // ── Reveal on scroll ──
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ── Avatar image fallback ──
+    const img = document.getElementById('avatar-img');
+    img.addEventListener('load', () => {
+      img.classList.add('loaded');
+      document.getElementById('avatar-initials').style.display = 'none';
+    });
+    img.addEventListener('error', () => { img.style.display = 'none'; });
+
+    // ── Form handler ──
+    function handleForm(e) {
+      e.preventDefault();
+      const name = document.getElementById('f-name').value;
+      const email = document.getElementById('f-email').value;
+      const subject = document.getElementById('f-subject').value;
+      const message = document.getElementById('f-message').value;
+      const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nTopic: ${subject}\n\n${message}`);
+      const subjectLine = encodeURIComponent(`[Portfolio] Partnership Inquiry - ${subject}`);
+      window.location.href = `mailto:demetrios.coutinho@ifrn.edu.br?subject=${subjectLine}&body=${body}`;
+    }
+
+    // ── Footer year ──
+    document.getElementById('footer-year').textContent =
+      `© ${new Date().getFullYear()} · All rights reserved`;
+
+    // ── Init language ──
+    setLang(currentLang);
+  </script>
+</body>
+</html>
