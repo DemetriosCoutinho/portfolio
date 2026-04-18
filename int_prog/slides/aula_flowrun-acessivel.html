@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula FlowRun — Programação Introdutória (versão acessível)</title>
+<style>
+/* === RESET === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* === TIPOGRAFIA E LAYOUT === */
+body {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.125rem;
+  line-height: 1.7;
+  color: #111;
+  background: #fff;
+  max-width: 72ch;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 4rem;
+}
+
+h1 { font-size: 1.9rem; margin-bottom: 0.25rem; }
+h2 { font-size: 1.45rem; margin-top: 2.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid #ccc; padding-bottom: 0.25rem; }
+h3 { font-size: 1.15rem; margin-top: 1.25rem; margin-bottom: 0.25rem; }
+p  { margin-top: 0.75rem; }
+ul, ol { margin-top: 0.5rem; padding-left: 1.75rem; }
+li { margin-top: 0.35rem; }
+dl { margin-top: 0.5rem; }
+dt { font-weight: bold; margin-top: 0.75rem; }
+dd { margin-left: 1.5rem; margin-top: 0.1rem; }
+
+/* === SKIP LINK === */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0.5rem;
+  background: #0044cc;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  border-radius: 4px;
+  font-family: system-ui, sans-serif;
+  font-size: 0.9rem;
+}
+.skip-link:focus { left: 0.5rem; }
+
+/* === CABEÇALHO === */
+header { padding-bottom: 1rem; border-bottom: 2px solid #333; margin-bottom: 1.5rem; }
+header p { font-size: 0.95rem; color: #444; margin-top: 0.25rem; }
+
+/* === NAV SUMÁRIO === */
+nav[aria-label="Sumário"] { margin-bottom: 2rem; }
+nav[aria-label="Sumário"] h2 { margin-top: 0; }
+nav a { color: #0044cc; text-decoration: underline; }
+nav a:hover { text-decoration: none; }
+
+/* === SEÇÕES === */
+section { margin-top: 0.5rem; }
+
+/* === CÓDIGO === */
+pre {
+  background: #f4f4f4;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 1rem;
+  overflow-x: auto;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-top: 0.75rem;
+}
+code { font-family: 'Courier New', Courier, monospace; }
+
+/* === TABELAS === */
+table { border-collapse: collapse; margin-top: 0.75rem; width: 100%; }
+th, td { border: 1px solid #555; padding: 0.45rem 0.75rem; text-align: left; }
+th { background: #eee; }
+caption { font-weight: bold; margin-bottom: 0.4rem; text-align: left; }
+
+/* === FOCO === */
+:focus-visible { outline: 3px solid #0044cc; outline-offset: 2px; }
+
+/* === CALLOUTS === */
+aside.callout {
+  border-left: 4px solid #0044cc;
+  background: #eef4ff;
+  padding: 0.75rem 1rem;
+  border-radius: 0 4px 4px 0;
+  margin-top: 1rem;
+}
+aside.callout p { margin-top: 0; }
+aside.callout.aviso {
+  border-left-color: #c2410c;
+  background: #fff7ed;
+}
+
+/* === FLUXOGRAMA DESCRITIVO === */
+.flowchart { margin-top: 0.75rem; }
+.flowchart > li { margin-top: 0.5rem; }
+.flowchart ul { list-style: disc; }
+
+/* === QUIZ === */
+.quiz { margin-top: 1.5rem; }
+.quiz fieldset {
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 1rem;
+}
+.quiz legend {
+  font-weight: bold;
+  padding: 0 0.4rem;
+  font-size: 1rem;
+}
+.quiz label {
+  display: block;
+  margin-top: 0.5rem;
+  cursor: pointer;
+}
+.quiz label input { margin-right: 0.5rem; }
+.quiz button[type="submit"] {
+  display: inline-block;
+  margin-top: 0.85rem;
+  padding: 0.4rem 0.9rem;
+  background: #0044cc;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-family: system-ui, sans-serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.quiz button[type="submit"]:hover { background: #0033aa; }
+.quiz-feedback {
+  margin-top: 0.6rem;
+  font-weight: bold;
+  font-family: system-ui, sans-serif;
+  font-size: 0.95rem;
+}
+.quiz-feedback.correct { color: #15803d; }
+.quiz-feedback.wrong   { color: #b91c1c; }
+.quiz-explanation {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  color: #444;
+  font-style: italic;
+}
+
+/* === BOTÕES DE EDIÇÃO === */
+#edit-controls {
+  position: fixed;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  gap: 0.4rem;
+  z-index: 999;
+  font-family: system-ui, sans-serif;
+  font-size: 0.8rem;
+}
+#edit-controls button {
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.35rem 0.65rem;
+  cursor: pointer;
+  line-height: 1.2;
+}
+#edit-controls button:hover { background: #555; }
+#edit-controls #restore-btn { background: #800; display: none; }
+#edit-controls #restore-btn:hover { background: #b00; }
+body.editing #restore-btn { display: inline-block; }
+
+/* === ELEMENTOS EDITÁVEIS === */
+body.editing .editable {
+  outline: 2px dashed #0044cc;
+  outline-offset: 2px;
+  border-radius: 2px;
+  cursor: text;
+  display: inline;
+  min-width: 2ch;
+}
+body.editing .editable:focus { background: #eef4ff; outline-style: solid; }
+
+/* === ANÚNCIO ACESSÍVEL === */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* === MODO ESCURO === */
+@media (prefers-color-scheme: dark) {
+  body { color: #e8e8e8; background: #111; }
+  h2 { border-bottom-color: #444; }
+  header { border-bottom-color: #555; }
+  th { background: #222; }
+  th, td { border-color: #666; }
+  pre { background: #1a1a1a; border-color: #444; }
+  nav a { color: #6ea8fe; }
+  aside.callout { background: #0d1f44; border-left-color: #6ea8fe; }
+  aside.callout.aviso { background: #2a1200; border-left-color: #fb923c; }
+  .quiz fieldset { border-color: #666; }
+  #edit-controls button { background: #555; }
+  #edit-controls button:hover { background: #777; }
+  #edit-controls #restore-btn { background: #922; }
+  .quiz-feedback.correct { color: #4ade80; }
+  .quiz-feedback.wrong   { color: #f87171; }
+  .quiz-explanation { color: #aaa; }
+}
+
+/* === RESPONSIVO === */
+@media (max-width: 520px) {
+  body { font-size: 1rem; padding: 1rem 0.75rem 3rem; }
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.2rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<a href="#conteudo" class="skip-link">Ir para o conteúdo</a>
+
+<div aria-live="polite" class="sr-only" id="edit-status"></div>
+
+<div id="edit-controls">
+  <button id="edit-toggle" aria-pressed="false">✏ Editar texto</button>
+  <button id="restore-btn">↩ Restaurar original</button>
+</div>
+
+<header>
+  <h1>Aula FlowRun — Programação com Fluxogramas</h1>
+  <p>Aula 01 — Programação Introdutória · IFRN — Ensino Médio Técnico</p>
+  <p>Professor: <a href="mailto:demetrios.coutinho@ifrn.edu.br">Demetrios Coutinho</a></p>
+  <p><small>Versão acessível para leitores de tela (NVDA, JAWS, TalkBack). 7 capítulos, 21 quizzes.</small></p>
+</header>
+
+<nav aria-label="Sumário">
+  <h2>Sumário</h2>
+  <ol>
+    <li><a href="#cap1">Capítulo 1 — Introdução: O que é programação?</a></li>
+    <li><a href="#cap2">Capítulo 2 — Saída de Dados: Olá, Mundo!</a></li>
+    <li><a href="#cap3">Capítulo 3 — Variáveis: Guardando informações</a></li>
+    <li><a href="#cap4">Capítulo 4 — Entrada de Dados: Conversando com o usuário</a></li>
+    <li><a href="#cap5">Capítulo 5 — Decisões: If e Else</a></li>
+    <li><a href="#cap6">Capítulo 6 — Repetição: While e For</a></li>
+    <li><a href="#cap7">Capítulo 7 — Pratique! Exercícios no FlowRun</a></li>
+  </ol>
+</nav>
+
+<main id="conteudo">
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- CAPÍTULO 1 — INTRODUÇÃO                                    -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section aria-labelledby="cap1">
+  <h2 id="cap1"><span class="editable" data-key="cap1-titulo">Capítulo 1 — Introdução: O que é programação?</span></h2>
+
+  <h3>O que é um programa de computador?</h3>
+  <p><span class="editable" data-key="cap1-analogia">Imagine que você quer pedir uma pizza. Você liga para a pizzaria e dá uma série de instruções: "Quero uma pizza grande, sabor calabresa, para entrega no endereço tal." O computador funciona da mesma forma — ele executa instruções, uma por uma, na ordem que você definiu.</span></p>
+
+  <aside class="callout">
+    <p><strong>Definição:</strong> <span class="editable" data-key="cap1-callout">Programar é escrever instruções que o computador vai executar na ordem certa para resolver um problema.</span></p>
+  </aside>
+
+  <h3>O FlowRun e os fluxogramas</h3>
+  <p><span class="editable" data-key="cap1-flowrun-intro">O FlowRun é uma ferramenta que permite criar programas usando fluxogramas — diagramas que mostram a sequência de ações de um programa. Cada bloco tem um formato diferente dependendo do que ele faz.</span></p>
+
+  <h3>Os 5 símbolos do FlowRun</h3>
+  <dl>
+    <dt>Oval (pílula)</dt>
+    <dd><span class="editable" data-key="cap1-simb-oval">Representa o Início e o Fim do programa. Todo fluxograma começa e termina com um oval.</span></dd>
+
+    <dt>Retângulo</dt>
+    <dd><span class="editable" data-key="cap1-simb-rect">Representa as operações Declare (criar uma variável) e Assign (atribuir um novo valor a uma variável).</span></dd>
+
+    <dt>Paralelogramo inclinado para a direita (Input)</dt>
+    <dd><span class="editable" data-key="cap1-simb-input">Representa a entrada de dados. O programa pausa e espera o usuário digitar um valor.</span></dd>
+
+    <dt>Paralelogramo inclinado para a esquerda (Output)</dt>
+    <dd><span class="editable" data-key="cap1-simb-output">Representa a saída de dados. O programa mostra um valor ou texto na tela.</span></dd>
+
+    <dt>Losango (diamante)</dt>
+    <dd><span class="editable" data-key="cap1-simb-diamond">Representa decisões (If, While, For). Tem uma condição que pode ser verdadeira ou falsa, abrindo dois caminhos diferentes.</span></dd>
+  </dl>
+
+  <h3>Quiz — Capítulo 1</h3>
+
+  <form class="quiz" data-quiz data-correct="2" id="cap1-q1">
+    <fieldset>
+      <legend>Pergunta 1 — Qual símbolo representa uma DECISÃO no fluxograma do FlowRun?</legend>
+      <label><input type="radio" name="cap1-q1" value="0"> Oval (pílula)</label>
+      <label><input type="radio" name="cap1-q1" value="1"> Retângulo</label>
+      <label><input type="radio" name="cap1-q1" value="2"> Losango (diamante)</label>
+      <label><input type="radio" name="cap1-q1" value="3"> Paralelogramo</label>
+      <button type="submit">Verificar resposta</button>
+      <p class="quiz-feedback" aria-live="polite" role="status"></p>
+      <p class="quiz-explanation" hidden>O losango (diamante) representa decisões como if, while e for — tem uma condição que pode ser verdadeira ou falsa.</p>
+    </fieldset>
+  </form>
+
+  <form class="quiz" data-quiz data-correct="3" id="cap1-q2">
+    <fieldset>
+      <legend>Pergunta 2 — Para mostrar um resultado na tela (Output), qual símbolo é usado?</legend>
+      <label><input type="radio" name="cap1-q2" value="0"> Oval</label>
+      <label><input type="radio" name="cap1-q2" value="1"> Retângulo</label>
+      <label><input type="radio" name="cap1-q2" value="2"> Paralelogramo inclinado para a direita (Input)</label>
+      <label><input type="radio" name="cap1-q2" value="3"> Paralelogramo inclinado para a esquerda (Output)</label>
+      <button type="submit">Verificar resposta</button>
+      <p class="quiz-feedback" aria-live="polite" role="status"></p>
+      <p class="quiz-explanation" hidden>O paralelogramo inclinado para a esquerda representa o bloco Output, que exibe valores na tela.</p>
+    </fieldset>
+  </form>
+
+  <form class="quiz" data-quiz data-correct="1" id="cap1-q3">
+    <fieldset>
+      <legend>Pergunta 3 — O que é um programa de computador?</legend>
+      <label><input type="radio" name="cap1-q3" value="0"> Um arquivo de texto qualquer</label>
+      <label><input type="radio" name="cap1-q3" value="1"> Uma lista de instruções que o computador executa na ordem</label>
+      <label><input type="radio" name="cap1-q3" value="2"> Um jogo eletrônico</label>
+      <label><input type="radio" name="cap1-q3" value="3"> Um sistema operacional</label>
+      <button type="submit">Verificar resposta</button>
+      <p class="quiz-feedback" aria-live="polite" role="status"></p>
+      <p class="quiz-explanation" hidden>Um programa é uma lista de instruções ordenadas que o computador executa passo a passo para resolver um problema.</p>
+    </fieldset>
+  </form>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- CAPÍTULO 2 — SAÍDA DE DADOS                                -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section aria-labelledby="cap2">
+  <h2 id="cap2"><span class="editable" data-key="cap2-titulo">Capítulo 2 — Saída de Dados: Olá, Mundo!</span></h2>
+
+  <h3>O bloco Output</h3>
+  <aside class="callout">
+    <p><strong>Definição:</strong> <span class="editable" data-key="cap2-callout">Output significa saída. É o bloco que mostra valores ou textos na tela do usuário.</span></p>
+  </aside>
+  <p><span class="editable" data-key="cap2-output-intro">Para usar o Output no FlowRun, coloque entre aspas duplas qualquer texto que queira exibir. Números não precisam de aspas.</span></p>
+
+  <h3>Textos precisam de aspas duplas</h3>
+  <p>Exemplos:</p>
+  <pre><code># Correto — texto com aspas duplas:
+Output: "Olá, Mundo!"
+
+# Correto — número sem aspas:
+Output: 42
+Output: 3.14
+
+# Errado — texto sem aspas (causa erro):
+Output: Olá, Mundo!</code></pre>
+
+  <h3>Fluxograma: Olá, Mundo!</h3>
+  <p>Passos do fluxograma para o programa "Olá, Mundo!":</p>
+  <ol class="flowchart">
+    <li>Início (oval).</li>
+    <li>Output: escrever na tela o texto <code>"Olá, Mundo!"</code> (paralelogramo de saída).</li>
+    <li>Fim (oval).</li>
+  </ol>
+
+  <h3>Como criar este programa no FlowRun</h3>
+  <ol>
+    <li>Acesse <a href="https://flowrun.io" target="_blank" rel="noopener">flowrun.io</a> e crie um novo projeto.</li>
+    <li>Clique na linha entre os blocos Begin e End para inserir um novo bloco.</li>
+    <li>Selecione o bloco <strong>Output</strong> no menu que aparece.</li>
+    <li>Clique no bloco Output e escreva <code>"Olá, Mundo!"</code> (com aspas duplas).</li>
+    <li>Clique em <strong>Run</strong> para executar o programa e ver o resultado.</li>
+  </ol>
+
+  <h3>Quiz — Capítulo 2</h3>
+
+  <form class="quiz" data-quiz data-correct="2" id="cap2-q1">
+    <fieldset>
+      <legend>Pergunta 1 — Qual bloco do FlowRun é usado para mostrar algo na tela?</legend>
+      <label><input type="radio" name="cap2-q1" value="0"> Input</label>
+      <label><input type="radio" name="cap2-q1" value="1"> Declare</label>
+      <label><input type="radio" name="cap2-q1" value="2"> Output</label>
+      <label><input type="radio" name="cap2-q1" value="3"> Begin</label>
+      <button type="submit">Verificar resposta</button>
+      <p class="quiz-feedback" aria-live="polite" role="status"></p>
+      <p class="quiz-explanation" hidden>O bloco Output exibe valores e textos na tela. É representado pelo paralelogramo inclinado para a esquerda.</p>
+    </fieldset>
+  </form>
+
+  <form class="quiz" data-quiz data-correct="2" id="cap2-q2">
+    <fieldset>
+      <legend>Pergunta 2 — Como deve ser escrito um texto no bloco Output do FlowRun?</legend>
+      <label><input type="radio" name="cap2-q2" value="0"> Sem aspas: Olá Mundo</label>
+      <label><input type="radio" name="cap2-q2" value="1"> Com aspas simples: 'Olá Mundo'</label>
+      <label><input type="radio" name="cap2-q2" value="2"> Com aspas duplas: "Olá Mundo"</label>
+      <label><input type="radio" name="cap2-q2" value="3"> Entre parênteses: (Olá Mundo)</label>
+      <button type="submit">Verificar resposta</button>
+      <p class="quiz-feedback" aria-live="polite" role="status"></p>
+      <p class="quiz-explanation" hidden>No FlowRun, textos (Strings) devem ser escritos entre aspas duplas. Sem aspas, o programa interpreta como um nome de variável.</p>
+    </fieldset>
+  </form>
+
+  <form class="quiz" data-quiz data-correct="2" id="cap2-q3">
+    <fieldset>
+      <legend>Pergunta 3 — Qual é a ordem correta de execução do fluxograma "Olá, Mundo!"?</legend>
+      <label><input type="radio" name="cap2-q3" value="0"> Output → Begin → End</label>
+      <label><input type="radio" name="cap2-q3" value="1"> Begin → End → Output</label>
+      <label><input type="radio" name="cap2-q3" value="2"> Begin → Output → End</label>
+      <label><input type="radio" name="cap2-q3" value="3"> Output → End → Begin</label>
+      <button type="submit">Verificar resposta</button>
+      <p class="quiz-feedback" aria-live="polite" role="status"></p>
+      <p class="quiz-explanation" hidden>Todo programa começa com Begin (Início), executa as instruções no meio e termina com End (Fim). O Output fica entre eles.</p>
+    </fieldset>
+  </form>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- CAPÍTULO 3 — VARIÁVEIS                                     -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section aria-labelledby="cap3">
+  <h2 id="cap3"><span class="editable" data-key="cap3-titulo">Capítulo 3 — Variáveis: Guardando informações</span></h2>
+
+  <h3>O que é uma variável?</h3>
+  <p><span class="editable" data-key="cap3-analogia">Pense em uma variável como uma caixinha com etiqueta. A etiqueta é o nome da variável e o conteúdo da caixa é o valor armazenado. Você pode ler o valor, substituí-lo por outro ou usá-lo em cálculos.</span></p>
+
+  <h3>Tipos de dados</h3>
+  <table>
+    <caption>Tipos de variáveis no FlowRun</caption>
+    <thead>
+      <tr>
+        <th scope="col">Tipo</th>
+        <th scope="col">Descrição</th>
+        <th scope="col">Exemplos</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Integer</td>
+        <td>Números inteiros (sem vírgula)</td>
+        <td>5, -23, 0, 100</td>
+      </tr>
+      <tr>
+        <td>Real</td>
+        <td>Números com casas decimais</td>
+        <td>3.14, 0.5, -2.7</td>
+      </tr>
+      <tr>
+        <td>String</td>
+        <td>Textos (entre aspas duplas)</td>
+        <td>"Olá", "João", "abc"</td>
+      </tr>
+      <tr>
+        <td>Boolean</td>
+        <td>Verdadeiro ou Falso</td>
+        <td>true, false</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Declare e Assign</h3>
+  <aside class="callout">
+    <p><strong>Regra:</strong> <span class="editable" data-key="cap3-callout">Declare cria a variável e define seu tipo. Assign muda o valor depois. O valor inicial vai após o sinal de igual.</span></p>
+  </aside>
+  <pre><code># Declare — cria a variável com valor inicial:
+qtd: Integer = 3
+preco: Real = 1.50
+
+# Assign — altera o valor de uma variável existente:
+qtd = 5
+
+# Usando variável em expressão:
+total: Real = qtd * preco</code></pre>
+
+  <h3>Fluxograma: cálculo de compra</h3>
+  <p>Este fluxograma calcula o total de uma compra (quantidade × preço):</p>
+  <ol class="flowchart">
+    <li>Início (oval).</li>
+    <li>Declare <code>qtd: Integer = 3</code> — quantidade de itens (retângulo).</li>
+    <li>Declare <code>preco: Real = 1.50</code> — preço de cada item (retângulo).</li>
+    <li>Declare <code>total: Real = qtd * preco</code> — calcula o total multiplicando quantidade por preço (retângulo).</li>
+    <li>Output: mostrar na tela o valor de <code>total</code> (paralelogramo de saída). Resultado: 4.50.</li>
+    <li>Fim (oval).</li>
+  </ol>
+
+  <h3>Cuidado com a divisão</h3>
+  <p><span class="editable" data-key="cap3-divisao">A divisão entre dois valores inteiros (Integer) descarta o resto e retorna apenas a parte inteira. Para obter o resultado com decimais, use valores do tipo Real.</span></p>
+  <pre><code># Divisão inteira (descarta o resto):
+5 / 2 = 2
+
+# Divisão real (mantém os decimais):
+5.0 / 2.0 = 2.5</code></pre>
+
+  <h3>Quiz — Capítulo 3</h3>
+
+  <form class="quiz" data-quiz data-correct="1" id="cap3-q1">
+    <fieldset>
+      <legend>Pergunta 1 — Qual é o tipo correto para guardar a nota de um aluno como 8.5?</legend>
+      <label><input type="radio" name="cap3-q1" value="0"> Integer</label>
+      <label><input type="radio" name="cap3-q1" value="1"> Real</label>
+      <label><input type="radio" name="cap3-q1" value="2"> String</label>
+      <label><input type="radio" name="cap3-q1" value="3"> Boolean</label>
+      <button type="submit">Verificar resposta</button>
+      <p class="quiz-feedback" aria-live="polite" role="status"></p>
+      <p class="quiz-explanation" hidden>O tipo Real armazena números com casas decimais. Como 8.5 tem vírgula, o tipo correto é Real.</p>
+    </fieldset>
+  </form>
+
+  <form class="quiz" data-quiz data-correct="1" id="cap3-q2">
+    <fieldset>
+      <legend>Pergunta 2 — No FlowRun, qual é o resultado de 7 / 2 com variáveis do tipo Integer?</legend>
+      <label><input type="radio" name="cap3-q2" value="0"> 3.5</label>
+      <label><input type="radio" name="cap3-q2" value="1"> 3</label>
+      <label><input type="radio" name="cap3-q2" value="2"> 4</label>
+      <label><input type="radio" name="cap3-q2" value="3"> Erro</label>
+      <button type="submit">Verificar resposta</button>
+      <p class="quiz-feedback" aria-live="polite" role="status"></p>
+      <p class="quiz-explanation" hidden>A divisão entre inteiros descarta o resto. 7 ÷ 2 = 3 com resto 1. O resultado é 3, e o resto é perdido.</p>
+    </fieldset>
+  </form>
+
+  <form class="quiz" data-quiz data-correct="2" id="cap3-q3">
+    <fieldset>
+      <legend>Pergunta 3 — Se temos qtd = 4 e preco = 2.50, qual é o valor de total = qtd * preco?</legend>
+      <label><input type="radio" name="cap3-q3" value="0"> 6.0</label>
+      <label><input type="radio" name="cap3-q3" value="1"> 8.0</label>
+      <label><input type="radio" name="cap3-q3" value="2"> 10.0</label>
+      <label><input type="radio" name="cap3-q3" value="3"> 2.0</label>
+      <button type="submit">Verificar resposta</button>
+      <p class="quiz-feedback" aria-live="polite" role="status"></p>
+      <p class="quiz-explanation" hidden>4 × 2.50 = 10.0. Multiplique a quantidade pelo preço: 4 grupos de 2.50 somam 10.0.</p>
+    </fieldset>
+  </form>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- CAPÍTULO 4 — ENTRADA DE DADOS                              -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section aria-labelledby="cap4">
+  <h2 id="cap4"><span class="editable" data-key="cap4-titulo">Capítulo 4 — Entrada de Dados: Conversando com o usuário</span></h2>
+
+  <h3>O bloco Input</h3>
+  <aside class="callout">
+    <p><strong>Definição:</strong> <span class="editable" data-key="cap4-callout">Input significa entrada de dados. O bloco Input pausa o programa e espera o usuário digitar um valor, que é então guardado em uma variável.</span></p>
+  </aside>
+
+  <h3>Comparando Input e Output</h3>
+  <dl>
+    <dt>Input (Entrada)</dt>
+    <dd><span class="editable" data-key="cap4-input-def">O usuário escreve algo que o programa captura e guarda em uma variável. O programa fica em pausa até o usuário confirmar a digitação.</span></dd>
+
+    <dt>Output (Saída)</dt>
+    <dd><span class="editable" data-key="cap4-output-def">O programa mostra um valor ou texto na tela para o usuário ler. O programa não aguarda resposta.</span></dd>
+  </dl>
+
+  <h3>Fluxograma: lendo e mostrando um valor</h3>
+  <p>Este fluxograma lê um número do usuário e o exibe de volta:</p>
+  <ol class="flowchart">
+    <li>Início (oval).</li>
+    <li>Declare <code>x: Integer</code> — cria a variável sem valor inicial (retângulo).</li>
+    <li>Input: ler o valor de <code>x</code> digitado pelo usuário (paralelogramo de entrada).</li>
+    <li>Output: mostrar na tela <code>"Você digitou: " + x</code> (paralelogramo de saída).</li>
+    <li>Fim (oval).</li>
+  </ol>
+
+  <h3>Concatenação: juntando textos com +</h3>
+  <p><span class="editable" data-key="cap4-concat-intro">O operador <code>+</code> junta (concatena) textos e variáveis numa única frase de saída.</span></p>
+  <pre><code># Se x = 9:
+Output: "Você digitou: " + x
+# Resultado: Você digitou: 9
+
+# Se nome = "Ana":
+Output: "Olá, " + nome + "!"
+# Resultado: Olá, Ana!</code></pre>
+
+  <h3>Quiz — Capítulo 4</h3>
+
+  <form class="quiz" data-quiz data-correct="2" id="cap4-q1">
+    <fieldset>
+      <legend>Pergunta 1 — Se o usuário digita 9 em "Input: x", e depois executamos "Output: x * 2", o que aparece na tela?</legend>
+      <label><input type="radio" name="cap4-q1" value="0"> 9</label>
+      <label><input type="radio" name="cap4-q1" value="1"> x * 2</label>
+      <label><input type="radio" name="cap4-q1" value="2"> 18</label>
+      <label><input type="radio" name="cap4-q1" value="3"> 2</label>
+      <button type="submit">Verificar resposta</button>
+      <p class="quiz-feedback" aria-live="polite" role="status"></p>
+      <p class="quiz-explanation" hidden>O Input guarda o valor 9 em x. A expressão x * 2 calcula 9 × 2 = 18, que é o que o Output exibe.</p>
+    </fieldset>
+  </form>
+
+  <form class="quiz" data-quiz data-correct="2" id="cap4-q2">
+    <fieldset>
+      <legend>Pergunta 2 — Qual é o resultado de "Olá, " + nome se o usuário digitou "Carlos"?</legend>
+      <label><input type="radio" name="cap4-q2" value="0"> Olá, nome</label>
+      <label><input type="radio" name="cap4-q2" value="1"> "Olá, Carlos"</label>
+      <label><input type="radio" name="cap4-q2" value="2"> Olá, Carlos</label>
+      <label><input type="radio" name="cap4-q2" value="3"> Erro — não pode juntar texto com variável</label>
+      <button type="submit">Verificar resposta</button>
+      <p class="quiz-feedback" aria-live="polite" role="status"></p>
+      <p class="quiz-explanation" hidden>O operador + concatena o texto "Olá, " com o valor de nome (Carlos), produzindo Olá, Carlos. O resultado não tem aspas pois é a saída do programa.</p>
+    </fieldset>
+  </form>
+
+  <form class="quiz" data-quiz data-correct="2" id="cap4-q3">
+    <fieldset>
+      <legend>Pergunta 3 — Para que serve o bloco Input no FlowRun?</legend>
+      <label><input type="radio" name="cap4-q3" value="0"> Para mostrar um valor na tela</label>
+      <label><input type="radio" name="cap4-q3" value="1"> Para fazer uma decisão</label>
+      <label><input type="radio" name="cap4-q3" value="2"> Para receber um valor digitado pelo usuário e guardar em uma variável</label>
+      <label><input type="radio" name="cap4-q3" value="3"> Para terminar o programa</label>
+      <button type="submit">Verificar resposta</button>
+      <p class="quiz-feedback" aria-live="polite" role="status"></p>
+      <p class="quiz-explanation" hidden>O bloco Input pausa o programa e aguarda a digitação do usuário. O valor digitado é armazenado na variável indicada.</p>
+    </fieldset>
+  </form>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- CAPÍTULO 5 — DECISÕES                                      -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section aria-labelledby="cap5">
+  <h2 id="cap5"><span class="editable" data-key="cap5-titulo">Capítulo 5 — Decisões: If e Else — caminhos diferentes</span></h2>
+
+  <h3>O bloco If</h3>
+  <p><span class="editable" data-key="cap5-analogia">Pense assim: SE está chovendo, ENTÃO pego o guarda-chuva. O bloco If funciona da mesma forma — avalia uma condição e escolhe um caminho dependendo se ela é verdadeira ou falsa.</span></p>
+
+  <h3>Fluxograma: positivo ou negativo</h3>
+  <p>Este fluxograma lê um número e informa se ele é positivo ou negativo:</p>
+  <ol class="flowchart">
+    <li>Início (oval).</li>
+    <li>Declare <code>x: Integer</code> (retângulo).</li>
+    <li>Input: ler <code>x</code> do teclado (paralelogramo de entrada).</li>
+    <li>Decisão (losango): a condição é <code>x &gt; 0</code>?
+      <ul>
+        <li>Se <strong>sim</strong> (verdadeiro): Output <code>"Positivo"</code>.</li>
+        <li>Se <strong>não</strong> (falso): Output <code>"Negativo"</code>.</li>
+      </ul>
+    </li>
+    <li>Os dois caminhos se unem e o programa continua.</li>
+    <li>Fim (oval).</li>
+  </ol>
+
+  <h3>Operadores de comparação</h3>
+  <table>
+    <caption>Operadores de comparação no FlowRun</caption>
+    <thead>
+      <tr>
+        <th scope="col">Operador</th>
+        <th scope="col">Significado</th>
+        <th scope="col">Exemplo</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>&gt;</td><td>Maior que</td><td>x &gt; 0</td></tr>
+      <tr><td>&lt;</td><td>Menor que</td><td>x &lt; 0</td></tr>
+      <tr><td>&gt;=</td><td>Maior ou igual a</td><td>x &gt;= 5</td></tr>
+      <tr><td>&lt;=</td><td>Menor ou igual a</td><td>x &lt;= 10</td></tr>
+      <tr><td>==</td><td>Igual a</td><td>x == 7</td></tr>
+      <tr><td>!=</td><td>Diferente de</td><td>x != 0</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Operadores lógicos</h3>
+  <table>
+    <caption>Operadores lógicos no FlowRun</caption>
+    <thead>
+      <tr>
+        <th scope="col">Operador</th>
+        <th scope="col">Nome</th>
+        <th scope="col">Descrição</th>
+        <th scope="col">Exemplo</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>&amp;&amp;</td>
+        <td>E (AND)</td>
+        <td>Verdadeiro só se AMBAS as condições forem verdadeiras</td>
+        <td>x &gt; 0 &amp;&amp; y &gt; 0</td>
+      </tr>
+      <tr>
+        <td>||</td>
+        <td>OU (OR)</td>
+        <td>Verdadeiro se PELO MENOS UMA for verdadeira</td>
+        <td>x &gt; 0 || y &gt; 0</td>
+      </tr>
+      <tr>
+        <td>!</td>
+        <td>NÃO (NOT)</td>
+        <td>Inverte o valor booleano (true vira false e vice-versa)</td>
+        <td>!(x &gt; 0)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Quiz — Capítulo 5</h3>
+
+  <form class="quiz" data-quiz data-correct="1" id="cap5-q1">
+    <fieldset>
+      <legend>Pergunta 1 — Se o usuário digita x = -5, qual mensagem o fluxograma do If vai mostrar?</legend>
+      <label><input type="radio" name="cap5-q1" value="0"> "Positivo"</label>
+      <label><input type="radio" name="cap5-q1" value="1"> "Negativo"</label>
+      <label><input type="radio" name="cap5-q1" value="2"> Nenhuma das duas</label>
+      <label><input type="radio" name="cap5-q1" value="3"> Mostra as duas</label>
+      <button type="submit">Verificar resposta</button>
+      <p class="quiz-feedback" aria-live="polite" role="status"></p>
+      <p class="quiz-explanation" hidden>-5 não é maior que 0, então a condição x &gt; 0 é falsa. O programa segue o caminho do "não" e exibe "Negativo".</p>
+    </fieldset>
+  </form>
+
+  <form class="quiz" data-quiz data-correct="1" id="cap5-q2">
+    <fieldset>
+      <legend>Pergunta 2 — Para x = 8, qual é o resultado da condição: x &gt; 5 &amp;&amp; x &lt; 10?</legend>
+      <label><input type="radio" name="cap5-q2" value="0"> false (falso)</label>
+      <label><input type="radio" name="cap5-q2" value="1"> true (verdadeiro)</label>
+      <label><input type="radio" name="cap5-q2" value="2"> Erro</label>
+      <label><input type="radio" name="cap5-q2" value="3"> Depende do sistema</label>
+      <button type="submit">Verificar resposta</button>
+      <p class="quiz-feedback" aria-live="polite" role="status"></p>
+      <p class="quiz-explanation" hidden>8 &gt; 5 é verdadeiro E 8 &lt; 10 também é verdadeiro. Com o operador &amp;&amp; (E), ambas precisam ser verdadeiras — e são. Resultado: true.</p>
+    </fieldset>
+  </form>
+
+  <form class="quiz" data-quiz data-correct="1" id="cap5-q3">
+    <fieldset>
+      <legend>Pergunta 3 — O que o operador ! (NOT) faz?</legend>
+      <label><input type="radio" name="cap5-q3" value="0"> Soma dois números</label>
+      <label><input type="radio" name="cap5-q3" value="1"> Inverte um valor booleano (true vira false e vice-versa)</label>
+      <label><input type="radio" name="cap5-q3" value="2"> Compara dois valores</label>
+      <label><input type="radio" name="cap5-q3" value="3"> Declara uma variável</label>
+      <button type="submit">Verificar resposta</button>
+      <p class="quiz-feedback" aria-live="polite" role="status"></p>
+      <p class="quiz-explanation" hidden>O operador ! (NOT) inverte o valor booleano. !(true) vira false, e !(false) vira true.</p>
+    </fieldset>
+  </form>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- CAPÍTULO 6 — REPETIÇÃO                                     -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section aria-labelledby="cap6">
+  <h2 id="cap6"><span class="editable" data-key="cap6-titulo">Capítulo 6 — Repetição: While e For — laços de repetição</span></h2>
+
+  <h3>Por que usar laços?</h3>
+  <aside class="callout">
+    <p><strong>Conceito:</strong> <span class="editable" data-key="cap6-callout">Um laço executa um bloco de instruções várias vezes enquanto uma condição for verdadeira. Em vez de escrever o mesmo código 10 vezes, você escreve uma vez dentro do laço.</span></p>
+  </aside>
+
+  <h3>Fluxograma: While contando de 1 a 5</h3>
+  <p>Este fluxograma usa o laço While para mostrar os números de 1 a 5:</p>
+  <ol class="flowchart">
+    <li>Início (oval).</li>
+    <li>Declare <code>x: Integer = 1</code> — inicializa o contador (retângulo).</li>
+    <li>Decisão (losango): a condição é <code>x &lt;= 5</code>?
+      <ul>
+        <li>Se <strong>não</strong>: ir para o Fim.</li>
+        <li>Se <strong>sim</strong>:
+          <ol>
+            <li>Output: mostrar o valor de <code>x</code>.</li>
+            <li>Assign: <code>x = x + 1</code> — incrementa o contador.</li>
+            <li>Voltar ao passo 3 (re-avaliar a condição).</li>
+          </ol>
+        </li>
+      </ul>
+    </li>
+    <li>Fim (oval).</li>
+  </ol>
+  <p>Saída do programa: 1, 2, 3, 4, 5.</p>
+
+  <h3>Traço de execução do While</h3>
+  <pre><code>x = 1  → condição: 1 &lt;= 5? sim → mostra 1 → x = 2
+x = 2  → condição: 2 &lt;= 5? sim → mostra 2 → x = 3
+x = 3  → condição: 3 &lt;= 5? sim → mostra 3 → x = 4
+x = 4  → condição: 4 &lt;= 5? sim → mostra 4 → x = 5
+x = 5  → condição: 5 &lt;= 5? sim → mostra 5 → x = 6
+x = 6  → condição: 6 &lt;= 5? não → para!</code></pre>
+
+  <h3>O laço For</h3>
+  <p><span class="editable" data-key="cap6-for-intro">O laço For tem um contador embutido — você define o valor inicial, o valor final e o passo (incremento). Ele é mais compacto quando o número de repetições é conhecido.</span></p>
+  <p>Fluxograma For para mostrar os números de 1 a 5:</p>
+  <ol class="flowchart">
+    <li>Início (oval).</li>
+    <li>Laço For: <code>i</code> começa em 1, vai até 5, incrementa 1 a cada passo (losango especial de For).
+      <ul>
+        <li>Enquanto houver próximo valor de <code>i</code>: Output mostrar <code>i</code>; depois voltar ao início do For.</li>
+        <li>Quando <code>i</code> ultrapassar 5: ir para o Fim.</li>
+      </ul>
+    </li>
+    <li>Fim (oval).</li>
+  </ol>
+
+  <h3>Quando usar While e quando usar For</h3>
+  <dl>
+    <dt>While</dt>
+    <dd><span class="editable" data-key="cap6-when-while">Use quando não sabe exatamente quantas repetições vão ocorrer. Exemplo: repetir até o usuário digitar um número válido.</span></dd>
+
+    <dt>For</dt>
+    <dd><span class="editable" data-key="cap6-when-for">Use quando sabe exatamente o número de repetições. Exemplo: percorrer 10 itens de uma lista ou imprimir uma tabuada.</span></dd>
+  </dl>
+
+  <h3>Alerta: loop infinito</h3>
+  <aside class="callout aviso">
+    <p><strong>Cuidado:</strong> <span class="editable" data-key="cap6-loop-infinito">Se você esquecer de atualizar a variável do contador (como o <code>x = x + 1</code>), a condição nunca se tornará falsa e o programa vai repetir para sempre, travando. Sempre verifique se seu laço tem uma condição de saída!</span></p>
+  </aside>
+
+  <h3>Quiz — Capítulo 6</h3>
+
+  <form class="quiz" data-quiz data-correct="1" id="cap6-q1">
+    <fieldset>
+      <legend>Pergunta 1 — No fluxograma While com x = 1 e condição x &lt;= 5, quantas vezes o Output é executado?</legend>
+      <label><input type="radio" name="cap6-q1" value="0"> 4 vezes</label>
+      <label><input type="radio" name="cap6-q1" value="1"> 5 vezes</label>
+      <label><input type="radio" name="cap6-q1" value="2"> 6 vezes</label>
+      <label><input type="radio" name="cap6-q1" value="3"> Infinitas vezes</label>
+      <button type="submit">Verificar resposta</button>
+      <p class="quiz-feedback" aria-live="polite" role="status"></p>
+      <p class="quiz-explanation" hidden>O Output executa para x = 1, 2, 3, 4 e 5 — cinco vezes. Quando x chega a 6, a condição 6 &lt;= 5 é falsa e o laço para.</p>
+    </fieldset>
+  </form>
+
+  <form class="quiz" data-quiz data-correct="2" id="cap6-q2">
+    <fieldset>
+      <legend>Pergunta 2 — Qual a PRINCIPAL diferença entre While e For?</legend>
+      <label><input type="radio" name="cap6-q2" value="0"> While é mais rápido</label>
+      <label><input type="radio" name="cap6-q2" value="1"> For é para repetir mais vezes</label>
+      <label><input type="radio" name="cap6-q2" value="2"> For tem um contador embutido; While precisa gerenciar o contador manualmente</label>
+      <label><input type="radio" name="cap6-q2" value="3"> Não há diferença entre eles</label>
+      <button type="submit">Verificar resposta</button>
+      <p class="quiz-feedback" aria-live="polite" role="status"></p>
+      <p class="quiz-explanation" hidden>No For, o contador (início, fim e incremento) é configurado num único lugar. No While, você mesmo precisa declarar, incrementar e verificar a variável contadora.</p>
+    </fieldset>
+  </form>
+
+  <form class="quiz" data-quiz data-correct="2" id="cap6-q3">
+    <fieldset>
+      <legend>Pergunta 3 — O que acontece se a condição do While NUNCA se tornar falsa?</legend>
+      <label><input type="radio" name="cap6-q3" value="0"> O programa termina normalmente</label>
+      <label><input type="radio" name="cap6-q3" value="1"> O programa dá um erro e para</label>
+      <label><input type="radio" name="cap6-q3" value="2"> O programa entra em loop infinito e trava</label>
+      <label><input type="radio" name="cap6-q3" value="3"> O programa pula o While</label>
+      <button type="submit">Verificar resposta</button>
+      <p class="quiz-feedback" aria-live="polite" role="status"></p>
+      <p class="quiz-explanation" hidden>Se a condição nunca vira falsa, o laço repete indefinidamente — o programa trava. Isso é chamado de loop infinito e é um erro comum de iniciantes.</p>
+    </fieldset>
+  </form>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- CAPÍTULO 7 — PRATIQUE!                                     -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section aria-labelledby="cap7">
+  <h2 id="cap7"><span class="editable" data-key="cap7-titulo">Capítulo 7 — Pratique! Exercícios no FlowRun</span></h2>
+
+  <h3>Acesse o FlowRun</h3>
+  <p><a href="https://flowrun.io" target="_blank" rel="noopener" aria-label="Abrir FlowRun para praticar (abre em nova aba)">Abrir FlowRun para praticar →</a></p>
+
+  <aside class="callout">
+    <p><strong>Dica de ouro:</strong> <span class="editable" data-key="cap7-dica">Quando travar num exercício: desenhe o fluxograma no papel antes de montar no FlowRun! Pense nos passos um a um: o que entra? O que decide? O que sai?</span></p>
+  </aside>
+
+  <h3>Exercícios — Nível Básico</h3>
+  <ol>
+    <li>
+      <strong>Olá, Fulano!</strong> — Peça o nome do usuário com Input e cumprimente-o: "Olá, [nome]!"
+      <br><small>Blocos: Output, Input, String</small>
+    </li>
+    <li>
+      <strong>Dobro de um número</strong> — Peça um número inteiro e mostre o dobro.
+      <br><small>Blocos: Input, Output, Integer</small>
+    </li>
+    <li>
+      <strong>Positivo ou Negativo</strong> — Se o número for maior que zero, mostre "Positivo". Se não, mostre "Negativo ou Zero".
+      <br><small>Blocos: If, Input, Output</small>
+    </li>
+    <li>
+      <strong>Contador regressivo</strong> — Use um While para contar de 10 até 1 e mostrar "Fim!" ao terminar.
+      <br><small>Blocos: While, Assign, Output</small>
+    </li>
+  </ol>
+
+  <h3>Exercícios — Nível Intermediário</h3>
+  <ol start="5">
+    <li>
+      <strong>Apenas números positivos</strong> — Use Do While para repetir a leitura até o usuário digitar um número positivo.
+      <br><small>Blocos: Do While, Input</small>
+    </li>
+    <li>
+      <strong>Tabuada</strong> — Peça um número N e imprima N×1, N×2, …, N×10.
+      <br><small>Blocos: For, Input, Output</small>
+    </li>
+    <li>
+      <strong>Soma de N números</strong> — Peça N, depois leia N números e mostre a soma total.
+      <br><small>Blocos: For, Input, Assign</small>
+    </li>
+    <li>
+      <strong>Maior e menor</strong> — Peça 5 números e descubra o maior e o menor entre eles.
+      <br><small>Blocos: While, If, Assign</small>
+    </li>
+  </ol>
+
+  <h3>Quiz — Capítulo 7</h3>
+
+  <form class="quiz" data-quiz data-correct="1" id="cap7-q1">
+    <fieldset>
+      <legend>Pergunta 1 — Para o exercício "Tabuada", qual bloco de repetição é mais adequado?</legend>
+      <label><input type="radio" name="cap7-q1" value="0"> While — porque não sabemos quantas vezes</label>
+      <label><input type="radio" name="cap7-q1" value="1"> For — porque sabemos que são exatamente 10 repetições</label>
+      <label><input type="radio" name="cap7-q1" value="2"> If — porque há uma condição</label>
+      <label><input type="radio" name="cap7-q1" value="3"> Output — para mostrar resultados</label>
+      <button type="submit">Verificar resposta</button>
+      <p class="quiz-feedback" aria-live="polite" role="status"></p>
+      <p class="quiz-explanation" hidden>A tabuada tem exatamente 10 multiplicações (N×1 até N×10). O For é ideal quando o número de repetições é conhecido de antemão.</p>
+    </fieldset>
+  </form>
+
+  <form class="quiz" data-quiz data-correct="2" id="cap7-q2">
+    <fieldset>
+      <legend>Pergunta 2 — Para "Apenas números positivos" (repetir a leitura até digitar positivo), qual laço é mais adequado?</legend>
+      <label><input type="radio" name="cap7-q2" value="0"> For com i = 1 até 10</label>
+      <label><input type="radio" name="cap7-q2" value="1"> While verificando antes</label>
+      <label><input type="radio" name="cap7-q2" value="2"> Do While — executa pelo menos uma vez antes de verificar</label>
+      <label><input type="radio" name="cap7-q2" value="3"> If simples</label>
+      <button type="submit">Verificar resposta</button>
+      <p class="quiz-feedback" aria-live="polite" role="status"></p>
+      <p class="quiz-explanation" hidden>O Do While executa o corpo do laço pelo menos uma vez antes de verificar a condição — perfeito para "peça até ser válido", pois sempre precisamos ler pelo menos uma vez.</p>
+    </fieldset>
+  </form>
+
+  <form class="quiz" data-quiz data-correct="1" id="cap7-q3">
+    <fieldset>
+      <legend>Pergunta 3 — Ao construir um fluxograma, qual é uma boa estratégia para começar?</legend>
+      <label><input type="radio" name="cap7-q3" value="0"> Abrir o FlowRun e testar blocos aleatórios</label>
+      <label><input type="radio" name="cap7-q3" value="1"> Desenhar no papel primeiro, pensando nos passos um a um</label>
+      <label><input type="radio" name="cap7-q3" value="2"> Copiar o fluxograma de outra pessoa</label>
+      <label><input type="radio" name="cap7-q3" value="3"> Só usar Output para testar</label>
+      <button type="submit">Verificar resposta</button>
+      <p class="quiz-feedback" aria-live="polite" role="status"></p>
+      <p class="quiz-explanation" hidden>Desenhar no papel antes ajuda a organizar o raciocínio: o que entra, o que decide e o que sai. Só depois leve para o FlowRun.</p>
+    </fieldset>
+  </form>
+</section>
+
+</main>
+
+<footer>
+  <p><a href="index.html">← Voltar ao índice de aulas</a></p>
+  <p>Material didático · IFRN — Ensino Médio Técnico · Programação Introdutória com FlowRun.</p>
+</footer>
+
+<script>
+(function () {
+  /* === EDIT MODE === */
+  const PREFIX = 'flowrun-acc:text:';
+  const toggle = document.getElementById('edit-toggle');
+  const restoreBtn = document.getElementById('restore-btn');
+  const status = document.getElementById('edit-status');
+  const editables = document.querySelectorAll('.editable[data-key]');
+  let editing = false;
+
+  function loadSaved() {
+    editables.forEach(el => {
+      const saved = localStorage.getItem(PREFIX + el.dataset.key);
+      if (saved !== null) el.innerHTML = saved;
+    });
+  }
+
+  function setEditing(on) {
+    editing = on;
+    document.body.classList.toggle('editing', on);
+    toggle.setAttribute('aria-pressed', on ? 'true' : 'false');
+    toggle.textContent = on ? '✏ Sair da edição' : '✏ Editar texto';
+    status.textContent = on ? 'Modo de edição ativado.' : 'Modo de edição desativado.';
+    editables.forEach(el => {
+      if (on) {
+        el.contentEditable = 'true';
+        el.setAttribute('role', 'textbox');
+        el.setAttribute('aria-multiline', 'true');
+        el.setAttribute('aria-label', 'Editar: ' + (el.dataset.key || ''));
+      } else {
+        el.removeAttribute('contentEditable');
+        el.removeAttribute('role');
+        el.removeAttribute('aria-multiline');
+        el.removeAttribute('aria-label');
+      }
+    });
+  }
+
+  toggle.addEventListener('click', () => setEditing(!editing));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'e' || e.key === 'E') {
+      const active = document.activeElement;
+      const isTextField = active && (
+        active.isContentEditable ||
+        active.tagName === 'INPUT' ||
+        active.tagName === 'TEXTAREA'
+      );
+      if (!isTextField) { e.preventDefault(); setEditing(!editing); }
+    }
+  });
+
+  editables.forEach(el => {
+    el.addEventListener('input', () => {
+      localStorage.setItem(PREFIX + el.dataset.key, el.innerHTML);
+    });
+  });
+
+  restoreBtn.addEventListener('click', () => {
+    if (!confirm('Restaurar todo o texto original? As edições salvas serão perdidas.')) return;
+    Object.keys(localStorage)
+      .filter(k => k.startsWith(PREFIX))
+      .forEach(k => localStorage.removeItem(k));
+    location.reload();
+  });
+
+  loadSaved();
+
+  /* === QUIZ HANDLER === */
+  document.addEventListener('submit', e => {
+    if (!e.target.matches('[data-quiz]')) return;
+    e.preventDefault();
+
+    const form = e.target;
+    const correct = parseInt(form.dataset.correct, 10);
+    const checked = form.querySelector('input[type="radio"]:checked');
+    const feedback = form.querySelector('.quiz-feedback');
+    const explanation = form.querySelector('.quiz-explanation');
+    const radios = form.querySelectorAll('input[type="radio"]');
+
+    if (!checked) {
+      feedback.textContent = 'Selecione uma opção antes de verificar.';
+      feedback.className = 'quiz-feedback';
+      return;
+    }
+
+    const selected = parseInt(checked.value, 10);
+    const correctLabel = radios[correct]
+      ? radios[correct].parentElement.textContent.trim()
+      : '';
+
+    if (selected === correct) {
+      feedback.textContent = 'Correto!';
+      feedback.className = 'quiz-feedback correct';
+    } else {
+      feedback.textContent = 'Incorreto. Resposta correta: ' + correctLabel;
+      feedback.className = 'quiz-feedback wrong';
+    }
+
+    if (explanation) explanation.hidden = false;
+
+    radios.forEach(r => { r.disabled = true; });
+    form.querySelector('button[type="submit"]').disabled = true;
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 02 — Introdução à Programação (versão acessível)</title>
+<style>
+/* === RESET === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* === TIPOGRAFIA E LAYOUT === */
+body {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.125rem;
+  line-height: 1.7;
+  color: #111;
+  background: #fff;
+  max-width: 72ch;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 4rem;
+}
+
+h1 { font-size: 1.9rem; margin-bottom: 0.25rem; }
+h2 { font-size: 1.45rem; margin-top: 2.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid #ccc; padding-bottom: 0.25rem; }
+h3 { font-size: 1.15rem; margin-top: 1.25rem; margin-bottom: 0.25rem; }
+p  { margin-top: 0.75rem; }
+ul, ol { margin-top: 0.5rem; padding-left: 1.75rem; }
+li { margin-top: 0.35rem; }
+
+/* === SKIP LINK === */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0.5rem;
+  background: #0044cc;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  border-radius: 4px;
+  font-family: system-ui, sans-serif;
+  font-size: 0.9rem;
+}
+.skip-link:focus { left: 0.5rem; }
+
+/* === CABEÇALHO === */
+header { padding-bottom: 1rem; border-bottom: 2px solid #333; margin-bottom: 1.5rem; }
+header p { font-size: 0.95rem; color: #444; margin-top: 0.25rem; }
+
+/* === NAV SUMÁRIO === */
+nav[aria-label="Sumário"] { margin-bottom: 2rem; }
+nav[aria-label="Sumário"] h2 { margin-top: 0; }
+nav a { color: #0044cc; text-decoration: underline; }
+nav a:hover { text-decoration: none; }
+
+/* === SEÇÕES === */
+section { margin-top: 0.5rem; }
+section + section { margin-top: 0; }
+
+/* === CÓDIGO === */
+pre {
+  background: #f4f4f4;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 1rem;
+  overflow-x: auto;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-top: 0.75rem;
+}
+code { font-family: 'Courier New', Courier, monospace; }
+
+/* === TABELAS === */
+table { border-collapse: collapse; margin-top: 0.75rem; width: 100%; }
+th, td { border: 1px solid #555; padding: 0.45rem 0.75rem; text-align: left; }
+th { background: #eee; }
+caption { font-weight: bold; margin-bottom: 0.4rem; text-align: left; }
+
+/* === FOCO === */
+:focus-visible { outline: 3px solid #0044cc; outline-offset: 2px; }
+
+/* === BOTÕES DE EDIÇÃO === */
+#edit-controls {
+  position: fixed;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  gap: 0.4rem;
+  z-index: 999;
+  font-family: system-ui, sans-serif;
+  font-size: 0.8rem;
+}
+#edit-controls button {
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.35rem 0.65rem;
+  cursor: pointer;
+  line-height: 1.2;
+}
+#edit-controls button:hover { background: #555; }
+#edit-controls #restore-btn { background: #800; display: none; }
+#edit-controls #restore-btn:hover { background: #b00; }
+body.editing #restore-btn { display: inline-block; }
+
+/* === ELEMENTOS EDITÁVEIS === */
+body.editing .editable {
+  outline: 2px dashed #0044cc;
+  outline-offset: 2px;
+  border-radius: 2px;
+  cursor: text;
+  display: inline;
+  min-width: 2ch;
+}
+body.editing .editable:focus { background: #eef4ff; outline-style: solid; }
+
+/* === ANÚNCIO ACESSÍVEL === */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* === MODO ESCURO === */
+@media (prefers-color-scheme: dark) {
+  body { color: #e8e8e8; background: #111; }
+  h2 { border-bottom-color: #444; }
+  header { border-bottom-color: #555; }
+  th { background: #222; }
+  th, td { border-color: #666; }
+  pre { background: #1a1a1a; border-color: #444; }
+  nav a { color: #6ea8fe; }
+  #edit-controls button { background: #555; }
+  #edit-controls button:hover { background: #777; }
+  #edit-controls #restore-btn { background: #922; }
+}
+
+/* === RESPONSIVO === */
+@media (max-width: 520px) {
+  body { font-size: 1rem; padding: 1rem 0.75rem 3rem; }
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.2rem; }
+}
+</style>
+</head>
+<body>
+
+<a href="#conteudo" class="skip-link">Ir para o conteúdo</a>
+
+<div aria-live="polite" class="sr-only" id="edit-status"></div>
+
+<div id="edit-controls">
+  <button id="edit-toggle" aria-pressed="false">✏ Editar texto</button>
+  <button id="restore-btn">↩ Restaurar original</button>
+</div>
+
+<header>
+  <h1>Introdução à Programação</h1>
+  <p>Aula 02 — Lógica e Algoritmos · IFRN — Ensino Médio Técnico</p>
+  <p>Professor: <a href="mailto:demetrios.coutinho@ifrn.edu.br">Demetrios Coutinho</a></p>
+</header>
+
+<nav aria-label="Sumário">
+  <h2>Sumário</h2>
+  <p><small>Nota: o sumário permanece fixo; editar os títulos das seções abaixo não o atualiza.</small></p>
+  <ol>
+    <li><a href="#objetivos">Objetivos da aula</a></li>
+    <li><a href="#o-que-e-algoritmo">O que é um algoritmo</a></li>
+    <li><a href="#problema">O que é um problema</a></li>
+    <li><a href="#exemplo-vestir">Exemplo: vestir-se</a></li>
+    <li><a href="#partes">Partes de um algoritmo</a></li>
+    <li><a href="#caracteristicas">Cinco características de um algoritmo</a></li>
+    <li><a href="#formas-representacao">Formas de representação</a></li>
+    <li><a href="#linguagem-maquina">Linguagem de máquina</a></li>
+    <li><a href="#linguagens-programacao">Linguagens de programação</a></li>
+    <li><a href="#linguagem-natural">Linguagem natural</a></li>
+    <li><a href="#lobo-bode">Exemplo: lobo, bode e alfafa</a></li>
+    <li><a href="#fluxograma-def">Fluxograma — definição</a></li>
+    <li><a href="#simbolos-fluxograma">Símbolos do fluxograma</a></li>
+    <li><a href="#problema-media">Problema: média do aluno</a></li>
+    <li><a href="#fluxograma-media-simples">Fluxograma da média (simples)</a></li>
+    <li><a href="#fluxograma-media-aprovacao">Fluxograma da média com aprovação</a></li>
+    <li><a href="#nove-bolas">Problema das 9 bolas</a></li>
+    <li><a href="#pseudocodigo">Pseudocódigo (Portugol)</a></li>
+    <li><a href="#codigo-portugol">Código em Portugol — cálculo da média</a></li>
+    <li><a href="#exercicios">Exercícios propostos</a></li>
+    <li><a href="#hanoi">Exercício: Torre de Hanói</a></li>
+  </ol>
+</nav>
+
+<main id="conteudo">
+  <section aria-labelledby="objetivos">
+    <h2 id="objetivos"><span class="editable" data-key="s1-titulo">Objetivos da aula</span></h2>
+    <ul>
+      <li><span class="editable" data-key="s1-obj1">Conhecer o conceito de algoritmos e suas formas de representação.</span></li>
+      <li><span class="editable" data-key="s1-obj2">Aprender a resolver problemas de forma estruturada e lógica.</span></li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="o-que-e-algoritmo">
+    <h2 id="o-que-e-algoritmo"><span class="editable" data-key="s2-titulo">O que é um algoritmo</span></h2>
+    <p><span class="editable" data-key="s2-def-informal">De forma informal, um algoritmo é um conjunto de passos — comandos ou instruções — para resolver um problema. Esses passos devem ser claros, precisos e sem ambiguidade: cada instrução deve ter exatamente um significado.</span></p>
+    <p><span class="editable" data-key="s2-def-formal">Definição formal: um algoritmo é uma <strong>sequência finita de instruções</strong> que resolve um problema específico.</span></p>
+  </section>
+
+  <section aria-labelledby="problema">
+    <h2 id="problema"><span class="editable" data-key="s3-titulo">O que é um problema</span></h2>
+    <p><span class="editable" data-key="s3-p1">Na programação, um "problema" é qualquer situação que exige uma solução: um cálculo matemático, uma dúvida que precisamos responder, ou algo que é difícil de explicar sem um passo a passo.</span></p>
+    <p><span class="editable" data-key="s3-p2">Para cada problema pode haver várias soluções possíveis. O desafio é encontrar uma que seja correta, clara e eficiente.</span></p>
+  </section>
+
+  <section aria-labelledby="exemplo-vestir">
+    <h2 id="exemplo-vestir"><span class="editable" data-key="s4-titulo">Exemplo: vestir-se</span></h2>
+    <p><span class="editable" data-key="s4-intro">Considere o problema de se vestir pela manhã. Um algoritmo possível é:</span></p>
+    <ol>
+      <li><span class="editable" data-key="s4-p1">Colocar a calça.</span></li>
+      <li><span class="editable" data-key="s4-p2">Colocar as meias.</span></li>
+      <li><span class="editable" data-key="s4-p3">Colocar os sapatos.</span></li>
+      <li><span class="editable" data-key="s4-p4">Colocar a camisa.</span></li>
+    </ol>
+    <p><span class="editable" data-key="s4-obs">Observação: a ordem importa. Inverter os passos 1 e 4 (colocar a camisa antes da calça) seria possível, mas inverter meias e sapatos não faria sentido. Isso ilustra que um algoritmo deve respeitar dependências entre as instruções.</span></p>
+  </section>
+
+  <section aria-labelledby="partes">
+    <h2 id="partes"><span class="editable" data-key="s5-titulo">Partes de um algoritmo</span></h2>
+    <p><span class="editable" data-key="s5-intro">Todo algoritmo é composto de três partes fundamentais:</span></p>
+    <dl>
+      <dt><strong><span class="editable" data-key="s5-entrada-termo">Entrada</span></strong></dt>
+      <dd><span class="editable" data-key="s5-entrada-def">Dados fornecidos ao algoritmo para que ele trabalhe. Exemplo: os dois números cuja média queremos calcular.</span></dd>
+      <dt><strong><span class="editable" data-key="s5-proc-termo">Processamento</span></strong></dt>
+      <dd><span class="editable" data-key="s5-proc-def">As operações realizadas sobre os dados de entrada para produzir um resultado. Exemplo: somar os dois números e dividir por 2.</span></dd>
+      <dt><strong><span class="editable" data-key="s5-saida-termo">Saída</span></strong></dt>
+      <dd><span class="editable" data-key="s5-saida-def">O resultado produzido pelo processamento, apresentado ao usuário. Exemplo: exibir o valor da média calculada.</span></dd>
+    </dl>
+  </section>
+<!-- CHUNK_3_START -->
+  <section aria-labelledby="caracteristicas">
+    <h2 id="caracteristicas"><span class="editable" data-key="s6-titulo">Cinco características de um algoritmo</span></h2>
+    <p><span class="editable" data-key="s6-intro">Para ser considerado um algoritmo válido, uma sequência de instruções deve ter cinco características:</span></p>
+    <ol>
+      <li><strong><span class="editable" data-key="s6-c1-nome">Finitude</span></strong> — <span class="editable" data-key="s6-c1-def">o algoritmo deve terminar em algum momento. Não pode ficar em execução para sempre.</span></li>
+      <li><strong><span class="editable" data-key="s6-c2-nome">Definição</span></strong> — <span class="editable" data-key="s6-c2-def">cada passo deve ser precisamente definido, sem ambiguidade. O computador não interpreta — ele executa exatamente o que está escrito.</span></li>
+      <li><strong><span class="editable" data-key="s6-c3-nome">Entradas</span></strong> — <span class="editable" data-key="s6-c3-def">o algoritmo pode ter zero ou mais valores de entrada, fornecidos pelo usuário ou por outro programa.</span></li>
+      <li><strong><span class="editable" data-key="s6-c4-nome">Saídas</span></strong> — <span class="editable" data-key="s6-c4-def">o algoritmo deve produzir ao menos um resultado — a resposta ao problema.</span></li>
+      <li><strong><span class="editable" data-key="s6-c5-nome">Efetividade</span></strong> — <span class="editable" data-key="s6-c5-def">cada instrução deve ser suficientemente simples para poder ser executada, em princípio, de forma exata e em tempo finito.</span></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="formas-representacao">
+    <h2 id="formas-representacao"><span class="editable" data-key="s7-titulo">Formas de representação</span></h2>
+    <p><span class="editable" data-key="s7-intro">Um algoritmo pode ser descrito de quatro formas principais:</span></p>
+    <ol>
+      <li><span class="editable" data-key="s7-f1"><strong>Linguagem natural</strong> — escrito em português (ou qualquer idioma) como um texto comum.</span></li>
+      <li><span class="editable" data-key="s7-f2"><strong>Fluxograma</strong> — diagrama com símbolos padronizados que representam cada passo visualmente.</span></li>
+      <li><span class="editable" data-key="s7-f3"><strong>Pseudo-linguagem (Portugol)</strong> — texto estruturado que imita uma linguagem de programação, usando palavras em português.</span></li>
+      <li><span class="editable" data-key="s7-f4"><strong>Linguagem de programação</strong> — código que pode ser executado por computador diretamente, como Java, C, C++, JavaScript, Python ou C#.</span></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="linguagem-maquina">
+    <h2 id="linguagem-maquina"><span class="editable" data-key="s8-titulo">Linguagem de máquina</span></h2>
+    <p><span class="editable" data-key="s8-p1">O computador só entende <strong>linguagem de máquina</strong>: sequências de zeros e uns (sistema binário). Cada grupo de 8 dígitos binários forma um byte e representa um valor — número, letra ou instrução.</span></p>
+    <table>
+      <caption><span class="editable" data-key="s8-caption">Exemplos de representação binária</span></caption>
+      <thead>
+        <tr>
+          <th scope="col">Binário</th>
+          <th scope="col">Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="editable" data-key="s8-r1b">00000000</span></td><td><span class="editable" data-key="s8-r1v">0</span></td></tr>
+        <tr><td><span class="editable" data-key="s8-r2b">00000001</span></td><td><span class="editable" data-key="s8-r2v">1</span></td></tr>
+        <tr><td><span class="editable" data-key="s8-r3b">00000010</span></td><td><span class="editable" data-key="s8-r3v">2</span></td></tr>
+        <tr><td><span class="editable" data-key="s8-r4b">01000011</span></td><td><span class="editable" data-key="s8-r4v">'C'</span></td></tr>
+        <tr><td><span class="editable" data-key="s8-r5b">01000101</span></td><td><span class="editable" data-key="s8-r5v">'E'</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section aria-labelledby="linguagens-programacao">
+    <h2 id="linguagens-programacao"><span class="editable" data-key="s9-titulo">Linguagens de programação</span></h2>
+    <p><span class="editable" data-key="s9-p1">Como escrever código em binário seria impossível na prática, foram criadas as <strong>linguagens de programação</strong>: conjuntos de termos e regras que os humanos conseguem ler e escrever.</span></p>
+    <p><span class="editable" data-key="s9-p2">O código-fonte escrito pelo programador passa por um programa chamado <strong>compilador</strong> (ou <strong>interpretador</strong>), que o traduz para linguagem de máquina — binário que o computador pode executar.</span></p>
+    <p><span class="editable" data-key="s9-exemplos">Exemplos de linguagens de programação: Java, C, C++, JavaScript, Python, C#.</span></p>
+  </section>
+
+  <section aria-labelledby="linguagem-natural">
+    <h2 id="linguagem-natural"><span class="editable" data-key="s10-titulo">Linguagem natural</span></h2>
+    <p><span class="editable" data-key="s10-def">A <strong>linguagem natural</strong> é a forma mais simples de representar um algoritmo: escrevemos os passos em português corrente, como uma receita de bolo ou um manual de instruções.</span></p>
+    <h3><span class="editable" data-key="s10-vant-titulo">Vantagem</span></h3>
+    <p><span class="editable" data-key="s10-vant">Todo falante do idioma entende. Não é necessário aprender nenhuma notação especial.</span></p>
+    <h3><span class="editable" data-key="s10-desv-titulo">Desvantagem</span></h3>
+    <p><span class="editable" data-key="s10-desv">A linguagem natural é ambígua e imprecisa. "Leve ao forno até assar" tem um significado diferente para cada pessoa. Um computador não consegue interpretar esse tipo de instrução sem um significado único e exato.</span></p>
+    <h3><span class="editable" data-key="s10-ex-titulo">Exemplo: treino de academia</span></h3>
+    <p><span class="editable" data-key="s10-ex">Um algoritmo em linguagem natural para um treino poderia ser: "Aqueça por 10 minutos. Faça 3 séries de 15 repetições de supino. Descanse 60 segundos entre as séries. Alongue ao final." Claro o suficiente para um humano, mas impreciso demais para um computador.</span></p>
+  </section>
+
+  <section aria-labelledby="lobo-bode">
+    <h2 id="lobo-bode"><span class="editable" data-key="s11-titulo">Exemplo: lobo, bode e alfafa</span></h2>
+    <p><span class="editable" data-key="s11-enunciado">Um fazendeiro precisa atravessar um rio com um lobo, um bode e um fardo de alfafa usando um barco que comporta apenas ele e mais um item. O lobo come o bode se ficar sozinho com ele; o bode come a alfafa se ficar sozinho com ela. Como o fazendeiro atravessa tudo sem perdas?</span></p>
+    <h3><span class="editable" data-key="s11-sol-titulo">Solução (em linguagem natural)</span></h3>
+    <ol>
+      <li><span class="editable" data-key="s11-p1">Leve o bode para o outro lado.</span></li>
+      <li><span class="editable" data-key="s11-p2">Volte sozinho.</span></li>
+      <li><span class="editable" data-key="s11-p3">Leve o lobo para o outro lado.</span></li>
+      <li><span class="editable" data-key="s11-p4">Volte com o bode.</span></li>
+      <li><span class="editable" data-key="s11-p5">Leve a alfafa para o outro lado.</span></li>
+      <li><span class="editable" data-key="s11-p6">Volte sozinho.</span></li>
+      <li><span class="editable" data-key="s11-p7">Leve o bode para o outro lado.</span></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="fluxograma-def">
+    <h2 id="fluxograma-def"><span class="editable" data-key="s12-titulo">Fluxograma — definição</span></h2>
+    <p><span class="editable" data-key="s12-def">Um <strong>fluxograma</strong> é uma representação gráfica de um algoritmo usando figuras padronizadas internacionalmente. Cada símbolo representa um tipo de operação e setas indicam a direção do fluxo de execução.</span></p>
+    <h3><span class="editable" data-key="s12-vant-titulo">Vantagens</span></h3>
+    <p><span class="editable" data-key="s12-vant">Usa figuras em vez de texto puro, o que facilita a visualização do fluxo. Os símbolos são padronizados — qualquer pessoa treinada em qualquer país lê o mesmo fluxograma.</span></p>
+    <h3><span class="editable" data-key="s12-desv-titulo">Desvantagens</span></h3>
+    <p><span class="editable" data-key="s12-desv">Poucos recursos para descrever os tipos de dados envolvidos. À medida que o algoritmo cresce, o fluxograma fica grande e difícil de acompanhar.</span></p>
+  </section>
+<!-- CHUNK_4_START -->
+  <section aria-labelledby="simbolos-fluxograma">
+    <h2 id="simbolos-fluxograma"><span class="editable" data-key="s13-titulo">Símbolos do fluxograma</span></h2>
+    <p><span class="editable" data-key="s13-intro">Os seis símbolos fundamentais e seus significados:</span></p>
+    <dl>
+      <dt><strong><span class="editable" data-key="s13-terminal-nome">Terminal (oval)</span></strong></dt>
+      <dd><span class="editable" data-key="s13-terminal-def">Marca o <strong>Início</strong> e o <strong>Fim</strong> do algoritmo. Todo fluxograma começa e termina com este símbolo.</span></dd>
+
+      <dt><strong><span class="editable" data-key="s13-processo-nome">Processo (retângulo)</span></strong></dt>
+      <dd><span class="editable" data-key="s13-processo-def">Representa uma operação ou atribuição: cálculos, atribuição de valores a variáveis, qualquer ação que transforma dados.</span></dd>
+
+      <dt><strong><span class="editable" data-key="s13-decisao-nome">Decisão (losango)</span></strong></dt>
+      <dd><span class="editable" data-key="s13-decisao-def">Representa uma condição com duas saídas: <strong>SIM</strong> (verdadeiro) e <strong>NÃO</strong> (falso). O fluxo se bifurca e segue por caminhos diferentes dependendo da resposta.</span></dd>
+
+      <dt><strong><span class="editable" data-key="s13-es-nome">Entrada / Saída (paralelogramo)</span></strong></dt>
+      <dd><span class="editable" data-key="s13-es-def">Representa a leitura de um dado fornecido pelo usuário (entrada) ou a exibição de um resultado na tela (saída).</span></dd>
+
+      <dt><strong><span class="editable" data-key="s13-conector-nome">Conector (círculo)</span></strong></dt>
+      <dd><span class="editable" data-key="s13-conector-def">Usado para juntar ou continuar fluxos em fluxogramas grandes, evitando cruzamento de setas.</span></dd>
+
+      <dt><strong><span class="editable" data-key="s13-seta-nome">Seta (linha com ponta)</span></strong></dt>
+      <dd><span class="editable" data-key="s13-seta-def">Indica a direção do fluxo de execução — de onde vem e para onde vai o próximo passo.</span></dd>
+    </dl>
+  </section>
+
+  <section aria-labelledby="problema-media">
+    <h2 id="problema-media"><span class="editable" data-key="s14-titulo">Problema: média do aluno</span></h2>
+    <p><span class="editable" data-key="s14-enunciado">Dado dois valores de notas de um aluno (N1 e N2), calcular e exibir a média aritmética entre elas. A fórmula é:</span></p>
+    <p><code><span class="editable" data-key="s14-formula">Média = (N1 + N2) / 2</span></code></p>
+  </section>
+
+  <section aria-labelledby="fluxograma-media-simples">
+    <h2 id="fluxograma-media-simples"><span class="editable" data-key="s15-titulo">Fluxograma da média (simples)</span></h2>
+    <p><span class="editable" data-key="s15-descricao">O fluxo do algoritmo para calcular a média simples, descrito passo a passo:</span></p>
+    <ol>
+      <li><span class="editable" data-key="s15-p1"><strong>Início</strong> — o programa começa.</span></li>
+      <li><span class="editable" data-key="s15-p2"><strong>Entrada</strong> — ler os valores de N1 e N2 fornecidos pelo usuário.</span></li>
+      <li><span class="editable" data-key="s15-p3"><strong>Processo</strong> — calcular: Média recebe (N1 + N2) / 2.</span></li>
+      <li><span class="editable" data-key="s15-p4"><strong>Saída</strong> — exibir o valor de Média na tela.</span></li>
+      <li><span class="editable" data-key="s15-p5"><strong>Fim</strong> — o programa encerra.</span></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="fluxograma-media-aprovacao">
+    <h2 id="fluxograma-media-aprovacao"><span class="editable" data-key="s16-titulo">Fluxograma da média com aprovação</span></h2>
+    <p><span class="editable" data-key="s16-descricao">Esta versão adiciona uma decisão após o cálculo da média: verificar se o aluno foi aprovado (média maior ou igual a 6). O fluxo completo:</span></p>
+    <ol>
+      <li><span class="editable" data-key="s16-p1"><strong>Início</strong> — o programa começa.</span></li>
+      <li><span class="editable" data-key="s16-p2"><strong>Entrada</strong> — ler N1 e N2.</span></li>
+      <li><span class="editable" data-key="s16-p3"><strong>Processo</strong> — calcular: Média recebe (N1 + N2) / 2.</span></li>
+      <li><span class="editable" data-key="s16-p4"><strong>Saída</strong> — exibir Média.</span></li>
+      <li><span class="editable" data-key="s16-p5"><strong>Decisão</strong> — "Média ≥ 6?"
+        <ul>
+          <li><span class="editable" data-key="s16-sim"><strong>SIM</strong> → Saída: exibir "Aprovado".</span></li>
+          <li><span class="editable" data-key="s16-nao"><strong>NÃO</strong> → Saída: exibir "Reprovado".</span></li>
+        </ul>
+      </li>
+      <li><span class="editable" data-key="s16-p6"><strong>Fim</strong> — o programa encerra.</span></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="nove-bolas">
+    <h2 id="nove-bolas"><span class="editable" data-key="s17-titulo">Problema das 9 bolas</span></h2>
+    <p><span class="editable" data-key="s17-enunciado">Você tem 9 bolas aparentemente idênticas, mas uma delas é mais leve que as outras. Usando uma balança de dois pratos (sem pesos), descubra qual é a bola mais leve com o <strong>menor número possível de pesagens</strong>.</span></p>
+    <h3><span class="editable" data-key="s17-sol-titulo">Solução</span></h3>
+    <ol>
+      <li><span class="editable" data-key="s17-p1">Divida as 9 bolas em três grupos de 3: grupo A, grupo B e grupo C.</span></li>
+      <li><span class="editable" data-key="s17-p2"><strong>1ª pesagem:</strong> coloque o grupo A num prato e o grupo B no outro.
+        <ul>
+          <li><span class="editable" data-key="s17-p2a">Se um dos pratos subir (ficar mais alto), o grupo mais leve está nele — a bola especial está nesse grupo.</span></li>
+          <li><span class="editable" data-key="s17-p2b">Se os pratos ficarem equilibrados, a bola especial está no grupo C.</span></li>
+        </ul>
+      </li>
+      <li><span class="editable" data-key="s17-p3"><strong>2ª pesagem:</strong> dentro do grupo identificado como o mais leve, pese duas das três bolas (uma de cada lado).
+        <ul>
+          <li><span class="editable" data-key="s17-p3a">Se um prato subir, a bola naquele prato é a mais leve.</span></li>
+          <li><span class="editable" data-key="s17-p3b">Se ficarem equilibradas, a bola não pesada é a mais leve.</span></li>
+        </ul>
+      </li>
+    </ol>
+    <p><span class="editable" data-key="s17-conclusao">Resultado: apenas 2 pesagens são suficientes para encontrar a bola mais leve entre 9. Este é um exemplo de raciocínio algorítmico eficiente — dividir o problema em partes menores a cada passo.</span></p>
+  </section>
+<!-- CHUNK_5_START -->
+  <section aria-labelledby="pseudocodigo">
+    <h2 id="pseudocodigo"><span class="editable" data-key="s18-titulo">Pseudocódigo (Portugol)</span></h2>
+    <p><span class="editable" data-key="s18-def">O <strong>pseudocódigo</strong> é uma forma de representar algoritmos usando uma linguagem parecida com as linguagens de programação reais, mas com palavras em português. O Portugol é o pseudocódigo mais usado no ensino de programação no Brasil.</span></p>
+    <h3><span class="editable" data-key="s18-vant-titulo">Vantagens</span></h3>
+    <ul>
+      <li><span class="editable" data-key="s18-v1">Mais próximo de uma linguagem de programação real do que a linguagem natural.</span></li>
+      <li><span class="editable" data-key="s18-v2">Permite descrever tipos de dados e estruturas de controle com precisão.</span></li>
+      <li><span class="editable" data-key="s18-v3">Facilita a transição para uma linguagem de programação de verdade.</span></li>
+    </ul>
+    <h3><span class="editable" data-key="s18-desv-titulo">Desvantagem</span></h3>
+    <p><span class="editable" data-key="s18-desv">É um pseudocódigo — não pode ser executado diretamente por um computador. Não existe um padrão único: diferentes livros e professores usam notações ligeiramente diferentes.</span></p>
+  </section>
+
+  <section aria-labelledby="codigo-portugol">
+    <h2 id="codigo-portugol"><span class="editable" data-key="s19-titulo">Código em Portugol — cálculo da média</span></h2>
+    <p><span class="editable" data-key="s19-intro">O algoritmo da média simples escrito em Portugol:</span></p>
+    <pre><code aria-label="Código em Portugol para calcular a média de dois números"><span class="editable" data-key="s19-codigo">algoritmo "CalcularMedia1"
+var
+  N1, N2, Media : real
+Inicio
+  leia(N1, N2)
+  Media := (N1 + N2) / 2
+  escreva(Media)
+fimalgoritmo</span></code></pre>
+    <p><span class="editable" data-key="s19-explicacao">Leitura do código: declara três variáveis do tipo real (N1, N2 e Media). Lê N1 e N2 do teclado. Calcula a média e armazena em Media. Exibe o valor de Media na tela.</span></p>
+  </section>
+
+  <section aria-labelledby="exercicios">
+    <h2 id="exercicios"><span class="editable" data-key="s20-titulo">Exercícios propostos</span></h2>
+    <p><span class="editable" data-key="s20-intro">Escreva um algoritmo (em qualquer representação vista em aula) para cada problema abaixo:</span></p>
+    <ol type="a">
+      <li><span class="editable" data-key="s20-ea">Calcular a área de um terreno retangular a partir do comprimento e da largura informados pelo usuário.</span></li>
+      <li><span class="editable" data-key="s20-eb">Calcular a idade atual de uma pessoa a partir do ano de nascimento informado pelo usuário.</span></li>
+      <li><span class="editable" data-key="s20-ec">Exibir a tabuada completa (de 1 a 10) de um número informado pelo usuário.</span></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="hanoi">
+    <h2 id="hanoi"><span class="editable" data-key="s21-titulo">Exercício: Torre de Hanói</span></h2>
+    <p><span class="editable" data-key="s21-enunciado">A Torre de Hanói é um problema clássico que exercita raciocínio recursivo. Há três pinos (A, B e C) e três discos de tamanhos diferentes empilhados no pino A, do maior (embaixo) ao menor (em cima). O objetivo é mover todos os discos do pino A para o pino B ou C, obedecendo às três regras abaixo:</span></p>
+    <ol>
+      <li><span class="editable" data-key="s21-r1">Você pode mover apenas um disco por vez.</span></li>
+      <li><span class="editable" data-key="s21-r2">Só é possível mover o disco que está no topo de uma pilha.</span></li>
+      <li><span class="editable" data-key="s21-r3">Um disco maior nunca pode ser colocado sobre um disco menor.</span></li>
+    </ol>
+    <p><span class="editable" data-key="s21-desafio">Desafio: tente resolver para 3 discos e anote os passos como um algoritmo. Qual é o número mínimo de movimentos necessários?</span></p>
+  </section>
+</main>
+
+<footer>
+  <p>Material adaptado dos professores Raphael Muniz e Ciro Moura · IFRN.</p>
+</footer>
+
+<script>
+(function () {
+  const PREFIX = 'aula02:text:';
+  const toggle = document.getElementById('edit-toggle');
+  const restoreBtn = document.getElementById('restore-btn');
+  const status = document.getElementById('edit-status');
+  const editables = document.querySelectorAll('.editable[data-key]');
+  let editing = false;
+
+  function loadSaved() {
+    editables.forEach(el => {
+      const saved = localStorage.getItem(PREFIX + el.dataset.key);
+      if (saved !== null) el.innerHTML = saved;
+    });
+  }
+
+  function setEditing(on) {
+    editing = on;
+    document.body.classList.toggle('editing', on);
+    toggle.setAttribute('aria-pressed', on ? 'true' : 'false');
+    toggle.textContent = on ? '✏ Sair da edição' : '✏ Editar texto';
+    status.textContent = on ? 'Modo de edição ativado.' : 'Modo de edição desativado.';
+    editables.forEach(el => {
+      if (on) {
+        el.contentEditable = 'true';
+        el.setAttribute('role', 'textbox');
+        el.setAttribute('aria-multiline', 'true');
+        el.setAttribute('aria-label', 'Editar: ' + (el.dataset.key || ''));
+      } else {
+        el.removeAttribute('contentEditable');
+        el.removeAttribute('role');
+        el.removeAttribute('aria-multiline');
+        el.removeAttribute('aria-label');
+      }
+    });
+  }
+
+  toggle.addEventListener('click', () => setEditing(!editing));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'e' || e.key === 'E') {
+      const active = document.activeElement;
+      const isTextField = active && (
+        active.isContentEditable ||
+        active.tagName === 'INPUT' ||
+        active.tagName === 'TEXTAREA'
+      );
+      if (!isTextField) { e.preventDefault(); setEditing(!editing); }
+    }
+  });
+
+  editables.forEach(el => {
+    el.addEventListener('input', () => {
+      localStorage.setItem(PREFIX + el.dataset.key, el.innerHTML);
+    });
+  });
+
+  restoreBtn.addEventListener('click', () => {
+    if (!confirm('Restaurar todo o texto original? As edições salvas serão perdidas.')) return;
+    Object.keys(localStorage)
+      .filter(k => k.startsWith(PREFIX))
+      .forEach(k => localStorage.removeItem(k));
+    location.reload();
+  });
+
+  loadSaved();
+})();
+</script>
+
+</body>
+</html>
