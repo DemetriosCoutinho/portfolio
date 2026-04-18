@@ -729,6 +729,17 @@
       margin-top: 2px;
     }
 
+    .contact-link-logo {
+      width: 40px;
+      height: 28px;
+      object-fit: contain;
+      flex-shrink: 0;
+      filter: brightness(0) invert(0.85);
+      transition: filter 0.2s;
+    }
+
+    .contact-link:hover .contact-link-logo { filter: none; }
+
     .contact-form {
       display: flex;
       flex-direction: column;
@@ -892,7 +903,7 @@
         <div class="about-grid reveal">
           <div class="avatar-wrap">
             <div class="avatar-frame">
-              <img src="assets/img/photo.jpg" alt="Prof. Dr. Demetrios A. M. Coutinho" class="avatar-img" id="avatar-img" />
+              <img src="assets/img/demetrios.jpg" alt="Prof. Dr. Demetrios A. M. Coutinho" class="avatar-img" id="avatar-img" />
               <div class="avatar-initials" id="avatar-initials">DC</div>
               <div class="avatar-corner"></div>
             </div>
@@ -1136,6 +1147,13 @@
                   <div class="contact-link-sub" data-i18n="contact.linkedin.sub">Professional Network</div>
                 </div>
               </a>
+              <a href="https://nadic.ifrn.edu.br" target="_blank" rel="noopener" class="contact-link">
+                <img src="assets/img/nadic-logo-.png" alt="NADIC" class="contact-link-logo" />
+                <div>
+                  <div class="contact-link-text">nadic.ifrn.edu.br</div>
+                  <div class="contact-link-sub" data-i18n="contact.nadic.sub">Research Group · IFRN</div>
+                </div>
+              </a>
             </div>
           </div>
           <form class="contact-form" onsubmit="handleForm(event)">
@@ -1249,6 +1267,7 @@
         'contact.desc': 'Open to international partnerships in R&D, IT outsourcing, academic collaborations, and innovation consulting. Reach out to start a conversation.',
         'contact.email.sub': 'Academic & Research',
         'contact.linkedin.sub': 'Professional Network',
+        'contact.nadic.sub': 'Research Group · IFRN',
         'form.name': 'Name',
         'form.email': 'Email',
         'form.subject': 'Subject',
@@ -1330,6 +1349,7 @@
         'contact.desc': 'Aberto a parcerias internacionais em P&D, outsourcing de TI, colaborações acadêmicas e consultoria em inovação. Entre em contato para iniciar uma conversa.',
         'contact.email.sub': 'Acadêmico & Pesquisa',
         'contact.linkedin.sub': 'Rede Profissional',
+        'contact.nadic.sub': 'Grupo de Pesquisa · IFRN',
         'form.name': 'Nome',
         'form.email': 'E-mail',
         'form.subject': 'Assunto',
