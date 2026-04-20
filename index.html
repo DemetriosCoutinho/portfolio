@@ -918,6 +918,10 @@
 
     .contact-form { display: flex; flex-direction: column; gap: 16px; }
 
+    .contact-form .btn.is-sending { opacity: 0.6; cursor: wait; }
+    .contact-form .btn.is-success { background: var(--green) !important; color: #000 !important; border-color: var(--green) !important; }
+    .contact-form .btn.is-error   { background: #c0392b !important; color: #fff !important; border-color: #c0392b !important; }
+
     .form-group { display: flex; flex-direction: column; gap: 6px; }
 
     .form-group label {
@@ -1664,28 +1668,32 @@
             </div>
           </div>
           <form class="contact-form" onsubmit="handleForm(event)">
+            <input type="hidden" name="access_key" value="5a8966eb-d123-4c5b-bac2-bc3e57a3528f">
+            <input type="hidden" name="from_name" value="Portfolio Contact">
+            <input type="hidden" name="subject_prefix" value="[Portfolio]">
+            <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off">
             <div class="form-group">
               <label for="f-name" data-i18n="form.name">Name</label>
-              <input type="text" id="f-name" required placeholder="Your full name" />
+              <input type="text" id="f-name" name="name" required placeholder="Your full name" />
             </div>
             <div class="form-group">
               <label for="f-email" data-i18n="form.email">Email</label>
-              <input type="email" id="f-email" required placeholder="your@email.com" />
+              <input type="email" id="f-email" name="email" required placeholder="your@email.com" />
             </div>
             <div class="form-group">
               <label for="f-subject" data-i18n="form.subject">Subject</label>
-              <select id="f-subject">
+              <select id="f-subject" name="subject">
                 <option value="" data-i18n="form.subject.placeholder">Select a topic...</option>
-                <option value="rdi">R&D Partnership</option>
-                <option value="outsourcing">IT Outsourcing</option>
-                <option value="research">Academic Collaboration</option>
-                <option value="consulting">Technology Consulting</option>
-                <option value="other">Other</option>
+                <option value="R&D Partnership">R&D Partnership</option>
+                <option value="IT Outsourcing">IT Outsourcing</option>
+                <option value="Academic Collaboration">Academic Collaboration</option>
+                <option value="Technology Consulting">Technology Consulting</option>
+                <option value="Other">Other</option>
               </select>
             </div>
             <div class="form-group">
               <label for="f-message" data-i18n="form.message">Message</label>
-              <textarea id="f-message" required placeholder="Tell me about your project or opportunity..."></textarea>
+              <textarea id="f-message" name="message" required placeholder="Tell me about your project or opportunity..."></textarea>
             </div>
             <button type="submit" class="btn btn-green" data-i18n="form.submit">Send Message</button>
           </form>
@@ -1847,12 +1855,44 @@
     })();
 
     // ── FORM ──
-    function handleForm(e) {
+    async function handleForm(e) {
       e.preventDefault();
-      const btn = e.target.querySelector('[type="submit"]');
-      btn.textContent = '✓ Message sent!';
-      btn.style.background = 'var(--blue)';
-      setTimeout(() => { btn.textContent = 'Send Message'; btn.style.background = ''; }, 3000);
+      const form = e.target;
+      const btn  = form.querySelector('[type="submit"]');
+      const lang = (typeof currentLang !== 'undefined' && T[currentLang]) ? currentLang : 'en';
+      const original = T[lang]['form.submit'] || 'Send Message';
+
+      btn.disabled = true;
+      btn.classList.add('is-sending');
+      btn.textContent = T[lang]['form.sending'] || 'Sending…';
+
+      try {
+        const res  = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          body: new FormData(form),
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          btn.classList.remove('is-sending');
+          btn.classList.add('is-success');
+          btn.textContent = T[lang]['form.sent'] || '✓ Message sent!';
+          form.reset();
+        } else {
+          throw new Error(data.message || 'request failed');
+        }
+      } catch (err) {
+        console.error('[contact form]', err);
+        btn.classList.remove('is-sending');
+        btn.classList.add('is-error');
+        btn.textContent = T[lang]['form.error'] || '✗ Failed — try again';
+      } finally {
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.classList.remove('is-sending', 'is-success', 'is-error');
+          btn.textContent = original;
+        }, 4000);
+      }
     }
 
     // ── i18n ──
@@ -1905,6 +1945,7 @@
         'contact.desc':'Open to international partnerships in R&D, IT outsourcing, academic collaborations, and innovation consulting. Let\'s build technology that crosses borders.',
         'contact.email.sub':'Academic & Research · IFRN','contact.linkedin.sub':'Professional Network',
         'form.name':'Name','form.email':'Email','form.subject':'Subject','form.message':'Message','form.submit':'Send Message',
+        'form.sending':'Sending…','form.sent':'✓ Message sent!','form.error':'✗ Failed — try again',
       },
       pt: {
         'nav.about':'Sobre','nav.research':'Pesquisa','nav.teaching':'Ensino','nav.rdi':'PDI','nav.contact':'Contato',
@@ -1954,6 +1995,7 @@
         'contact.desc':'Aberto a parcerias internacionais em P&D, outsourcing de TI, colaborações acadêmicas e consultoria em inovação. Vamos construir tecnologia que ultrapassa fronteiras.',
         'contact.email.sub':'Acadêmico & Pesquisa · IFRN','contact.linkedin.sub':'Rede Profissional',
         'form.name':'Nome','form.email':'E-mail','form.subject':'Assunto','form.message':'Mensagem','form.submit':'Enviar Mensagem',
+        'form.sending':'Enviando…','form.sent':'✓ Mensagem enviada!','form.error':'✗ Falhou — tente de novo',
       }
     };
 
