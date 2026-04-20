@@ -1010,6 +1010,46 @@
       color: var(--text-faint);
     }
 
+    /* ── VISIT CHIP (hidden) ── */
+    .visit-chip {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.08em;
+      color: var(--green);
+      background: var(--green-dim);
+      border: 1px solid var(--green-border);
+      border-radius: 2px;
+      padding: 4px 9px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(4px);
+      transition: opacity 420ms ease, transform 420ms cubic-bezier(.22,.61,.36,1);
+      z-index: 9999;
+    }
+    .visit-chip.revealed {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    .visit-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+      animation: visit-pulse 2s ease-in-out infinite;
+    }
+    @keyframes visit-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: .4; transform: scale(.7); }
+    }
+
     /* ── REVEAL ── */
     .reveal {
       opacity: 0;
@@ -1666,6 +1706,11 @@
     <div class="footer-right" id="footer-year"></div>
   </footer>
 
+  <div class="visit-chip" id="visit-chip" aria-hidden="true">
+    <span class="visit-dot"></span>
+    <span id="visit-count">—</span>
+  </div>
+
   <!-- TWEAKS PANEL -->
   <div id="tweaks-panel">
     <div class="tweaks-title">Tweaks</div>
@@ -1759,6 +1804,47 @@
     // ── FOOTER YEAR ──
     document.getElementById('footer-year').textContent =
       `© ${new Date().getFullYear()} · Pau dos Ferros, RN, Brazil`;
+
+    // ── VISIT COUNTER (hidden) ──
+    (function initVisitCounter() {
+      const chip  = document.getElementById('visit-chip');
+      const count = document.getElementById('visit-count');
+      const NS    = 'demetrios-portfolio-2025';
+      const KEY   = 'home';
+      const already = sessionStorage.getItem('__vc');
+      const endpoint = already
+        ? `https://abacus.jasoncameron.dev/get/${NS}/${KEY}`
+        : `https://abacus.jasoncameron.dev/hit/${NS}/${KEY}`;
+
+      fetch(endpoint, { cache: 'no-store' })
+        .then(r => r.json())
+        .then(d => {
+          if (!already) sessionStorage.setItem('__vc', '1');
+          count.textContent = `↳ ${Number(d.value).toLocaleString()} visits`;
+        })
+        .catch(() => { count.textContent = '↳ — visits'; });
+
+      let _keySeq = '', _keyTimer;
+      document.addEventListener('keydown', e => {
+        if (['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+        _keySeq += e.key.toLowerCase();
+        clearTimeout(_keyTimer);
+        _keyTimer = setTimeout(() => { _keySeq = ''; }, 800);
+        if (_keySeq.endsWith('vvv')) {
+          _keySeq = '';
+          chip.classList.toggle('revealed');
+        }
+        if (e.key === 'Escape') chip.classList.remove('revealed');
+      });
+
+      let _clicks = 0, _clickTimer;
+      document.querySelector('.footer-name strong').addEventListener('click', () => {
+        _clicks++;
+        clearTimeout(_clickTimer);
+        _clickTimer = setTimeout(() => { _clicks = 0; }, 500);
+        if (_clicks >= 3) { _clicks = 0; chip.classList.toggle('revealed'); }
+      });
+    })();
 
     // ── FORM ──
     function handleForm(e) {
