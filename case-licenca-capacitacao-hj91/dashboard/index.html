@@ -1,0 +1,3442 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta name="robots" content="noindex, nofollow">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Licença Capacitação 2026 — Dashboard Executivo</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter+Tight:wght@400;500;600;700&display=swap');
+
+/* ── Tokens ────────────────────────────────────────────────── */
+:root {
+  --ink:    #0e1726;
+  --ink2:   #5a6478;
+  --paper:  #f7f4ee;
+  --surface:#ffffff;
+  --rule:   #1a3a5c;
+  --accent: #b8895a;
+  --ok:     #3a7d5c;
+  --warn:   #c2873b;
+  --crit:   #a13b2c;
+  --border: rgba(14,23,38,.1);
+  --border2:rgba(14,23,38,.2);
+  --t: 220ms cubic-bezier(.2,.8,.2,1);
+}
+
+/* ── Reset ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter Tight', 'Helvetica Neue', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.6;
+  font-size: 15px;
+}
+a { color: var(--rule); text-underline-offset: 2px; }
+button { font-family: inherit; cursor: pointer; }
+
+/* ── Animations ────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-dot {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%     { opacity: .4; transform: scale(1.6); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .65s cubic-bezier(.2,.8,.2,1),
+              transform .65s cubic-bezier(.2,.8,.2,1);
+}
+.reveal.visible { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* ── Layout ────────────────────────────────────────────────── */
+.section {
+  padding: 4rem 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.section-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+.section-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.3rem, 2.5vw, 1.85rem);
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -.02em;
+  line-height: 1.2;
+  margin-bottom: 1.75rem;
+}
+.section-lead {
+  font-size: .88rem;
+  color: var(--ink2);
+  margin-top: -.75rem;
+  margin-bottom: 2rem;
+  max-width: 640px;
+  line-height: 1.6;
+}
+
+/* ── Hero ──────────────────────────────────────────────────── */
+.hero {
+  background: var(--rule);
+  color: #fff;
+  padding: 4rem 1.5rem 3.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(255,255,255,.025) 80px),
+    repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(255,255,255,.025) 80px);
+  pointer-events: none;
+}
+.hero-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  position: relative;
+}
+.hero-verdict {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(3rem, 8vw, 6.5rem);
+  font-weight: 700;
+  letter-spacing: -.03em;
+  line-height: 1;
+  color: #fff;
+  display: inline-block;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--accent);
+  margin-bottom: 1.5rem;
+}
+.hero-chips {
+  display: flex;
+  gap: .65rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .28rem .75rem;
+  border-radius: 2px;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.chip-ok     { background: rgba(58,125,92,.22);  color: #6ecfa0; border: 1px solid rgba(58,125,92,.4); }
+.chip-warn   { background: rgba(194,135,59,.22); color: #f0b060; border: 1px solid rgba(194,135,59,.4); }
+.chip-danger { background: rgba(161,59,44,.22);  color: #f08070; border: 1px solid rgba(161,59,44,.4); }
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem 1.25rem;
+  font-size: .85rem;
+  color: rgba(255,255,255,.65);
+  margin-bottom: 2rem;
+}
+.hero-meta-item strong { color: rgba(255,255,255,.95); font-weight: 600; }
+.hero-sep { color: rgba(255,255,255,.2); }
+.hero-ctas {
+  display: flex;
+  gap: .75rem;
+  flex-wrap: wrap;
+  margin-top: .5rem;
+}
+.cta {
+  display: inline-flex;
+  align-items: center;
+  padding: .6rem 1.4rem;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 2px;
+  transition: background var(--t), color var(--t), border-color var(--t);
+}
+.cta-primary { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
+.cta-primary:hover { background: #ca9f72; border-color: #ca9f72; color: #fff; }
+.cta-outline { background: transparent; color: rgba(255,255,255,.8); border: 1px solid rgba(255,255,255,.25); }
+.cta-outline:hover { border-color: rgba(255,255,255,.65); color: #fff; }
+
+/* ── Countdown ─────────────────────────────────────────────── */
+.countdown-wrap { margin-bottom: 2rem; }
+.countdown {
+  display: flex;
+  gap: .75rem;
+  align-items: flex-start;
+}
+.countdown-unit { text-align: center; min-width: 52px; }
+.countdown-value {
+  display: block;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 2.1rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 2px;
+  padding: .45rem .7rem;
+  min-width: 58px;
+}
+.countdown-label {
+  display: block;
+  font-size: .58rem;
+  text-transform: uppercase;
+  letter-spacing: .18em;
+  color: rgba(255,255,255,.4);
+  margin-top: .35rem;
+  font-weight: 600;
+}
+.countdown-sep {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.9rem;
+  font-weight: 400;
+  color: var(--accent);
+  padding-top: .45rem;
+  line-height: 1;
+}
+.countdown-expired {
+  font-size: .95rem;
+  color: #f08070;
+  font-weight: 700;
+}
+
+/* ── Timeline SVG ──────────────────────────────────────────── */
+.timeline-wrap {
+  overflow-x: auto;
+  padding-bottom: .5rem;
+}
+#timeline-svg {
+  width: 100%;
+  min-width: 700px;
+  display: block;
+}
+.today-dot { animation: pulse-dot 2s ease-in-out infinite; }
+
+/* ── Decision tree ─────────────────────────────────────────── */
+.dtree { display: flex; flex-direction: column; gap: 1.5rem; }
+.dtree-question {
+  border-left: 3px solid var(--rule);
+  padding: .5rem 0 .5rem 1.25rem;
+}
+.dtree-q-label {
+  font-weight: 600;
+  font-size: .97rem;
+  color: var(--ink);
+  margin-bottom: .8rem;
+  line-height: 1.4;
+}
+.dtree-btns { display: flex; flex-wrap: wrap; gap: .5rem; }
+.dtree-btn {
+  padding: .5rem 1rem;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: .85rem;
+  font-weight: 600;
+  border-radius: 2px;
+  transition: border-color var(--t), background var(--t), color var(--t);
+}
+.dtree-btn:hover { border-color: var(--rule); background: var(--rule); color: #fff; }
+.dtree-btn.selected { border-color: var(--accent); background: var(--accent); color: #fff; }
+
+[data-dtree-result].visible { display: block !important; }
+.dtree-result {
+  display: none;
+  padding: 1.5rem;
+  border-left: 4px solid var(--rule);
+  background: var(--surface);
+  animation: fadeUp .3s cubic-bezier(.2,.8,.2,1);
+}
+.dtree-result.result-recommended { border-left-color: var(--accent); }
+.dtree-result.result-alert { border-left-color: var(--crit); }
+.dtree-result-badge {
+  display: inline-block;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: .2rem .6rem;
+  border-radius: 2px;
+  margin-bottom: .6rem;
+  background: var(--rule);
+  color: #fff;
+}
+.result-recommended .dtree-result-badge { background: var(--accent); }
+.result-alert .dtree-result-badge { background: var(--crit); }
+.dtree-result-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: .4rem;
+}
+.dtree-result-body { font-size: .88rem; color: var(--ink2); line-height: 1.6; }
+.dtree-result .cta {
+  margin-top: 1rem;
+  color: var(--rule);
+  border-color: var(--border2);
+}
+.dtree-result .cta:hover { background: var(--rule); color: #fff; border-color: var(--rule); }
+
+/* ── Scenario / cenario grid ───────────────────────────────── */
+.scenario-grid, .cenarios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 2.5rem;
+}
+.scenario-card, .cenario-card {
+  background: var(--surface);
+  padding: 1.5rem;
+  position: relative;
+  transition: background var(--t);
+}
+.scenario-card::before, .cenario-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--border2);
+  transition: background var(--t);
+}
+.scenario-card.scenario-recommended::before,
+.cenario-card.cenario-recommended::before {
+  background: var(--accent);
+}
+.scenario-card:hover, .cenario-card:hover { background: #faf8f3; }
+
+.scenario-header, .cenario-header {
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+  margin-bottom: .75rem;
+  flex-wrap: wrap;
+}
+.scenario-num, .cenario-num {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--rule);
+  line-height: 1;
+  min-width: 2rem;
+}
+.scenario-titulo, .cenario-titulo {
+  font-weight: 700;
+  font-size: .88rem;
+  color: var(--ink);
+  flex: 1;
+}
+.rec-badge {
+  font-size: .63rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  background: var(--accent);
+  color: #fff;
+  padding: .15rem .5rem;
+  border-radius: 2px;
+}
+.scenario-total, .cenario-total {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--rule);
+  margin-left: auto;
+}
+.scenario-desc, .cenario-desc {
+  font-size: .82rem;
+  color: var(--ink2);
+  line-height: 1.55;
+  margin-bottom: 1rem;
+}
+
+/* ── Score bars ────────────────────────────────────────────── */
+.score-bars { display: flex; flex-direction: column; gap: .45rem; }
+.score-row {
+  display: grid;
+  grid-template-columns: 90px 1fr 32px;
+  align-items: center;
+  gap: .5rem;
+}
+.score-label { font-size: .7rem; color: var(--ink2); font-weight: 500; }
+.score-track {
+  background: rgba(14,23,38,.08);
+  height: 4px;
+  overflow: hidden;
+}
+.score-fill {
+  height: 100%;
+  background: var(--rule);
+  width: 0;
+  transition: width .7s cubic-bezier(.2,.8,.2,1);
+}
+.cenario-card.cenario-recommended .score-fill { background: var(--accent); }
+.score-val { font-size: .7rem; font-weight: 700; color: var(--ink2); text-align: right; }
+
+/* ── Charts ────────────────────────────────────────────────── */
+.chart-grid, .charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+@media (max-width: 680px) { .chart-grid, .charts-grid { grid-template-columns: 1fr; } }
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+}
+.chart-wrap {
+  position: relative;
+  height: 320px;
+}
+
+/* ── Bloqueantes ───────────────────────────────────────────── */
+.blq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+.blq-card {
+  background: var(--surface);
+  padding: 1.25rem 1.5rem;
+  position: relative;
+  border-left: 3px solid transparent;
+  transition: opacity var(--t);
+}
+.blq-card.blq-danger { border-left-color: var(--crit); }
+.blq-card.blq-warn   { border-left-color: var(--warn); }
+.blq-card.done { opacity: .38; }
+.blq-card.done .blq-titulo { text-decoration: line-through; }
+
+.blq-header {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: .75rem;
+}
+.blq-semaforo { font-size: .95rem; flex-shrink: 0; line-height: 1; }
+.blq-titulo { font-weight: 700; font-size: .95rem; flex: 1; color: var(--ink); }
+.blq-cenarios { font-size: .72rem; color: var(--ink2); font-weight: 500; white-space: nowrap; }
+
+.toggle-btn {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border2);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .78rem;
+  flex-shrink: 0;
+  transition: border-color var(--t), background var(--t);
+}
+.toggle-btn:hover { border-color: var(--ok); }
+.toggle-btn.done  { border-color: var(--ok); background: var(--ok); color: #fff; }
+
+.blq-details { margin-bottom: .75rem; }
+.blq-details summary {
+  font-size: .78rem;
+  color: var(--ink2);
+  cursor: pointer;
+  font-weight: 500;
+  padding: .2rem 0;
+  user-select: none;
+  list-style: none;
+}
+.blq-details summary::before { content: '+ '; }
+.blq-details[open] summary::before { content: '− '; }
+.blq-details summary:hover { color: var(--rule); }
+.blq-citacao {
+  margin: .6rem 0 .5rem 1rem;
+  padding: .5rem .75rem;
+  border-left: 2px solid var(--border2);
+  font-size: .8rem;
+  color: var(--ink2);
+  font-style: italic;
+  line-height: 1.55;
+}
+.blq-afirmacao { font-size: .82rem; color: var(--ink2); margin-top: .4rem; }
+.blq-acao { font-size: .82rem; color: var(--ink); line-height: 1.55; }
+.blq-meta { font-size: .74rem; color: var(--ink2); display: block; margin-top: .25rem; }
+
+/* ── Checklist ─────────────────────────────────────────────── */
+.chk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+.chk-item {
+  display: flex;
+  gap: .75rem;
+  align-items: flex-start;
+  padding: .85rem 1.25rem;
+  background: var(--surface);
+  cursor: pointer;
+  transition: background var(--t);
+  user-select: none;
+}
+.chk-item:hover { background: #faf8f3; }
+.chk-item.checked { opacity: .5; }
+.chk-item.checked .chk-label { text-decoration: line-through; }
+.chk-box {
+  width: 18px; height: 18px;
+  border: 1.5px solid var(--border2);
+  border-radius: 2px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .78rem;
+  margin-top: .15rem;
+  transition: border-color var(--t), background var(--t);
+}
+.chk-item.checked .chk-box { border-color: var(--ok); background: var(--ok); color: #fff; }
+.chk-label { font-size: .88rem; font-weight: 500; line-height: 1.45; }
+.doc-obrig {
+  display: inline-block;
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  background: rgba(26,58,92,.09);
+  color: var(--rule);
+  padding: .1rem .4rem;
+  border-radius: 2px;
+  margin-left: .35rem;
+  vertical-align: middle;
+}
+.doc-opcional {
+  display: inline-block;
+  font-size: .62rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  background: rgba(14,23,38,.06);
+  color: var(--ink2);
+  padding: .1rem .4rem;
+  border-radius: 2px;
+  margin-left: .35rem;
+  vertical-align: middle;
+}
+
+/* ── Next steps ────────────────────────────────────────────── */
+.nextstep-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+.nextstep-panel { background: var(--surface); overflow: hidden; }
+.nextstep-trigger {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--ink);
+  gap: 1rem;
+  transition: background var(--t);
+}
+.nextstep-trigger:hover { background: #faf8f3; }
+.nextstep-trigger[aria-expanded="true"] { background: #faf8f3; }
+.nextstep-trigger[aria-expanded="true"] .nextstep-arrow { transform: rotate(180deg); }
+.nextstep-arrow {
+  font-size: .65rem;
+  color: var(--ink2);
+  transition: transform var(--t);
+  flex-shrink: 0;
+}
+.nextstep-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .4s cubic-bezier(.2,.8,.2,1);
+}
+.nextstep-body.open { max-height: 1200px; }
+.nextstep-item {
+  display: grid;
+  grid-template-columns: 28px 100px 1fr;
+  gap: .75rem;
+  align-items: baseline;
+  padding: .7rem 1.5rem;
+  border-top: 1px solid var(--border);
+  font-size: .85rem;
+}
+.nextstep-num {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.nextstep-prazo {
+  font-weight: 700;
+  font-size: .76rem;
+  color: var(--rule);
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+.nextstep-acao { color: var(--ink); line-height: 1.5; }
+
+/* ── Fontes ────────────────────────────────────────────────── */
+.fontes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  list-style: none;
+}
+.fontes-list li {
+  padding: .75rem 1.25rem;
+  background: var(--surface);
+  font-size: .85rem;
+  line-height: 1.55;
+  transition: background var(--t);
+}
+.fontes-list li:hover { background: #faf8f3; }
+.fontes-list li strong { color: var(--rule); font-weight: 700; }
+
+/* ── Footer ────────────────────────────────────────────────── */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 3rem 1.5rem 2.5rem;
+}
+.footer-gate {
+  max-width: 1080px;
+  margin: 0 auto 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--accent);
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  font-size: .88rem;
+  color: var(--ink);
+}
+.footer-meta {
+  max-width: 1080px;
+  margin: 0 auto;
+  font-size: .74rem;
+  color: var(--ink2);
+  letter-spacing: .02em;
+}
+
+
+/* ── Tabs ─────────────────────────────────────────────────── */
+.tabs-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 1rem 1.5rem .5rem;
+  background: var(--rule);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.tab-btn {
+  padding: .38rem .85rem;
+  background: rgba(255,255,255,.1);
+  color: rgba(255,255,255,.75);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 4px;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .03em;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  white-space: nowrap;
+}
+.tab-btn:hover  { background: rgba(255,255,255,.2); color: #fff; }
+.tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* ── Markdown content ──────────────────────────────────────── */
+.md-body {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+  font-size: .92rem;
+  line-height: 1.7;
+}
+.md-h1 { font-family: 'Fraunces', Georgia, serif; font-size: 1.5rem; font-weight: 700;
+          color: var(--ink); margin: 2rem 0 .75rem; letter-spacing: -.02em; }
+.md-h2 { font-family: 'Fraunces', Georgia, serif; font-size: 1.2rem; font-weight: 700;
+          color: var(--rule); margin: 1.75rem 0 .6rem; border-bottom: 2px solid var(--border);
+          padding-bottom: .3rem; }
+.md-h3 { font-size: 1rem; font-weight: 700; color: var(--ink); margin: 1.25rem 0 .4rem; }
+.md-h4 { font-size: .92rem; font-weight: 700; color: var(--ink2); margin: 1rem 0 .35rem; }
+.md-p  { margin-bottom: .75rem; }
+.md-bq { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .75rem 1rem;
+          background: rgba(184,137,90,.06); color: var(--ink2); font-size: .88rem;
+          border-radius: 0 4px 4px 0; }
+.md-ul, .md-ol { padding-left: 1.5rem; margin-bottom: .75rem; }
+.md-ul li, .md-ol li { margin-bottom: .3rem; }
+.md-table-wrap { overflow-x: auto; margin: 1rem 0; }
+.md-table { border-collapse: collapse; width: 100%; font-size: .84rem; }
+.md-table th { background: var(--rule); color: #fff; padding: .55rem .85rem;
+               text-align: left; font-weight: 600; font-size: .75rem; }
+.md-table td { padding: .5rem .85rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+.md-table tr:hover td { background: #f8f5f0; }
+hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+code { background: #f1ede6; padding: .1em .35em; border-radius: 3px; font-size: .82em; }
+pre  { background: #f1ede6; padding: 1rem; border-radius: 6px; overflow-x: auto;
+       margin: 1rem 0; font-size: .82em; }
+pre code { background: none; padding: 0; }
+
+/* ── Decision SVG ──────────────────────────────────────────── */
+.decision-tree-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+.decision-tree-label {
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--ink2);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: .5rem;
+}
+
+/* ── Cenario tabs with SVG ─────────────────────────────────── */
+.cenario-tab-header {
+  background: var(--rule);
+  color: #fff;
+  padding: 1.5rem 1.5rem 1rem;
+}
+.cenario-tab-header h2 { font-family: 'Fraunces', Georgia, serif; font-size: 1.4rem;
+                          font-weight: 700; margin-bottom: .25rem; }
+.cenario-tab-header .score-chip {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  padding: .2rem .65rem;
+  border-radius: 20px;
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+  </style>
+  <script id="dashboard-data" type="application/json">
+{
+  "veredito": {
+    "acao": "SUBMETER",
+    "cenario_recomendado": "Cenário 3 — Split",
+    "duracao": "45 dias (Parcela 1 em 2026)",
+    "eua": "Condicional — Parcela 2 em 2027",
+    "prazo_deadline": "2026-05-01T23:59:00",
+    "dias_disponiveis": 90,
+    "bloqueantes_abertos": 3
+  },
+  "cenarios": [
+    {
+      "numero": 1,
+      "titulo_curto": "Base EUA 74d",
+      "descricao": "74 dias contínuos (13/out–25/dez 2026). Requer carta aceite americana.",
+      "recommended": false,
+      "scores": {
+        "viabilidade": 4,
+        "financeiro": 4,
+        "familia": 3,
+        "jogo_longo": 5,
+        "risco": 3,
+        "rodizio": 2,
+        "total": 21
+      }
+    },
+    {
+      "numero": 2,
+      "titulo_curto": "Adiamento 2027",
+      "descricao": "Não submeter ao Edital 29/2026. Aguardar edital 1º sem 2027. Risco PA2 expirar.",
+      "recommended": false,
+      "scores": {
+        "viabilidade": 3,
+        "financeiro": 5,
+        "familia": 5,
+        "jogo_longo": 2,
+        "risco": 3,
+        "rodizio": 4,
+        "total": 22
+      }
+    },
+    {
+      "numero": 3,
+      "titulo_curto": "Split 2026+2027",
+      "descricao": "Parcela 1 (~44d Brasil, out–nov 2026) + Parcela 2 (~44d EUA, jan–mar 2027). Interstício ≥60 dias.",
+      "recommended": true,
+      "scores": {
+        "viabilidade": 4,
+        "financeiro": 4,
+        "familia": 4,
+        "jogo_longo": 4,
+        "risco": 3,
+        "rodizio": 4,
+        "total": 23
+      }
+    },
+    {
+      "numero": 4,
+      "titulo_curto": "Pós-Doc 96-A",
+      "descricao": "Não submeter agora. Priorizar pós-doc art. 96-A (12 meses). PA2 pode expirar.",
+      "recommended": false,
+      "scores": {
+        "viabilidade": 3,
+        "financeiro": 2,
+        "familia": 3,
+        "jogo_longo": 5,
+        "risco": 2,
+        "rodizio": 5,
+        "total": 20
+      }
+    },
+    {
+      "numero": 5,
+      "titulo_curto": "Híbrido BR",
+      "descricao": "30–60 dias no Brasil (motivo 2 ou 7). Zero custo adicional. Bloqueia 96-A por 4 anos.",
+      "recommended": false,
+      "scores": {
+        "viabilidade": 5,
+        "financeiro": 5,
+        "familia": 5,
+        "jogo_longo": 2,
+        "risco": 5,
+        "rodizio": 5,
+        "total": 27
+      }
+    },
+    {
+      "numero": 6,
+      "titulo_curto": "Split EUA 2027",
+      "descricao": "Parcela maior no Brasil 2026 (46d) + visita EUA 2027 (44d). Variante do C3.",
+      "recommended": false,
+      "scores": {
+        "viabilidade": 4,
+        "financeiro": 3,
+        "familia": 4,
+        "jogo_longo": 4,
+        "risco": 3,
+        "rodizio": 4,
+        "total": 22
+      }
+    }
+  ],
+  "timeline": [
+    {
+      "date": "2026-04-22",
+      "label": "Abertura edital",
+      "above": true,
+      "deadline": false
+    },
+    {
+      "date": "2026-04-25",
+      "label": "Hoje",
+      "above": false,
+      "deadline": false
+    },
+    {
+      "date": "2026-05-01",
+      "label": "Prazo submissão",
+      "above": true,
+      "deadline": true
+    },
+    {
+      "date": "2026-05-05",
+      "label": "Resultado prel.",
+      "above": false,
+      "deadline": false
+    },
+    {
+      "date": "2026-05-07",
+      "label": "Recurso",
+      "above": true,
+      "deadline": false
+    },
+    {
+      "date": "2026-05-12",
+      "label": "Resultado final",
+      "above": false,
+      "deadline": false
+    },
+    {
+      "date": "2026-07-01",
+      "label": "Início abrang.",
+      "above": true,
+      "deadline": false
+    },
+    {
+      "date": "2026-10-13",
+      "label": "Início licença",
+      "above": false,
+      "deadline": false
+    },
+    {
+      "date": "2026-12-31",
+      "label": "Fim abrangência",
+      "above": true,
+      "deadline": false
+    }
+  ],
+  "bloqueantes": [
+    {
+      "id": "blq1",
+      "titulo": "Carta de aceite EUA",
+      "cor": "danger",
+      "semaforo": "🔴",
+      "afirmacao": "Motivo 4 e Motivo 2 no exterior exigem comprovante de aceite da instituição estrangeira.",
+      "citacao": "\"Documento de aceite ou confirmação de participação emitido pela instituição ou organização onde serão realizadas as atividades.\" — SUAP Edital 29/2026, checklist obrigatório",
+      "acao": "Contatar professor/supervisor Thalocan para carta de aceite formal.",
+      "responsavel": "Servidor",
+      "prazo": "Até 30/04/2026",
+      "cenarios": "C1, C3"
+    },
+    {
+      "id": "blq2",
+      "titulo": "Anuência da chefia imediata",
+      "cor": "warn",
+      "semaforo": "🟡",
+      "afirmacao": "A concessão fica condicionada à anuência prévia da chefia imediata (DG Campus Exemplo).",
+      "citacao": "\"§2° A concessão da licença para capacitação fica condicionada à anuência prévia da chefia imediata do servidor.\" — Resolução CONSUP/IFRN 18/2021, art. 27",
+      "acao": "Enviar e-mail ao Diretor-Geral do Campus Exemplo comunicando intenção de submeter pedido.",
+      "responsavel": "Servidor",
+      "prazo": "Hoje (25/04/2026)",
+      "cenarios": "C1, C3, C5, C6"
+    },
+    {
+      "id": "blq3",
+      "titulo": "Plano de atividades (CH ≥ 30h/sem)",
+      "cor": "warn",
+      "semaforo": "🟡",
+      "afirmacao": "O plano deve comprovar carga horária mínima de 30h semanais durante toda a licença.",
+      "citacao": "\"Carga horária semanal = CH total ÷ dias × 7\" — NT SEI nº 7.737/2020-ME, item 8",
+      "acao": "Redigir 1 página de cronograma semanal com atividades totalizando ≥30h/sem.",
+      "responsavel": "Servidor",
+      "prazo": "Até 30/04/2026",
+      "cenarios": "Todos (exceto C4)"
+    },
+    {
+      "id": "blq4",
+      "titulo": "Processo seletivo IFRN para pós-doc 96-A",
+      "cor": "danger",
+      "semaforo": "🔴",
+      "afirmacao": "O pós-doc art. 96-A exige processo seletivo interno aberto pelo IFRN.",
+      "citacao": "\"Os afastamentos para participação em programas de pós-doutorado serão precedidos de processo seletivo realizado pelos órgãos responsáveis pela gestão de pessoas.\" — CONSUP/IFRN 18/2021, art. 35",
+      "acao": "Consultar DIGPE sobre previsão de edital para afastamento pós-doutoral (art. 96-A) em 2027.",
+      "responsavel": "Servidor",
+      "prazo": "Esta semana",
+      "cenarios": "C4 apenas"
+    }
+  ],
+  "checklist_docs": [
+    {
+      "id": "doc1",
+      "item": "Formulário de pedido preenchido no SUAP",
+      "obrigatorio": true
+    },
+    {
+      "id": "doc2",
+      "item": "Plano de atividades com CH ≥ 30h/sem (cronograma semanal)",
+      "obrigatorio": true
+    },
+    {
+      "id": "doc3",
+      "item": "Comprovante de alinhamento com PDP IFRN 2026 (âncora L88/L63)",
+      "obrigatorio": true
+    },
+    {
+      "id": "doc4",
+      "item": "Anuência da chefia imediata (e-mail ou declaração assinada)",
+      "obrigatorio": true
+    },
+    {
+      "id": "doc5",
+      "item": "Carta de aceite da instituição estrangeira (se exterior)",
+      "obrigatorio": false
+    },
+    {
+      "id": "doc6",
+      "item": "Comprovação de matrícula / inscrição em curso (se aplicável)",
+      "obrigatorio": false
+    },
+    {
+      "id": "doc7",
+      "item": "Declaração de carga horária atual (≤ 40h/sem)",
+      "obrigatorio": true
+    },
+    {
+      "id": "doc8",
+      "item": "Extrato funcional com tempo efetivo ≥ 5 anos",
+      "obrigatorio": true
+    },
+    {
+      "id": "doc9",
+      "item": "Certidão de não uso de licença capacitação no quinquênio",
+      "obrigatorio": true
+    },
+    {
+      "id": "doc10",
+      "item": "Relatório final pós-afastamento (entregar ao retornar)",
+      "obrigatorio": false
+    }
+  ],
+  "proximos_passos": {
+    "c3": {
+      "titulo": "Cenário 3 — Split (RECOMENDADO)",
+      "passos": [
+        {
+          "prazo": "Hoje",
+          "acao": "E-mail ao DG Campus Exemplo comunicando intenção de pedir lic. cap."
+        },
+        {
+          "prazo": "Hoje",
+          "acao": "Ligar para DIGPE/CODEPE — confirmar PDP 2026 e procedimento."
+        },
+        {
+          "prazo": "Até 28/04",
+          "acao": "Contatar professor Thalocan para carta de aceite (Parcela 2 futura em 2027)."
+        },
+        {
+          "prazo": "Até 30/04",
+          "acao": "Redigir Plano de Atividades P1 (~45 dias, Brasil, CH ≥ 30h/sem)."
+        },
+        {
+          "prazo": "01/05 23:59",
+          "acao": "Submeter P1 no SUAP (motivo 2 ou 7 · Brasil · ~44d · out–nov 2026)."
+        },
+        {
+          "prazo": "Nov 2026",
+          "acao": "Submeter P2 no edital 1º sem 2027 (EUA · carta aceite em mãos)."
+        }
+      ]
+    },
+    "c1": {
+      "titulo": "Cenário 1 — Base EUA 74 dias (carta confirmada)",
+      "passos": [
+        {
+          "prazo": "Hoje",
+          "acao": "Confirmar carta de aceite já em mãos da universidade americana."
+        },
+        {
+          "prazo": "Hoje",
+          "acao": "E-mail ao DG Campus Exemplo + verificar PDP com DIGPE."
+        },
+        {
+          "prazo": "Até 30/04",
+          "acao": "Redigir Plano de Atividades: 74 dias (CH ≥ 317h totais), cronograma Brasil + EUA."
+        },
+        {
+          "prazo": "01/05 23:59",
+          "acao": "Submeter pedido (74 dias, motivo 2 ou 4, datas 13/out–25/dez 2026)."
+        }
+      ]
+    },
+    "c4": {
+      "titulo": "Cenário 4 — Não submeter agora (pós-doc 96-A)",
+      "passos": [
+        {
+          "prazo": "Agora",
+          "acao": "NÃO submeter ao Edital 29/2026. Aceitar risco de perda PA2."
+        },
+        {
+          "prazo": "Esta semana",
+          "acao": "Consultar DIGPE sobre previsão de edital para pós-doc 96-A em 2027."
+        },
+        {
+          "prazo": "Até 30/04",
+          "acao": "Contatar professor Thalocan: aceita pós-doc de 12 meses em 2027–2028?"
+        },
+        {
+          "prazo": "Mai 2026",
+          "acao": "Verificar se edital 1º sem 2027 terá abrangência anterior a DD/MM/AAAA+5."
+        }
+      ]
+    }
+  }
+}
+  </script>
+</head>
+<body>
+<div style="background:#fef3c7;border:1px solid #f59e0b;padding:0.75rem 1rem;font-family:sans-serif;font-size:0.85rem;text-align:center;position:sticky;top:0;z-index:9999">⚠️ <strong>Dados anonimizados</strong> — projeto de portfólio. Versão real reside em repositório privado.</div>
+
+<nav class="tabs-nav" aria-label="Seções do dashboard"><button class="tab-btn" data-tab="tab-visao-geral">Visão Geral</button><button class="tab-btn" data-tab="tab-elegibilidade">Elegibilidade</button><button class="tab-btn" data-tab="tab-riscos">Riscos</button><button class="tab-btn" data-tab="tab-recomendacao">Recomendação</button><button class="tab-btn" data-tab="tab-cenario-1">C1 — Base EUA</button><button class="tab-btn" data-tab="tab-cenario-2">C2 — Adiamento</button><button class="tab-btn" data-tab="tab-cenario-3">C3 — Split ⭐</button><button class="tab-btn" data-tab="tab-cenario-4">C4 — Pós-Doc</button><button class="tab-btn" data-tab="tab-cenario-5">C5 — Híbrido</button><button class="tab-btn" data-tab="tab-cenario-6">C6 — Split EUA</button><button class="tab-btn" data-tab="tab-checklist">Checklist docs</button><button class="tab-btn" data-tab="tab-pdp">PDP Cidade Exemplo</button></nav>
+
+<div id="tab-container">
+<div class="tab-pane" id="tab-visao-geral" role="tabpanel">
+  <header class="hero reveal" data-section="hero">
+    <div class="hero-inner">
+      <div class="hero-verdict">SUBMETER</div>
+      <div class="hero-chips">
+        <div class="chip chip-ok">✅ Elegível — 90 dias disponíveis</div>
+        <div class="chip chip-warn">⚠ 3 bloqueantes abertos</div>
+        <div class="chip chip-danger">🔴 Prazo: 01/05/2026 23:59</div>
+      </div>
+      <div class="hero-meta">
+        <span class="hero-meta-item"><strong>Cenário:</strong> Cenário 3 — Split</span>
+        <span class="hero-sep">·</span>
+        <span class="hero-meta-item"><strong>Duração:</strong> 45 dias (Parcela 1 em 2026)</span>
+        <span class="hero-sep">·</span>
+        <span class="hero-meta-item"><strong>EUA:</strong> Condicional — Parcela 2 em 2027</span>
+      </div>
+      <div id="countdown" class="countdown-wrap" aria-live="polite"></div>
+      <div class="hero-ctas">
+        <a href="#bloqueantes" class="cta cta-primary">Ver bloqueantes</a>
+        <a href="#proximos-passos" class="cta cta-outline">Próximos passos</a>
+      </div>
+    </div>
+  </header>
+  <section class="section reveal" data-section="timeline">
+    <div class="section-inner">
+      <h2 class="section-title">Timeline 2026</h2>
+      <div class="timeline-wrap">
+        <svg id="timeline-svg" role="img" aria-label="Timeline de datas do edital" style="width:100%;display:block;"></svg>
+      </div>
+    </div>
+  </section>
+  <section class="section reveal" data-section="decisao">
+    <div class="section-inner">
+      <h2 class="section-title">Árvore de decisão</h2>
+      <p class="section-lead">Responda as 3 perguntas abaixo para ver o caminho recomendado.</p>
+
+      <div class="dtree">
+
+        <div class="dtree-question">
+          <div class="dtree-q-label">1. Você quer usar o PA2 antes de DD/MM/AAAA+5 (risco de expirar)?</div>
+          <div class="dtree-btns">
+            <button class="dtree-btn" data-dtree-btn data-dtree-group="q1" data-dtree-target="q2">Sim — quero usar</button>
+            <button class="dtree-btn" data-dtree-btn data-dtree-group="q1" data-dtree-target="res-c4">Não — prefiro pós-doc 96-A antes de 2030</button>
+          </div>
+        </div>
+
+        <div class="dtree-question" id="q2" data-dtree-result="q2" style="display:none">
+          <div class="dtree-q-label">2. Tem carta de aceite de universidade americana agora (até 01/05/2026)?</div>
+          <div class="dtree-btns">
+            <button class="dtree-btn" data-dtree-btn data-dtree-group="q2" data-dtree-target="res-c1">Sim — carta em mãos</button>
+            <button class="dtree-btn" data-dtree-btn data-dtree-group="q2" data-dtree-target="q3">Não — ainda não</button>
+          </div>
+        </div>
+
+        <div class="dtree-question" id="q3" data-dtree-result="q3" style="display:none">
+          <div class="dtree-q-label">3. Pretende ir aos EUA em 2027 (Parcela 2) e conseguir carta até Nov/2026?</div>
+          <div class="dtree-btns">
+            <button class="dtree-btn" data-dtree-btn data-dtree-group="q3" data-dtree-target="res-c3">Sim — Split 2026+2027</button>
+            <button class="dtree-btn" data-dtree-btn data-dtree-group="q3" data-dtree-target="res-c5">Não — só Brasil, sem EUA</button>
+          </div>
+        </div>
+
+        <div class="dtree-result result-recommended" data-dtree-result="res-c3">
+          <div class="dtree-result-badge">⭐ Recomendado</div>
+          <div class="dtree-result-title">Cenário 3 — Split 2026+2027</div>
+          <div class="dtree-result-body">Parcela 1 (~44 dias Brasil, out–nov 2026) + Parcela 2 (~44 dias EUA, jan–mar 2027). Score: <strong>23/30</strong>. Melhor equilíbrio entre jogo longo, risco, família e impacto no grupo.</div>
+          <a href="#proximos-passos" class="cta cta-primary" style="margin-top:1rem">Ver próximos passos (C3)</a>
+        </div>
+
+        <div class="dtree-result" data-dtree-result="res-c1">
+          <div class="dtree-result-badge">Cenário 1</div>
+          <div class="dtree-result-title">Base EUA — 74 dias</div>
+          <div class="dtree-result-body">74 dias contínuos (13/out–25/dez 2026). Score: <strong>21/30</strong>. Máximo jogo longo se EUA confirmado. Maior impacto no rodízio do grupo.</div>
+          <a href="#proximos-passos" class="cta cta-primary" style="margin-top:1rem">Ver próximos passos (C1)</a>
+        </div>
+
+        <div class="dtree-result" data-dtree-result="res-c5">
+          <div class="dtree-result-badge">Cenário 5</div>
+          <div class="dtree-result-title">Híbrido Conservador — só Brasil</div>
+          <div class="dtree-result-body">30–60 dias no Brasil (motivo 7 ou 2). Maior score absoluto (27/30) mas pior jogo longo (bloqueia 96-A por 4 anos).</div>
+          <a href="#proximos-passos" class="cta cta-primary" style="margin-top:1rem">Ver próximos passos (C3)</a>
+        </div>
+
+        <div class="dtree-result result-alert" data-dtree-result="res-c4">
+          <div class="dtree-result-badge">⚠ Cenário 4</div>
+          <div class="dtree-result-title">Não submeter — priorizar pós-doc 96-A</div>
+          <div class="dtree-result-body">Não submeter ao Edital 29/2026. Perseguir pós-doc (art. 96-A) em 2027. Score: <strong>20/30</strong>. Risco: PA2 pode expirar. Só faz sentido se o pós-doc acontecer antes de 2030.</div>
+          <a href="#proximos-passos" class="cta cta-outline" style="margin-top:1rem">Ver próximos passos (C4)</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+  <section class="section reveal" data-section="cenarios">
+    <div class="section-inner">
+      <h2 class="section-title">Comparativo dos 6 cenários</h2>
+      <div class="cenarios-grid">
+        <div class="cenario-card reveal">
+          <div class="cenario-header">
+            <span class="cenario-num">C1</span>
+            <span class="cenario-titulo">Base EUA 74d</span>
+            
+            <span class="cenario-total">21/30</span>
+          </div>
+          <p class="cenario-desc">74 dias contínuos (13/out–25/dez 2026). Requer carta aceite americana.</p>
+          <div class="score-bars">
+            <div class="score-row">
+              <span class="score-label">Viabilidade</span>
+              <div class="score-track"><div class="score-fill" data-pct="80" style="width:0%"></div></div>
+              <span class="score-val">4/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Financeiro</span>
+              <div class="score-track"><div class="score-fill" data-pct="80" style="width:0%"></div></div>
+              <span class="score-val">4/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Família</span>
+              <div class="score-track"><div class="score-fill" data-pct="60" style="width:0%"></div></div>
+              <span class="score-val">3/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Jogo Longo</span>
+              <div class="score-track"><div class="score-fill" data-pct="100" style="width:0%"></div></div>
+              <span class="score-val">5/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Baixo Risco</span>
+              <div class="score-track"><div class="score-fill" data-pct="60" style="width:0%"></div></div>
+              <span class="score-val">3/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Grupo/Rodízio</span>
+              <div class="score-track"><div class="score-fill" data-pct="40" style="width:0%"></div></div>
+              <span class="score-val">2/5</span>
+            </div>
+          </div>
+        </div>
+        <div class="cenario-card reveal">
+          <div class="cenario-header">
+            <span class="cenario-num">C2</span>
+            <span class="cenario-titulo">Adiamento 2027</span>
+            
+            <span class="cenario-total">22/30</span>
+          </div>
+          <p class="cenario-desc">Não submeter ao Edital 29/2026. Aguardar edital 1º sem 2027. Risco PA2 expirar.</p>
+          <div class="score-bars">
+            <div class="score-row">
+              <span class="score-label">Viabilidade</span>
+              <div class="score-track"><div class="score-fill" data-pct="60" style="width:0%"></div></div>
+              <span class="score-val">3/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Financeiro</span>
+              <div class="score-track"><div class="score-fill" data-pct="100" style="width:0%"></div></div>
+              <span class="score-val">5/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Família</span>
+              <div class="score-track"><div class="score-fill" data-pct="100" style="width:0%"></div></div>
+              <span class="score-val">5/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Jogo Longo</span>
+              <div class="score-track"><div class="score-fill" data-pct="40" style="width:0%"></div></div>
+              <span class="score-val">2/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Baixo Risco</span>
+              <div class="score-track"><div class="score-fill" data-pct="60" style="width:0%"></div></div>
+              <span class="score-val">3/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Grupo/Rodízio</span>
+              <div class="score-track"><div class="score-fill" data-pct="80" style="width:0%"></div></div>
+              <span class="score-val">4/5</span>
+            </div>
+          </div>
+        </div>
+        <div class="cenario-card cenario-recommended reveal">
+          <div class="cenario-header">
+            <span class="cenario-num">C3</span>
+            <span class="cenario-titulo">Split 2026+2027</span>
+            <span class="rec-badge">⭐ Recomendado</span>
+            <span class="cenario-total">23/30</span>
+          </div>
+          <p class="cenario-desc">Parcela 1 (~44d Brasil, out–nov 2026) + Parcela 2 (~44d EUA, jan–mar 2027). Interstício ≥60 dias.</p>
+          <div class="score-bars">
+            <div class="score-row">
+              <span class="score-label">Viabilidade</span>
+              <div class="score-track"><div class="score-fill" data-pct="80" style="width:0%"></div></div>
+              <span class="score-val">4/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Financeiro</span>
+              <div class="score-track"><div class="score-fill" data-pct="80" style="width:0%"></div></div>
+              <span class="score-val">4/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Família</span>
+              <div class="score-track"><div class="score-fill" data-pct="80" style="width:0%"></div></div>
+              <span class="score-val">4/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Jogo Longo</span>
+              <div class="score-track"><div class="score-fill" data-pct="80" style="width:0%"></div></div>
+              <span class="score-val">4/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Baixo Risco</span>
+              <div class="score-track"><div class="score-fill" data-pct="60" style="width:0%"></div></div>
+              <span class="score-val">3/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Grupo/Rodízio</span>
+              <div class="score-track"><div class="score-fill" data-pct="80" style="width:0%"></div></div>
+              <span class="score-val">4/5</span>
+            </div>
+          </div>
+        </div>
+        <div class="cenario-card reveal">
+          <div class="cenario-header">
+            <span class="cenario-num">C4</span>
+            <span class="cenario-titulo">Pós-Doc 96-A</span>
+            
+            <span class="cenario-total">20/30</span>
+          </div>
+          <p class="cenario-desc">Não submeter agora. Priorizar pós-doc art. 96-A (12 meses). PA2 pode expirar.</p>
+          <div class="score-bars">
+            <div class="score-row">
+              <span class="score-label">Viabilidade</span>
+              <div class="score-track"><div class="score-fill" data-pct="60" style="width:0%"></div></div>
+              <span class="score-val">3/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Financeiro</span>
+              <div class="score-track"><div class="score-fill" data-pct="40" style="width:0%"></div></div>
+              <span class="score-val">2/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Família</span>
+              <div class="score-track"><div class="score-fill" data-pct="60" style="width:0%"></div></div>
+              <span class="score-val">3/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Jogo Longo</span>
+              <div class="score-track"><div class="score-fill" data-pct="100" style="width:0%"></div></div>
+              <span class="score-val">5/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Baixo Risco</span>
+              <div class="score-track"><div class="score-fill" data-pct="40" style="width:0%"></div></div>
+              <span class="score-val">2/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Grupo/Rodízio</span>
+              <div class="score-track"><div class="score-fill" data-pct="100" style="width:0%"></div></div>
+              <span class="score-val">5/5</span>
+            </div>
+          </div>
+        </div>
+        <div class="cenario-card reveal">
+          <div class="cenario-header">
+            <span class="cenario-num">C5</span>
+            <span class="cenario-titulo">Híbrido BR</span>
+            
+            <span class="cenario-total">27/30</span>
+          </div>
+          <p class="cenario-desc">30–60 dias no Brasil (motivo 2 ou 7). Zero custo adicional. Bloqueia 96-A por 4 anos.</p>
+          <div class="score-bars">
+            <div class="score-row">
+              <span class="score-label">Viabilidade</span>
+              <div class="score-track"><div class="score-fill" data-pct="100" style="width:0%"></div></div>
+              <span class="score-val">5/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Financeiro</span>
+              <div class="score-track"><div class="score-fill" data-pct="100" style="width:0%"></div></div>
+              <span class="score-val">5/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Família</span>
+              <div class="score-track"><div class="score-fill" data-pct="100" style="width:0%"></div></div>
+              <span class="score-val">5/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Jogo Longo</span>
+              <div class="score-track"><div class="score-fill" data-pct="40" style="width:0%"></div></div>
+              <span class="score-val">2/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Baixo Risco</span>
+              <div class="score-track"><div class="score-fill" data-pct="100" style="width:0%"></div></div>
+              <span class="score-val">5/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Grupo/Rodízio</span>
+              <div class="score-track"><div class="score-fill" data-pct="100" style="width:0%"></div></div>
+              <span class="score-val">5/5</span>
+            </div>
+          </div>
+        </div>
+        <div class="cenario-card reveal">
+          <div class="cenario-header">
+            <span class="cenario-num">C6</span>
+            <span class="cenario-titulo">Split EUA 2027</span>
+            
+            <span class="cenario-total">22/30</span>
+          </div>
+          <p class="cenario-desc">Parcela maior no Brasil 2026 (46d) + visita EUA 2027 (44d). Variante do C3.</p>
+          <div class="score-bars">
+            <div class="score-row">
+              <span class="score-label">Viabilidade</span>
+              <div class="score-track"><div class="score-fill" data-pct="80" style="width:0%"></div></div>
+              <span class="score-val">4/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Financeiro</span>
+              <div class="score-track"><div class="score-fill" data-pct="60" style="width:0%"></div></div>
+              <span class="score-val">3/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Família</span>
+              <div class="score-track"><div class="score-fill" data-pct="80" style="width:0%"></div></div>
+              <span class="score-val">4/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Jogo Longo</span>
+              <div class="score-track"><div class="score-fill" data-pct="80" style="width:0%"></div></div>
+              <span class="score-val">4/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Baixo Risco</span>
+              <div class="score-track"><div class="score-fill" data-pct="60" style="width:0%"></div></div>
+              <span class="score-val">3/5</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">Grupo/Rodízio</span>
+              <div class="score-track"><div class="score-fill" data-pct="80" style="width:0%"></div></div>
+              <span class="score-val">4/5</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="charts-grid">
+        <div class="chart-card reveal">
+          <div class="chart-wrap">
+            <canvas id="radar-chart"></canvas>
+          </div>
+        </div>
+        <div class="chart-card reveal">
+          <div class="chart-wrap">
+            <canvas id="bar-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section reveal" id="bloqueantes" data-section="bloqueantes">
+    <div class="section-inner">
+      <h2 class="section-title">Bloqueantes acionáveis</h2>
+      <p class="section-lead">Clique no ✓ para marcar como desbloqueado — estado persiste entre sessões.</p>
+      <div class="blq-list">
+        <div class="blq-card blq-danger reveal" data-blq-id="blq1">
+          <div class="blq-header">
+            <span class="blq-semaforo">🔴</span>
+            <span class="blq-titulo">Carta de aceite EUA</span>
+            <span class="blq-cenarios">(C1, C3)</span>
+            <button class="toggle-btn" title="Marcar como resolvido" aria-label="Marcar como resolvido"></button>
+          </div>
+          <details class="blq-details">
+            <summary>Ver embasamento normativo</summary>
+            <blockquote class="blq-citacao">"Documento de aceite ou confirmação de participação emitido pela instituição ou organização onde serão realizadas as atividades." — SUAP Edital 29/2026, checklist obrigatório</blockquote>
+            <p class="blq-afirmacao">Motivo 4 e Motivo 2 no exterior exigem comprovante de aceite da instituição estrangeira.</p>
+          </details>
+          <div class="blq-acao">
+            <strong>Ação:</strong> Contatar professor/supervisor Thalocan para carta de aceite formal.
+            &nbsp;<span class="blq-meta">Responsável: Servidor · Prazo: Até 30/04/2026</span>
+          </div>
+        </div>
+        <div class="blq-card blq-warn reveal" data-blq-id="blq2">
+          <div class="blq-header">
+            <span class="blq-semaforo">🟡</span>
+            <span class="blq-titulo">Anuência da chefia imediata</span>
+            <span class="blq-cenarios">(C1, C3, C5, C6)</span>
+            <button class="toggle-btn" title="Marcar como resolvido" aria-label="Marcar como resolvido"></button>
+          </div>
+          <details class="blq-details">
+            <summary>Ver embasamento normativo</summary>
+            <blockquote class="blq-citacao">"§2° A concessão da licença para capacitação fica condicionada à anuência prévia da chefia imediata do servidor." — Resolução CONSUP/IFRN 18/2021, art. 27</blockquote>
+            <p class="blq-afirmacao">A concessão fica condicionada à anuência prévia da chefia imediata (DG Campus Exemplo).</p>
+          </details>
+          <div class="blq-acao">
+            <strong>Ação:</strong> Enviar e-mail ao Diretor-Geral do Campus Exemplo comunicando intenção de submeter pedido.
+            &nbsp;<span class="blq-meta">Responsável: Servidor · Prazo: Hoje (25/04/2026)</span>
+          </div>
+        </div>
+        <div class="blq-card blq-warn reveal" data-blq-id="blq3">
+          <div class="blq-header">
+            <span class="blq-semaforo">🟡</span>
+            <span class="blq-titulo">Plano de atividades (CH ≥ 30h/sem)</span>
+            <span class="blq-cenarios">(Todos (exceto C4))</span>
+            <button class="toggle-btn" title="Marcar como resolvido" aria-label="Marcar como resolvido"></button>
+          </div>
+          <details class="blq-details">
+            <summary>Ver embasamento normativo</summary>
+            <blockquote class="blq-citacao">"Carga horária semanal = CH total ÷ dias × 7" — NT SEI nº 7.737/2020-ME, item 8</blockquote>
+            <p class="blq-afirmacao">O plano deve comprovar carga horária mínima de 30h semanais durante toda a licença.</p>
+          </details>
+          <div class="blq-acao">
+            <strong>Ação:</strong> Redigir 1 página de cronograma semanal com atividades totalizando ≥30h/sem.
+            &nbsp;<span class="blq-meta">Responsável: Servidor · Prazo: Até 30/04/2026</span>
+          </div>
+        </div>
+        <div class="blq-card blq-danger reveal" data-blq-id="blq4">
+          <div class="blq-header">
+            <span class="blq-semaforo">🔴</span>
+            <span class="blq-titulo">Processo seletivo IFRN para pós-doc 96-A</span>
+            <span class="blq-cenarios">(C4 apenas)</span>
+            <button class="toggle-btn" title="Marcar como resolvido" aria-label="Marcar como resolvido"></button>
+          </div>
+          <details class="blq-details">
+            <summary>Ver embasamento normativo</summary>
+            <blockquote class="blq-citacao">"Os afastamentos para participação em programas de pós-doutorado serão precedidos de processo seletivo realizado pelos órgãos responsáveis pela gestão de pessoas." — CONSUP/IFRN 18/2021, art. 35</blockquote>
+            <p class="blq-afirmacao">O pós-doc art. 96-A exige processo seletivo interno aberto pelo IFRN.</p>
+          </details>
+          <div class="blq-acao">
+            <strong>Ação:</strong> Consultar DIGPE sobre previsão de edital para afastamento pós-doutoral (art. 96-A) em 2027.
+            &nbsp;<span class="blq-meta">Responsável: Servidor · Prazo: Esta semana</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section reveal" data-section="checklist">
+    <div class="section-inner">
+      <h2 class="section-title">Checklist de documentos</h2>
+      <p class="section-lead">Marque conforme for reunindo os documentos para submissão no SUAP.</p>
+      <div class="chk-list">
+        <div class="chk-item reveal" data-chk-id="doc1">
+          <span class="chk-box" aria-hidden="true"></span>
+          <span class="chk-label">Formulário de pedido preenchido no SUAP <span class="doc-obrig">obrigatório</span></span>
+        </div>
+        <div class="chk-item reveal" data-chk-id="doc2">
+          <span class="chk-box" aria-hidden="true"></span>
+          <span class="chk-label">Plano de atividades com CH ≥ 30h/sem (cronograma semanal) <span class="doc-obrig">obrigatório</span></span>
+        </div>
+        <div class="chk-item reveal" data-chk-id="doc3">
+          <span class="chk-box" aria-hidden="true"></span>
+          <span class="chk-label">Comprovante de alinhamento com PDP IFRN 2026 (âncora L88/L63) <span class="doc-obrig">obrigatório</span></span>
+        </div>
+        <div class="chk-item reveal" data-chk-id="doc4">
+          <span class="chk-box" aria-hidden="true"></span>
+          <span class="chk-label">Anuência da chefia imediata (e-mail ou declaração assinada) <span class="doc-obrig">obrigatório</span></span>
+        </div>
+        <div class="chk-item reveal" data-chk-id="doc5">
+          <span class="chk-box" aria-hidden="true"></span>
+          <span class="chk-label">Carta de aceite da instituição estrangeira (se exterior) <span class="doc-opcional">opcional</span></span>
+        </div>
+        <div class="chk-item reveal" data-chk-id="doc6">
+          <span class="chk-box" aria-hidden="true"></span>
+          <span class="chk-label">Comprovação de matrícula / inscrição em curso (se aplicável) <span class="doc-opcional">opcional</span></span>
+        </div>
+        <div class="chk-item reveal" data-chk-id="doc7">
+          <span class="chk-box" aria-hidden="true"></span>
+          <span class="chk-label">Declaração de carga horária atual (≤ 40h/sem) <span class="doc-obrig">obrigatório</span></span>
+        </div>
+        <div class="chk-item reveal" data-chk-id="doc8">
+          <span class="chk-box" aria-hidden="true"></span>
+          <span class="chk-label">Extrato funcional com tempo efetivo ≥ 5 anos <span class="doc-obrig">obrigatório</span></span>
+        </div>
+        <div class="chk-item reveal" data-chk-id="doc9">
+          <span class="chk-box" aria-hidden="true"></span>
+          <span class="chk-label">Certidão de não uso de licença capacitação no quinquênio <span class="doc-obrig">obrigatório</span></span>
+        </div>
+        <div class="chk-item reveal" data-chk-id="doc10">
+          <span class="chk-box" aria-hidden="true"></span>
+          <span class="chk-label">Relatório final pós-afastamento (entregar ao retornar) <span class="doc-opcional">opcional</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section reveal" id="proximos-passos" data-section="proximos-passos">
+    <div class="section-inner">
+      <h2 class="section-title">Próximos passos (por cenário)</h2>
+      <p class="section-lead">Selecione o ramo correspondente à sua decisão.</p>
+      <div class="nextstep-list">
+        
+        <div class="nextstep-panel">
+          <button class="nextstep-trigger" aria-expanded="true">
+            Cenário 3 — Split (RECOMENDADO)
+            <span class="nextstep-arrow">▼</span>
+          </button>
+          <div class="nextstep-body open">
+              <div class="nextstep-item">
+                <span class="nextstep-num">1</span>
+                <span class="nextstep-prazo">Hoje</span>
+                <span class="nextstep-acao">E-mail ao DG Campus Exemplo comunicando intenção de pedir lic. cap.</span>
+              </div>
+              <div class="nextstep-item">
+                <span class="nextstep-num">2</span>
+                <span class="nextstep-prazo">Hoje</span>
+                <span class="nextstep-acao">Ligar para DIGPE/CODEPE — confirmar PDP 2026 e procedimento.</span>
+              </div>
+              <div class="nextstep-item">
+                <span class="nextstep-num">3</span>
+                <span class="nextstep-prazo">Até 28/04</span>
+                <span class="nextstep-acao">Contatar professor Thalocan para carta de aceite (Parcela 2 futura em 2027).</span>
+              </div>
+              <div class="nextstep-item">
+                <span class="nextstep-num">4</span>
+                <span class="nextstep-prazo">Até 30/04</span>
+                <span class="nextstep-acao">Redigir Plano de Atividades P1 (~45 dias, Brasil, CH ≥ 30h/sem).</span>
+              </div>
+              <div class="nextstep-item">
+                <span class="nextstep-num">5</span>
+                <span class="nextstep-prazo">01/05 23:59</span>
+                <span class="nextstep-acao">Submeter P1 no SUAP (motivo 2 ou 7 · Brasil · ~44d · out–nov 2026).</span>
+              </div>
+              <div class="nextstep-item">
+                <span class="nextstep-num">6</span>
+                <span class="nextstep-prazo">Nov 2026</span>
+                <span class="nextstep-acao">Submeter P2 no edital 1º sem 2027 (EUA · carta aceite em mãos).</span>
+              </div>
+          </div>
+        </div>
+        
+        <div class="nextstep-panel">
+          <button class="nextstep-trigger" aria-expanded="false">
+            Cenário 1 — Base EUA 74 dias (carta confirmada)
+            <span class="nextstep-arrow">▼</span>
+          </button>
+          <div class="nextstep-body">
+              <div class="nextstep-item">
+                <span class="nextstep-num">1</span>
+                <span class="nextstep-prazo">Hoje</span>
+                <span class="nextstep-acao">Confirmar carta de aceite já em mãos da universidade americana.</span>
+              </div>
+              <div class="nextstep-item">
+                <span class="nextstep-num">2</span>
+                <span class="nextstep-prazo">Hoje</span>
+                <span class="nextstep-acao">E-mail ao DG Campus Exemplo + verificar PDP com DIGPE.</span>
+              </div>
+              <div class="nextstep-item">
+                <span class="nextstep-num">3</span>
+                <span class="nextstep-prazo">Até 30/04</span>
+                <span class="nextstep-acao">Redigir Plano de Atividades: 74 dias (CH ≥ 317h totais), cronograma Brasil + EUA.</span>
+              </div>
+              <div class="nextstep-item">
+                <span class="nextstep-num">4</span>
+                <span class="nextstep-prazo">01/05 23:59</span>
+                <span class="nextstep-acao">Submeter pedido (74 dias, motivo 2 ou 4, datas 13/out–25/dez 2026).</span>
+              </div>
+          </div>
+        </div>
+        
+        <div class="nextstep-panel">
+          <button class="nextstep-trigger" aria-expanded="false">
+            Cenário 4 — Não submeter agora (pós-doc 96-A)
+            <span class="nextstep-arrow">▼</span>
+          </button>
+          <div class="nextstep-body">
+              <div class="nextstep-item">
+                <span class="nextstep-num">1</span>
+                <span class="nextstep-prazo">Agora</span>
+                <span class="nextstep-acao">NÃO submeter ao Edital 29/2026. Aceitar risco de perda PA2.</span>
+              </div>
+              <div class="nextstep-item">
+                <span class="nextstep-num">2</span>
+                <span class="nextstep-prazo">Esta semana</span>
+                <span class="nextstep-acao">Consultar DIGPE sobre previsão de edital para pós-doc 96-A em 2027.</span>
+              </div>
+              <div class="nextstep-item">
+                <span class="nextstep-num">3</span>
+                <span class="nextstep-prazo">Até 30/04</span>
+                <span class="nextstep-acao">Contatar professor Thalocan: aceita pós-doc de 12 meses em 2027–2028?</span>
+              </div>
+              <div class="nextstep-item">
+                <span class="nextstep-num">4</span>
+                <span class="nextstep-prazo">Mai 2026</span>
+                <span class="nextstep-acao">Verificar se edital 1º sem 2027 terá abrangência anterior a DD/MM/AAAA+5.</span>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section reveal" data-section="fontes">
+    <div class="section-inner">
+      <h2 class="section-title">Fontes normativas</h2>
+      <ul class="fontes-list">
+        <li><strong>Lei 8.112/1990, arts. 87 e 96-A</strong> — Licença capacitação e afastamento pós-doc exterior</li>
+        <li><strong>Decreto 9.991/2019, arts. 23–27</strong> — PDP, critérios de concessão, CH mínima, parcelamento</li>
+        <li><strong>IN SGP/ME nº 21/2021</strong> — Procedimentos para concessão de licença capacitação</li>
+        <li><strong>NT SEI nº 7.737/2020-ME</strong> — Interpretação de carga horária semanal mínima (30h)</li>
+        <li><strong>Resolução CONSUP/IFRN nº 18/2021, arts. 24–48 + Anexo I</strong> — Normas IFRN: interstício, parcelas, processo seletivo 96-A</li>
+        <li><strong>PDP IFRN 2026</strong> — Âncoras L88 (IA + governança de dados — PF), L63 (IA educacional — PF), L69 (línguas — sistêmica)</li>
+        <li><strong>SUAP Edital nº 29/2026-DIDEPE/IFRN</strong> — Prazos, motivos, checklist e abrangência do edital vigente</li>
+      </ul>
+    </div>
+  </section></div>
+<div class="tab-pane" id="tab-elegibilidade" role="tabpanel"><div class="md-body"><h2 class="md-h1">Análise de Elegibilidade — Licença Capacitação IFRN Edital 29/2026</h2>
+
+<p class="md-p"><strong>Servidor:</strong> Servidor Exemplo — matrícula 0000000</p>
+<p class="md-p"><strong>Titulação:</strong> Doutor</p>
+<p class="md-p"><strong>Tempo de efetivo exercício:</strong> ~14 anos (5.129 dias)</p>
+<p class="md-p"><strong>Estágio probatório concluído:</strong> ✓</p>
+<p class="md-p"><strong>RIT/PIT em dia:</strong> ✓</p>
+
+<hr>
+
+<h3 class="md-h2">Resultado — Elegível ✅</h3>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Requisito</th><th>Servidor</th><th>Status</th></tr></thead><tbody><tr><td>Quinquênio de efetivo exercício (PA)</td><td>PA2 válido: DD/MM/AAAA-5–09/04/2022</td><td>✅</td></tr><tr><td>Usufruto dentro do prazo</td><td>DD/MM/AAAA–DD/MM/AAAA+5 (edital Jul–Dez 2026 dentro)</td><td>✅</td></tr><tr><td>Dias disponíveis no PA2</td><td>90 dias (0 usados em SIAPE + SUAP)</td><td>✅</td></tr><tr><td>Estágio probatório</td><td>Concluído</td><td>✅</td></tr><tr><td>RIT/PIT sem pendências</td><td>Em dia</td><td>✅</td></tr><tr><td>Licença capacitação anterior</td><td>Nenhuma registrada</td><td>✅ (sem interstício)</td></tr><tr><td>PAs não acumuláveis</td><td>PA1 expirado; PA2 em uso; PA3 ainda não usufruível</td><td>✅</td></tr></tbody></table></div>
+
+<hr>
+
+<h3 class="md-h2">Bloco normativo — Tempo mínimo e base legal (Art. 87, Lei 8.112/90)</h3>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> Após cada quinquênio de efetivo exercício, o servidor tem direito a até 90 dias (3 meses) de licença remunerada para capacitação. Servidor acumulou ~14 anos de efetivo exercício, o que lhe confere três períodos aquisitivos; o PA2 (quinquênio 2017–2022) está válido para usufruto até DD/MM/AAAA+5 — bem dentro da janela deste edital.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "Após cada quinquênio de efetivo exercício, o servidor poderá, no interesse da Administração, afastar-se do exercício do cargo efetivo, com a respectiva remuneração, por até três meses, para participar de curso de capacitação profissional." — *Lei 8.112/1990, art. 87 (redação dada pela Lei nº 9.527/1997)*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação complementar:</strong> "Os períodos de licença de que trata o caput não são acumuláveis." — *Lei 8.112/1990, art. 87, parágrafo único*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Leitura:</strong> O PA1 (2012–2017) expirou sem uso em 2022 — perdido de acordo com o parágrafo único. O PA2 (2017–2022) está em pleno usufruto até DD/MM/AAAA+5 com 90 dias integrais disponíveis. Qualquer pedido no Edital 29/2026 (abrangência 01/07–31/12/2026) é tempestivo e cabe inteiramente no PA2.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟢 Alta
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Bloco normativo — Interstício entre parcelas de Licença Capacitação</h3>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> Não existe interstício que impeça Servidor de usufruir o PA2 agora — é a primeira licença capacitação que ele solicita. Caso parcele, o interstício mínimo entre parcelas é de <strong>60 dias</strong>.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "O interstício mínimo entre quaisquer parcelas da licença para capacitação deverá ser de 60 (sessenta) dias." — *Resolução CONSUP/IFRN nº 18/2021, art. 27, §4°*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação complementar:</strong> "A licença para capacitação poderá ser parcelada em, no máximo, seis períodos e o menor período não poderá ser inferior a 15 (quinze) dias." — *Decreto nº 9.991/2019, art. 25, §3°*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Leitura:</strong> Como Servidor nunca usufruiu lic. cap., não há interstício inicial. Se optar por Cenário 3 (Split), o interstício de 60 dias entre parcelas impõe uma distância mínima: se Parcela 1 terminar em, digamos, 30/nov/2026, a Parcela 2 só pode começar em 29/jan/2027 no mínimo (dentro do PA2 até DD/MM/AAAA+5).
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟢 Alta
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Bloco normativo — Carga horária mínima</h3>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> O IFRN só pode conceder licença capacitação quando a carga horária total da ação ou conjunto de ações seja <strong>igual ou superior a 30 horas semanais</strong>. Este requisito é o principal risco de rejeição caso o plano de atividades seja vago.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "O órgão ou a entidade poderá conceder licença para capacitação somente quando a carga horária total da ação de desenvolvimento ou do conjunto de ações seja igual ou superior a trinta horas semanais." — *Decreto nº 9.991/2019, art. 26 (redação dada pelo Decreto nº 10.506/2020)*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação complementar (fórmula):</strong> "Carga horária semanal = Carga horária total da ação ou ações de desenvolvimento no período da licença ÷ Número de dias do afastamento × 7" — *NT SEI nº 7.737/2020-ME, item 8*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Leitura:</strong> Para 74 dias de afastamento (Cenário 1: 13/out–25/dez 2026), a carga horária total mínima exigida é: 30 × 74 ÷ 7 ≈ <strong>317 horas</strong>. Para 30 dias de parcela (Cenário 3/Split): 30 × 30 ÷ 7 ≈ <strong>129 horas</strong>. Um plano de pós-doc (8h/dia, 5 dias/sem = ~40h/sem) facilmente supera o requisito. Um curso de línguas presencial com 6h/dia × 5 dias = 30h/sem → atingido no limite. Detalhar CH diária é indispensável.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟢 Alta
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Bloco normativo — Limite simultâneo de servidores (5%)</h3>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> O IFRN limita a <strong>81 docentes simultâneos</strong> por dia em licença capacitação. Concorrência existe; submeter cedo na janela reduz risco.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "O quantitativo previsto pelo órgão ou pela entidade não poderá ser superior a cinco por cento dos servidores em exercício no órgão ou na entidade." — *Decreto nº 9.991/2019, art. 27, parágrafo único (redação Decreto 10.506/2020)*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação complementar (IFRN):</strong> "O percentual de 5% será dividido proporcionalmente pelo número de servidores das duas categorias (Docentes e TAE)." — *Resolução CONSUP/IFRN nº 18/2021, art. 24, §2°*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Leitura:</strong> Com 1.615 docentes em exercício → limite = 81 docentes/dia. O checklist do SUAP confirma esse valor. Este limite não bloqueia individualmente; ele é gerido pelo IFRN via edital. A priorização segue os critérios da CONSUP (art. 28): menos PAs usados; PA mais próximo de expirar; maior efetivo exercício. Servidor pontua bem: PA2 próximo de expirar (DD/MM/AAAA+5), nunca usou lic. cap., 14 anos de efetivo. <strong>Confiança:</strong> 🟢 Alta — baixo risco de preterimento.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟢 Alta
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Bloco normativo — Processo seletivo pós-doc art. 35-36 + Anexo I (ALERTA ESTRATÉGICO)</h3>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> Para afastamento pós-doutoral (art. 96-A / art. 42), o IFRN realiza <strong>processo seletivo obrigatório</strong> (art. 35), com pontuação definida no <strong>Anexo I</strong> da Resolução CONSUP/IFRN 18/2021. A classificação é meritocrática — não há cota fixa por campus. O campus entra como <strong>fator de pontuação</strong> (tempo de efetivo exercício no campus), não como limite de vagas.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação (seletivo obrigatório):</strong> "Os afastamentos para participação em programas de pós-graduação stricto sensu e pós-doutorado serão precedidos de processo seletivo realizado pelos órgãos responsáveis pela gestão de pessoas, assegurando critérios isonômicos e transparentes." — *Resolução CONSUP/IFRN nº 18/2021, art. 35, caput*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação (independe de vagas ou necessidade de substituto):</strong> "O processo seletivo de que trata o caput se realizará ainda que não seja necessária a contratação de professores substitutos ou que o número de candidatos seja inferior ao de vagas." — *Resolução CONSUP/IFRN nº 18/2021, art. 35, parágrafo único*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação (campus como fator):</strong> "Para os docentes, a análise considera o tempo de efetivo exercício no IFRN e no campus onde atua." — *Resolução CONSUP/IFRN nº 18/2021, art. 36 + Anexo I*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Leitura — diferença-chave entre lic. cap. e pós-doc:</strong>
+<br>- <strong>Licença capacitação (art. 87 / art. 28 CONSUP):</strong> critérios de <strong>prioridade</strong> ordinais (PA mais próximo de expirar, menos PAs usados, maior efetivo exercício, etc.). Servidor pontua muito bem nestes critérios.
+<br>- <strong>Pós-doc 96-A (art. 35-36 + Anexo I):</strong> critérios de <strong>pontuação</strong> numérica (escolaridade, tipo de afastamento pleiteado, jornada, tempo no IFRN, tempo no campus). Servidor tem 14 anos de IFRN com concentração no Campus Exemplo — é diferencial relevante no Anexo I. Porém o processo é aberto a todos os docentes IFRN elegíveis pelo art. 42.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟡 Média — regras do processo seletivo são 🟢 Alta; posição de Servidor no Anexo I é 🟡 Média (concorrência desconhecida sem edital aberto).
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Perguntas ao DGP/DIGPE:</strong>
+<br>- Existe edital 96-A aberto ou previsto para 2026/2027?
+<br>- O limite de 5% (art. 24) é administrado globalmente ou há cotas por campus para pós-doc 96-A?
+<br>- Ver também: <code>analise/cenarios/4-posdoc.md</code> → seção "Disputa interna no IFRN".
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Bloco normativo — Impacto na elegibilidade para pós-doc (ALERTA ESTRATÉGICO)</h3>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> Qualquer uso de licença capacitação em 2026 cria um <strong>interstício de 4 anos para afastamento pós-doutoral</strong>, bloqueando esta modalidade até ~2030. Esta regra não está na Lei 8.112 — está na <strong>Resolução interna do IFRN</strong>. Atualmente Servidor cumpre as duas condições do art. 42 e está elegível ao pós-doc agora.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação principal (regra dos 4 anos):</strong> "Os afastamentos para realização de programas de pós-doutorado somente serão concedidos aos servidores titulares de cargo efetivo no IFRN há pelo menos quatro anos, incluído o período de estágio probatório, e que não tenham se afastado por licença para tratar de assuntos particulares, para gozo de licença para capacitação ou com fundamento neste artigo nos <strong>quatro anos anteriores</strong> à data da solicitação do novo afastamento." — *Resolução CONSUP/IFRN nº 18/2021, art. 42, caput*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação (exceção docentes):</strong> "No caso dos docentes, a Lei 12.772/2012 permite a participação em programa de pós-graduação stricto sensu ou de pós-doutorado, independentemente do <strong>tempo ocupado no cargo ou na instituição</strong>." — *Resolução CONSUP/IFRN nº 18/2021, art. 42, parágrafo único*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação (regra geral de afastamento total — 2 anos, não se aplica ao pós-doc):</strong> "Não será concedido afastamento total, ao servidor que tenha se afastado por cessão, requisição, exercício provisório em outro órgão, licença para tratar de assuntos particulares e licença capacitação nos <strong>dois anos</strong> anteriores, conforme § 2º, Art. 96-A da Lei nº 8.112/1990." — *Resolução CONSUP/IFRN nº 18/2021, art. 48*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Leitura:</strong> O art. 48 fala em 2 anos e se refere à regra geral da Lei 8.112. O art. 42 é a regra <strong>específica</strong> do IFRN para pós-doc e impõe 4 anos — ela prevalece sobre o art. 48 para essa modalidade. O parágrafo único do art. 42 dispensa <strong>apenas</strong> o requisito de tempo de cargo (Condição A) para docentes; o interstício de 4 anos após licenças (Condição B) continua válido. Se Servidor PEDIR lic. cap. em 2026, precisa esperar até ~2030 para pós-doc. Para mestrado/doutorado stricto sensu, o interstício é menor — 2 anos (art. 41 + art. 33). Esta é a maior trade-off estratégica — ver Cenário 4.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟢 Alta
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Pergunta ao DGP:</strong> O interstício de 4 anos (art. 42 da Resolução CONSUP/IFRN 18/2021) conta da data de concessão da portaria de lic. cap. ou do último dia de usufruto?
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Decodificação do art. 42 — quando posso pedir pós-doc</h3>
+
+<p class="md-p">O art. 42 combina <strong>duas condições com operador lógico AND</strong> — as duas precisam ser verdadeiras simultaneamente:</p>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>#</th><th>Condição</th><th>Descrição</th></tr></thead><tbody><tr><td><strong>A</strong></td><td>Tempo de cargo</td><td>Servidor efetivo no IFRN há <strong>≥ 4 anos</strong> (incluído estágio probatório)</td></tr><tr><td><strong>B</strong></td><td>Quarentena</td><td>Não ter se afastado por <strong>LTAP</strong>, <strong>licença capacitação</strong> ou <strong>outro pós-doc art. 42</strong> nos <strong>últimos 4 anos</strong> contados da data do pedido</td></tr></tbody></table></div>
+
+<p class="md-p"><strong>Parágrafo único:</strong> para docentes EBTT (via Lei 12.772/2012), a <strong>Condição A é dispensada</strong> — pode pedir pós-doc independentemente do tempo no cargo. A <strong>Condição B continua válida</strong> para todos.</p>
+
+<h4 class="md-h3">Aplicação ao perfil de Servidor</h4>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Condição</th><th>Situação hoje (abr/2026)</th><th>Se usar lic. cap. em 2026</th></tr></thead><tbody><tr><td>A — ≥ 4 anos no IFRN</td><td>✅ 14 anos (dispensada p/ docente)</td><td>✅ (idem)</td></tr><tr><td>B — quarentena 4 anos</td><td>✅ Nunca fez LTAP / lic. cap. / pós-doc</td><td>❌ Bloqueado até ~2030</td></tr><tr><td><strong>Elegível ao pós-doc?</strong></td><td><strong>✅ Sim, agora</strong></td><td><strong>❌ Não, até ~2030</strong></td></tr></tbody></table></div>
+</div></div>
+<div class="tab-pane" id="tab-riscos" role="tabpanel"><div class="md-body"><h2 class="md-h1">Riscos de Desclassificação — Licença Capacitação Edital 29/2026</h2>
+
+<h3 class="md-h2">Resumo dos riscos</h3>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Risco</th><th>Probabilidade</th><th>Impacto</th><th>Ação de mitigação</th></tr></thead><tbody><tr><td>1. Carga horária < 30h/sem</td><td>🟡 Médio</td><td>🔴 Desclassifica</td><td>Detalhar CH diária no plano</td></tr><tr><td>2. Ação não prevista no PDP 2026</td><td>🟡 Médio</td><td>🔴 Desclassifica</td><td>Consultar DIGPE/CODEPE urgente</td></tr><tr><td>3. Período de usufruto expirado</td><td>🟢 Baixo</td><td>🔴 Fatal</td><td>PA2 válido até DD/MM/AAAA+5 ✅</td></tr><tr><td>4. Ausência de anuência da chefia</td><td>🟡 Médio</td><td>🟡 Atrasa/bloqueia</td><td>Comunicar chefia imediatamente</td></tr><tr><td>5. Motivo/instituição EUA não enquadrada</td><td>🔴 Alto (se EUA)</td><td>🔴 Desclassifica</td><td>Usar motivo 2 ou 4; carta aceite</td></tr><tr><td>6. Superação do limite simultâneo (5%)</td><td>🟢 Baixo</td><td>🟡 Preterido</td><td>Prioridade alta (PA expiração próxima)</td></tr><tr><td>7. Impacto operacional no grupo (rodízio)</td><td>🟡 Médio</td><td>🟡 Relacional</td><td>Split em parcelas; comunicação antecipada</td></tr></tbody></table></div>
+
+<hr>
+
+<h3 class="md-h2">Risco 1 — Carga horária semanal insuficiente</h3>
+
+<p class="md-p"><strong>Probabilidade:</strong> 🟡 Médio  </p>
+<p class="md-p"><strong>Mitigação:</strong> Elaborar plano de atividades com CH diária explícita (≥30h/sem).</p>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> A licença capacitação só pode ser concedida quando a CH da ação ou conjunto de ações seja ≥ 30h/semana. Planos vagos ("leitura de artigos", "pesquisa livre") sem CH discriminada são os principais vetores de rejeição.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "O órgão ou a entidade poderá conceder licença para capacitação somente quando a carga horária total da ação de desenvolvimento ou do conjunto de ações seja igual ou superior a trinta horas semanais." — *Decreto nº 9.991/2019, art. 26*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação (fórmula):</strong> CH semanal = CH total ÷ nº dias × 7. — *NT SEI nº 7.737/2020-ME, item 8*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Leitura:</strong> Para 74 dias (Cenário 1): mín. 317 horas totais. Para 30 dias (Cenário 3, parcela 1): mín. 129 horas totais. Um pós-doc com 8h/dia × 5 dias = 40h/sem → supera com folga. Um curso de inglês com 6h/dia × 5 dias = 30h/sem → exato no limite. Estágio pós-doutoral produz facilmente 35–50h/sem com atividades documentadas.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟢 Alta
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Ação concreta:</strong> No formulário SUAP, preencher <code>carga<em>horaria</em>total</code> com valor ≥ calculado acima. Anexar cronograma semanal detalhado.
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Risco 2 — Ação de desenvolvimento não prevista no PDP 2026 do IFRN</h3>
+
+<p class="md-p"><strong>Probabilidade:</strong> 🟡 Médio  </p>
+<p class="md-p"><strong>Mitigação:</strong> Consultar a DIGPE/CODEPE antes de submeter; verificar se há ação correspondente no PDP 2026.</p>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> O afastamento para ação de desenvolvimento deve estar previsto no PDP do órgão. Ações não incluídas no PDP exigem excepcionalidade (justificativa + aprovação da autoridade máxima). Como há apenas 6 dias para o prazo, este é o risco mais urgente a verificar.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "Os afastamentos de que trata o art. 18 poderão ser concedidos, entre outros critérios, quando a ação de desenvolvimento: I - estiver prevista no PDP do órgão ou da entidade do servidor." — *Decreto nº 9.991/2019, art. 19, inciso I*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação complementar:</strong> "O disposto no caput poderá ser excepcionado pela autoridade máxima do órgão ou da entidade, registrado em processo administrativo específico que contenha a justificativa para a execução da ação de desenvolvimento." — *Decreto nº 9.991/2019, art. 16, §2°*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Leitura:</strong> O PDP IFRN 2026 está aprovado (disponível em <code>corpus/normas/pdp<em>ifrn</em>2026.pdf</code>). Precisa verificar se "estágio pós-doutoral" ou "curso de língua estrangeira no exterior" estão listados como ação de desenvolvimento para docentes. Caso não esteja, o processo pode ser incluído como revisão do PDP (ciclos de revisão a cada 3 meses, conforme IN 21/2021) ou via excepcionalidade. Dado o prazo, a verificação deve ocorrer hoje.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟡 Média
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Pergunta ao DGP/CODEPE:</strong> Estágio pós-doutoral / curso presencial de inglês no exterior estão previstos no PDP IFRN 2026? Se não, qual o procedimento para inclusão excepcional antes de 01/05?
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Risco 3 — Período fora da janela de usufruto (PA2) ou de abrangência do edital</h3>
+
+<p class="md-p"><strong>Probabilidade:</strong> 🟢 Baixo  </p>
+<p class="md-p"><strong>Mitigação:</strong> Confirmar que as datas do pedido estão dentro da abrangência Jul–Dez 2026 e do usufruto PA2 (DD/MM/AAAA–DD/MM/AAAA+5).</p>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> O Cenário 1 (13/out–25/dez 2026 = 74 dias) está inteiramente dentro da abrangência do edital (01/07/2026–31/12/2026) e dentro do usufruto do PA2 (até DD/MM/AAAA+5). Risco residual baixo.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "Período de abrangência: 01/07/2026 a 31/12/2026." — *SUAP, Edital nº 29/2026-DIDEPE/DIGPE/RE/IFRN*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "Período aquisitivo 2: início usufruto DD/MM/AAAA → fim usufruto DD/MM/AAAA+5. Válido para este edital: Sim." — *SUAP, checklist parâmetros Servidor (matrícula 0000000)*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Leitura:</strong> Não há problema com datas no Cenário 1. No Cenário 3 (Split), a 2ª parcela em 2027 precisa terminar antes de DD/MM/AAAA+5 e estar coberta por um edital de 1º sem 2027 (que provavelmente abre em Nov 2026, com abrangência Jan–Jun 2027).
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟢 Alta
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Risco 4 — Ausência ou atraso de anuência da chefia imediata</h3>
+
+<p class="md-p"><strong>Probabilidade:</strong> 🟡 Médio (risco operacional)  </p>
+<p class="md-p"><strong>Mitigação:</strong> Comunicar a chefia imediata (Diretor-Geral do Campus Exemplo) hoje; solicitar anuência formal via SUAP em paralelo à submissão.</p>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> A concessão da licença cabe à autoridade máxima do campus/IFRN, e o Decreto exige 30 dias para decisão. A anuência da chefia é condição informal mas necessária; sem ela o processo pode emperrar mesmo após aprovação no edital.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "A concessão de licença para capacitação caberá à autoridade máxima do órgão ou da entidade em que o servidor estiver em exercício." — *Decreto nº 9.991/2019, art. 28*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "O prazo para a decisão sobre o pedido e a publicação do eventual deferimento é de trinta dias, contado da data de apresentação dos documentos necessários." — *Decreto nº 9.991/2019, art. 29, parágrafo único*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação IFRN:</strong> "A autoridade responsável, na ocasião da concessão, considerará: I – se o afastamento do servidor inviabilizará o funcionamento do órgão ou entidade; II – os períodos de maior demanda de força de trabalho." — *Resolução CONSUP/IFRN nº 18/2021, art. 25, parágrafo único*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Leitura:</strong> Out–Dez 2026 cobre o início do 2° sem letivo; a chefia pode questionar impacto nas aulas. Para licença capacitação com Dedicação Exclusiva, não há obrigação de substituto (CONSUP Art. 27 §6°: "Não haverá contratação de substituto para o caso de servidor em usufruto de Licença para Capacitação"). A chefia precisa avaliar se o setor funciona sem o servidor. Q4 2026 (out-dez) é fim de semestre — aulas em andamento. Risco operacional real; comunicação antecipada é chave.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟢 Alta (sobre o risco ser médio)
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Ação concreta:</strong> Enviar e-mail à chefia ainda hoje (25/04). Propor data específica que minimize impacto (ex.: iniciar após conclusão de bancas/fechamento de notas).
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Risco 5 — Motivo/enquadramento EUA inadequado</h3>
+
+<p class="md-p"><strong>Probabilidade:</strong> 🔴 Alto (se EUA sem carta de aceite)  </p>
+<p class="md-p"><strong>Mitigação:</strong> Usar motivo 2 (pós-doc) ou motivo 3 (curso de língua) com carta de aceite formal da instituição americana; ou motivo 4 (atividades práticas em organismo internacional).</p>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> A Licença Capacitação permite atividades no exterior, mas o motivo precisa estar entre os 7 previstos em lei. Sem carta de aceite formal da universidade americana, não há como enquadrar a parte EUA no formulário SUAP.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação (motivo 2):</strong> "Elaboração de monografia, trabalho de conclusão de curso, dissertação de mestrado, tese de doutorado, de livre-docência ou <strong>estágio pós-doutoral</strong>." — *SUAP, motivos lic. cap., id=2*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação (motivo 3):</strong> "Curso presencial de língua estrangeira, <strong>no País ou no exterior</strong>, quando recomendável ao exercício das atividades do servidor." — *SUAP, motivos lic. cap., id=3*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação (motivo 4):</strong> "Curso conjugado com atividades práticas em posto de trabalho, em órgão ou entidade da administração pública direta ou indireta dos entes federativos, dos Poderes da União ou de <strong>outros países ou em organismos internacionais</strong>." — *SUAP, motivos lic. cap., id=4*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Leitura:</strong> Para visitar a equipe do Thalocan nos EUA: motivo 2 (se for atividade pós-doutoral com orientador) é o mais sólido e exige carta do professor/supervisor americano que ateste o pós-doc. Motivo 4 também cabe se a visita envolver atividades práticas em laboratório/organismo. Sem carta de aceite em mãos: submeter apenas a parte Brasil e tratar EUA como parcela futura (Cenário 3/6).
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟢 Alta
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Pergunta ao DGP:</strong> O motivo 2 (pós-doc) aceita carta de professor orientador informal ou exige convênio institucional formal? Existe formulário IFRN para "aceite de missão" no exterior?
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Risco 7 — Impacto operacional no grupo de informática (rodízio)</h3>
+
+<p class="md-p"><strong>Probabilidade:</strong> 🟡 Médio (depende do cenário escolhido e da composição do rodízio)  </p>
+<p class="md-p"><strong>Natureza:</strong> não é risco de <strong>desclassificação</strong> — é risco <strong>relacional/operacional</strong> dentro do grupo.  </p>
+<p class="md-p"><strong>Mitigação:</strong> split em parcelas menores + comunicação antecipada + escolha de janela calendária adequada.</p>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> Licença capacitação não gera contratação de professor substituto (art. 27 §6°). O grupo de informática do IFRN opera por rodízio informal para cobrir ausências de colegas. Afastamentos longos (74 dias contínuos — Cenário 1) têm maior impacto sobre o grupo do que parcelas curtas (Cenários 3, 5, 6). Servidor não quer provocar desequilíbrio no rodízio — esse é um critério real de escolha de cenário, mesmo sem força normativa.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "Não haverá contratação de substituto para o caso de servidor em usufruto de Licença para Capacitação." — *Resolução CONSUP/IFRN nº 18/2021, art. 27, §6°*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação (contraste — pós-doc 96-A pode ter substituto):</strong> "O processo seletivo de que trata o caput se realizará ainda que não seja necessária a contratação de professores substitutos..." — *Resolução CONSUP/IFRN nº 18/2021, art. 35, parágrafo único* — a redação "ainda que não seja necessária" implica que em pós-doc 96-A <strong>pode</strong> haver substituto, ao contrário da lic. cap.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Leitura por cenário:</strong>
+<br>- <strong>Cenário 1 (74d contínuos):</strong> maior impacto — 74 dias seguidos sem substituto. Comunicação crítica.
+<br>- <strong>Cenários 3 e 6 (split):</strong> impacto distribuído em duas parcelas de ~44-46 dias, com intervalo de ≥ 60 dias entre elas para o grupo se reorganizar.
+<br>- <strong>Cenário 5 (30–60d Brasil):</strong> menor impacto dentre os cenários com submissão 2026; afastamento doméstico pode ser parcialmente assíncrono com a grade.
+<br>- <strong>Cenário 4 (pós-doc 96-A):</strong> se gerar substituto (a verificar com DGP), seria o único cenário sem pressão sobre o rodízio.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟢 Alta (regra sobre ausência de substituto) / 🟡 Média (impacto real no grupo — depende da composição do rodízio)
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Estratégias de mitigação:</strong>
+<br>- <strong>(a)</strong> Optar por split (Cenários 3 ou 6) em vez de 74 dias contínuos.
+<br>- <strong>(b)</strong> Escolher janelas fora do período crítico: evitar início de semestre para a parcela mais longa.
+<br>- <strong>(c)</strong> Comunicar chefia e grupo com ≥ 2 meses de antecedência de cada parcela.
+<br>- <strong>(d)</strong> Verificar se outro membro do grupo tem afastamento planejado no mesmo período (evitar coincidência).
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Pergunta ao DGP:</strong> O afastamento pós-doutoral (96-A) na prática do Campus Exemplo/IFRN gera contratação de professor substituto? O art. 35 § único sugere que pode, diferentemente da lic. cap.
+</blockquote>
+</div></div>
+<div class="tab-pane" id="tab-recomendacao" role="tabpanel"><div class="md-body"><h2 class="md-h1">Recomendação Final — Licença Capacitação IFRN Edital 29/2026</h2>
+
+<blockquote class="md-bq"><p>⚠️ <strong>GATE G2</strong>: Esta análise é insumo para decisão humana. Nenhuma ação no SUAP sem revisão explícita do servidor.
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">As 4 Perguntas Respondidas</h3>
+
+<h4 class="md-h3">1. Pedir o afastamento?</h4>
+
+<p class="md-p"><strong>✅ SIM</strong> — pedir neste edital (prazo: 01/05/2026).</p>
+
+<p class="md-p"><strong>Por quê:</strong> O PA2 (quinquênio 2017–2022) tem usufruto até DD/MM/AAAA+5. Não há outro edital garantido antes disso. Adiar para 2027 é um risco real de perder 90 dias de licença remunerada adquirida em 5 anos. Com 14 anos de efetivo exercício e zero licenças capacitação usadas, a elegibilidade é máxima e a janela está aberta agora.</p>
+
+<p class="md-p"><strong>Exceção (Cenário 4):</strong> se a prioridade for pós-doc art. 96-A (12 meses exterior) em 2027 e o processo seletivo IFRN puder ser iniciado hoje, a decisão muda para NÃO pedir agora.</p>
+
+<hr>
+
+<h4 class="md-h3">2. Por quê / Qual justificativa estratégica?</h4>
+
+<ul class="md-ul">
+<li>Usar o direito adquirido antes que expire (PA2: prazo DD/MM/AAAA+5).</li>
+<li>Avançar a produção científica no NADIC / conexão com Thalocan (projeto internacional).</li>
+<li>Demonstrar atuação em pós-doc ou capacitação avançada que fortalece o cargo EBTT e o PDI/IFRN.</li>
+<li>Alinhamento com a visão 2038: internacionalização, NADIC em padrão global, oportunidade para Diana.</li>
+</ul>
+
+<hr>
+
+<h4 class="md-h3">3. Quanto tempo?</h4>
+
+<p class="md-p"><strong>Recomendação:</strong> <strong>45–60 dias</strong> (Cenário 3/Split, Parcela 1 em 2026), deixando saldo para Parcela 2 EUA em 2027.</p>
+
+<p class="md-p">Se Thalocan/carta EUA já estiver confirmada: <strong>74 dias integrais</strong> (Cenário 1, tudo de uma vez, out–dez 2026).</p>
+
+<p class="md-p">Limites normativos:</p>
+<ul class="md-ul">
+<li>Máximo PA2: 90 dias (0 usados)</li>
+<li>Mínimo por parcela: 15 dias</li>
+<li>Máximo de parcelas: 6, com interstício ≥ 60 dias entre elas</li>
+</ul>
+
+<hr>
+
+<h4 class="md-h3">4. Ir aos EUA?</h4>
+
+<p class="md-p"><strong>⚠️ CONDICIONAL:</strong></p>
+<ul class="md-ul">
+<li><strong>SIM, neste edital (Cenário 1)</strong> — SE a carta de aceite da universidade americana (Thalocan/supervisor) estiver em mãos antes de 01/05/2026. Sem ela, o motivo EUA não se sustenta no formulário SUAP.</li>
+<li><strong>SIM, em 2027 (Cenário 3 ou 6)</strong> — SE a carta não estiver pronta agora. Usar Parcela 1 no Brasil em 2026 e obter a carta para Parcela 2 EUA até Nov/2026 (prazo para o próximo edital).</li>
+<li><strong>NÃO</strong> — se a prioridade for pós-doc 96-A (Cenário 4), pois qualquer lic. cap. bloqueia 96-A por 4 anos.</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Score comparativo dos cenários</h3>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Cenário</th><th>Viabilidade</th><th>Financeiro</th><th>Família</th><th>Jogo Longo</th><th>Risco</th><th>Grupo (rodízio)</th><th><strong>Total /30</strong></th></tr></thead><tbody><tr><td>1 — Base EUA 74d</td><td>4</td><td>4</td><td>3</td><td>5</td><td>3</td><td>2</td><td><strong>21</strong></td></tr><tr><td>2 — Adiamento 2027</td><td>3</td><td>5</td><td>5</td><td>2</td><td>3</td><td>4</td><td><strong>22</strong></td></tr><tr><td>3 — Split 2026+2027</td><td>4</td><td>4</td><td>4</td><td>4</td><td>3</td><td>4</td><td><strong>23</strong> ⭐ RECOMENDADO</td></tr><tr><td>4 — Pós-Doc 96-A</td><td>3</td><td>2</td><td>3</td><td>5</td><td>2</td><td>5*</td><td><strong>20</strong></td></tr><tr><td>5 — Híbrido conservador</td><td>5</td><td>5</td><td>5</td><td>2</td><td>5</td><td>5</td><td><strong>27</strong> (maior absoluto, pior jogo longo)</td></tr><tr><td>6 — Split EUA 2027</td><td>4</td><td>3</td><td>4</td><td>4</td><td>3</td><td>4</td><td><strong>22</strong></td></tr></tbody></table></div>
+
+<blockquote class="md-bq"><p><strong>Score Risco:</strong> 5 = mínimo risco de desclassificação, 1 = máximo.  
+<br><strong>Score Grupo (rodízio):</strong> 5 = mínimo impacto sobre o rodízio do grupo de informática, 1 = máximo. Não é critério normativo, mas é restrição real identificada pelo servidor.  
+<br>*\* Cenário 4 pode gerar professor substituto (art. 35 § único) — a verificar com DGP; se confirmado, score 5 é realista.*
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Trade-off pós-doc vs. licença capacitação — a lógica decisória correta</h3>
+
+<p class="md-p">O que determina se o Cenário 4 (pós-doc 96-A) é preferível aos demais não é uma "janela de 3 anos pós-defesa" (que não existe nas normas), mas sim a <strong>quarentena de 4 anos do art. 42 da Resolução CONSUP/IFRN 18/2021</strong>:</p>
+
+<ul class="md-ul">
+<li><strong>Usar lic. cap. em 2026</strong> (Cenários 1/3/5/6) → elegibilidade para pós-doc bloqueada até ~2030.</li>
+<li><strong>Não usar lic. cap. agora</strong> (Cenário 4) → elegibilidade preservada; pós-doc disponível em 2027/2028/2029.</li>
+</ul>
+
+<p class="md-p"><strong>A lógica decisória:</strong></p>
+
+<blockquote class="md-bq"><p>Se a decisão for não tirar a licença capacitação agora para preservar a elegibilidade pós-doc, isso significa que <strong>o pós-doc precisa acontecer antes de 2030</strong> para que a troca faça sentido. Pós-doc em 2027, 2028 ou 2029 justifica abrir mão da lic. cap. agora.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p>Se o pós-doc só for viável <strong>a partir de 2030</strong> (por razões pessoais, institucionais ou de timing), então <strong>tirar a licença este ano é a decisão racional</strong> — usa-se o PA2 antes de expirar (DD/MM/AAAA+5) e o pós-doc fica para quando a quarentena tiver zerado naturalmente.
+</blockquote>
+
+<p class="md-p">Em síntese: <strong>a escolha pelo Cenário 4 só faz sentido se o pós-doc for realizável no horizonte 2027–2029.</strong></p>
+
+<hr>
+
+<h3 class="md-h2">Cenário recomendado: <strong>3 — Split</strong> (ou Cenário 1 se carta EUA confirmada)</h3>
+
+<h4 class="md-h3">Por que Cenário 3 vence o Cenário 5 (maior score absoluto)?</h4>
+
+<p class="md-p">O Cenário 5 tem o melhor score total porque é o mais simples e seguro. Mas essa análise usa uma métrica <strong>ponderada pelos objetivos do servidor</strong>: o jogo longo 2038 (NADIC internacional, Thalocan) é o critério mais estratégico. O Cenário 3 entrega o jogo longo (EUA em 2027) com risco moderado, enquanto o Cenário 5 sacrifica o jogo longo por simplicidade operacional.</p>
+
+<p class="md-p">Se o servidor confirmar que pós-doc 96-A NÃO é prioridade para os próximos 4 anos → <strong>Cenário 1 ou 3</strong>.  </p>
+<p class="md-p">Se o servidor confirmar que pós-doc 96-A EM 2027 é o objetivo máximo → <strong>Cenário 4</strong> (NÃO submeter agora).</p>
+
+<hr>
+
+<h3 class="md-h2">Bloqueantes por cenário (o que fazer hoje)</h3>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Cenário</th><th>Bloqueante</th><th>Ação hoje (25/04/2026)</th><th>Prazo</th></tr></thead><tbody><tr><td>1 e 3</td><td>Carta aceite EUA</td><td>Contatar professor/supervisor Thalocan</td><td>Hoje</td></tr><tr><td>1, 3, 5, 6</td><td>PDP IFRN 2026 inclui ação</td><td>Ligar/e-mail para DIGPE/CODEPE</td><td>Hoje</td></tr><tr><td>Todos (exceto 4)</td><td>Anuência da chefia</td><td>E-mail ao DG Campus Exemplo</td><td>Hoje</td></tr><tr><td>Todos (exceto 4)</td><td>Plano de atividades CH≥30h/sem</td><td>Escrever 1 página de cronograma</td><td>Antes de 30/04</td></tr><tr><td>4</td><td>Processo seletivo IFRN para 96-A</td><td>Consultar DIGPE sobre abertura de edital 96-A; verificar concorrência e se gera substituto</td><td>Esta semana</td></tr></tbody></table></div>
+
+<hr>
+
+<h3 class="md-h2">Perguntas ainda abertas (para DGP/DIGPE)</h3>
+
+<p class="md-p"><strong>Sobre licença capacitação (Cenários 1/3/5/6):</strong></p>
+<ol class="md-ol">
+<li>O PDP IFRN 2026 inclui "estágio pós-doutoral" ou "curso de inglês no exterior" como ação de desenvolvimento para docentes?</li>
+<li>Parcelas de um mesmo quinquênio podem ser submetidas em editais diferentes (Edital 29/2026 + edital 1º sem 2027)?</li>
+<li>Há previsão de edital de licença capacitação para 1º sem 2027? Qual a abrangência esperada?</li>
+<li>O afastamento > 30 dias suspende quais adicionais na situação de Servidor (EBTT DE Classe C)?</li>
+</ol>
+
+<p class="md-p"><strong>Sobre pós-doc 96-A (Cenário 4):</strong></p>
+<ol class="md-ol">
+<li>Qual o procedimento para iniciar o processo seletivo IFRN para afastamento pós-doutoral (art. 96-A)? Existe edital 96-A aberto ou previsto para 2026/2027?</li>
+<li>O interstício de 4 anos para pós-doc (art. 42 da Resolução CONSUP/IFRN 18/2021) conta da data da portaria de concessão da lic. cap. ou do último dia de usufruto? (Nota: este interstício é regra interna do IFRN — a Lei 8.112 art. 96-A §2° fala em apenas 2 anos.)</li>
+<li>O limite de 5% (art. 24) é administrado globalmente ou há cotas por campus para afastamentos pós-doutorais (96-A)?</li>
+<li>Quem são os candidatos potenciais no Campus Exemplo / grupo de informática para pós-doc 96-A? (Para avaliação da concorrência.)</li>
+<li>Na prática do Campus, o afastamento pós-doutoral (96-A) gera contratação de professor substituto? O art. 35 § único sugere que pode — ao contrário da lic. cap. (art. 27 §6°: definitivamente não gera).</li>
+</ol>
+
+<hr>
+
+<h3 class="md-h2">Próximos passos (por cenário escolhido)</h3>
+
+<h4 class="md-h3">Se Cenário 3 (RECOMENDADO):</h4>
+
+<ul class="md-ul">
+<li>[ ] <strong>Hoje:</strong> E-mail para chefia (DG Campus Exemplo) comunicando intenção de pedir lic. cap.</li>
+<li>[ ] <strong>Hoje:</strong> Ligar para DIGPE/CODEPE e verificar PDP 2026 + procedimento.</li>
+<li>[ ] <strong>Até 28/04:</strong> Contatar professor Thalocan para carta de aceite (para Parcela 2 futura).</li>
+<li>[ ] <strong>Até 30/04:</strong> Escrever Plano de Atividades Parcela 1 (Brasil, ~45 dias, CH ≥ 30h/sem).</li>
+<li>[ ] <strong>01/05/2026 até 23:59:</strong> Submeter pedido no SUAP (Edital 29/2026, Parcela 1, motivo 2 ou 7, Brasil).</li>
+<li>[ ] <strong>Nov 2026:</strong> Submeter Parcela 2 no edital 1º sem 2027 com carta aceite EUA.</li>
+</ul>
+
+<h4 class="md-h3">Se Cenário 1 (carta EUA confirmada):</h4>
+
+<ul class="md-ul">
+<li>[ ] <strong>Hoje:</strong> Confirmar carta de aceite em mãos.</li>
+<li>[ ] <strong>Hoje:</strong> E-mail chefia + verificar PDP.</li>
+<li>[ ] <strong>Até 30/04:</strong> Plano de atividades 74 dias (CH ≥ 317h, Brasil + EUA).</li>
+<li>[ ] <strong>01/05/2026 até 23:59:</strong> Submeter pedido (74 dias, motivo 2 ou 4, datas 13/out–25/dez/2026).</li>
+</ul>
+
+<h4 class="md-h3">Se Cenário 4 (priorizar pós-doc 96-A):</h4>
+
+<ul class="md-ul">
+<li>[ ] <strong>Não submeter ao Edital 29/2026.</strong></li>
+<li>[ ] <strong>Esta semana:</strong> Consultar DIGPE sobre abertura de processo seletivo para pós-doc 96-A.</li>
+<li>[ ] <strong>Até 30/04:</strong> Contatar professor Thalocan para definir se aceita pós-doc de 12 meses em 2027.</li>
+<li>[ ] <strong>Aceitar o risco de perda do PA2</strong> se não houver edital 1º sem 2027 com abrangência anterior a DD/MM/AAAA+5.</li>
+</ul>
+</div></div>
+<div class="tab-pane" id="tab-cenario-1" role="tabpanel">
+<div class="cenario-tab-header">
+  <h2>Cenário 1 — Base EUA 74d</h2>
+  <span class="score-chip">Score: 21/30</span>
+</div>
+<div class="md-body">
+  <div class="decision-tree-wrap">
+    <div class="decision-tree-label">Infográfico de decisão — gates críticos</div>
+    <svg class="decision-tree" viewBox="0 0 680 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Infográfico de decisão Cenário 1" style="width:100%;max-width:680px"><defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#94a3b8"/></marker></defs><rect x="20" y="20" width="110" height="75" rx="8" fill="#dcfce7" stroke="#14532d" stroke-width="2"/>
+<text x="75" y="38" text-anchor="middle" font-size="16">✅</text><text x="75" y="54" text-anchor="middle" font-size="11" fill="#14532d" font-weight="600">PDP</text><text x="75" y="68" text-anchor="middle" font-size="11" fill="#14532d" font-weight="600">âncora L88+L69</text>
+<rect x="150" y="20" width="110" height="75" rx="8" fill="#fef3c7" stroke="#78350f" stroke-width="2"/>
+<text x="205" y="38" text-anchor="middle" font-size="16">⚠️</text><text x="205" y="54" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">CH ≥ 30h/sem</text><text x="205" y="68" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">plano pendente</text>
+<rect x="280" y="20" width="110" height="75" rx="8" fill="#fee2e2" stroke="#7f1d1d" stroke-width="2"/>
+<text x="335" y="38" text-anchor="middle" font-size="16">🔴</text><text x="335" y="54" text-anchor="middle" font-size="11" fill="#7f1d1d" font-weight="600">Carta EUA</text><text x="335" y="68" text-anchor="middle" font-size="11" fill="#7f1d1d" font-weight="600">BLOQUEANTE</text>
+<rect x="410" y="20" width="110" height="75" rx="8" fill="#fef3c7" stroke="#78350f" stroke-width="2"/>
+<text x="465" y="38" text-anchor="middle" font-size="16">⚠️</text><text x="465" y="54" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">Anuência</text><text x="465" y="68" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">chefia PF</text>
+<rect x="540" y="20" width="120" height="75" rx="8" fill="#fef3c7" stroke="#78350f" stroke-width="2"/>
+<text x="600" y="38" text-anchor="middle" font-size="16"></text><text x="600" y="54" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">C1 — Base EUA</text><text x="600" y="68" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">Condicional (carta EUA)</text><line x1="130" y1="57" x2="142" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="260" y1="57" x2="272" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="390" y1="57" x2="402" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="520" y1="57" x2="532" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/></svg>
+  </div>
+  <h2 class="md-h1">Cenário 1: Base — Licença 13/out–25/dez 2026 com ~30 dias EUA (Thalocan)</h2>
+
+<p class="md-p"><strong>Viabilidade:</strong> 🟢 Alta — se carta de aceite da universidade americana estiver em mãos antes de 01/05.</p>
+
+<hr>
+
+<h3 class="md-h2">Viabilidade normativa</h3>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> A Licença Capacitação (art. 87) permite atividades no exterior via motivos 2 (pós-doc) ou 4 (atividades práticas em organismo internacional). Um período de 74 dias (13/out–25/dez 2026) cabe inteiramente no PA2 (90 dias disponíveis) e na abrangência do edital (01/jul–31/dez 2026).
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "Elaboração de monografia... ou <strong>estágio pós-doutoral</strong>" — *SUAP Edital 29/2026, motivo id=2*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "Curso conjugado com atividades práticas em posto de trabalho... <strong>de outros países ou em organismos internacionais</strong>" — *SUAP Edital 29/2026, motivo id=4*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Leitura:</strong> 74 dias ≤ 90 dias do PA2. Datas dentro da abrangência. Motivo 2 cobre visita pós-doutoral ao Thalocan se houver supervisor americano que emita carta. Motivo 4 cobre colaboração de pesquisa aplicada em laboratório/grupo americano. A parte "Brasil" pode usar motivo 7 (capacitação profissional) ou motivo 2 (elaboração de trabalho) para o período em Natal/Cidade Exemplo.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟢 Alta
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Pergunta ao DGP:</strong> É possível usar dois motivos diferentes para duas parcelas de localização diferentes (Brasil + EUA) dentro do mesmo pedido? Ou cada localidade exige um pedido separado?
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Requisitos específicos deste cenário</h3>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Requisito</th><th>Status</th></tr></thead><tbody><tr><td>PA2 válido com 90 dias disponíveis</td><td>✅</td></tr><tr><td>13/out–25/dez dentro da abrangência edital</td><td>✅ (74 dias, jul–dez 2026)</td></tr><tr><td>CH ≥ 30h/sem (317h para 74 dias)</td><td>⚠ Plano de atividades precisa detalhar</td></tr><tr><td>Carta de aceite da universidade americana</td><td>🔴 BLOQUEANTE PRINCIPAL — verificar hoje</td></tr><tr><td>Anuência da chefia (Q4 = fim de semestre)</td><td>⚠ Comunicar hoje</td></tr><tr><td>Ação no PDP IFRN 2026</td><td>⚠ Verificar com DIGPE</td></tr><tr><td>Atividade de ~30 dias nos EUA (out-nov ou nov-dez)</td><td>⚠ Definir datas exatas com o Thalocan</td></tr></tbody></table></div>
+
+<hr>
+
+<h3 class="md-h2">Documentos necessários</h3>
+
+<ul class="md-ul">
+<li>[ ] Plano de atividades com CH ≥ 317h (74 dias × 30h/sem ÷ 7)</li>
+<li>[ ] Carta de aceite do supervisor/professor americano (Thalocan / universidade hospedeira)</li>
+<li>[ ] Justificativa de alinhamento com cargo EBTT</li>
+<li>[ ] Anuência da chefia imediata (DG Campus Exemplo)</li>
+<li>[ ] CNPJ da instituição promotora se houver parte no Brasil com custo (ex.: curso)</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Impacto financeiro</h3>
+
+<ul class="md-ul">
+<li><strong>Remuneração:</strong> mantida integralmente (art. 87: "com a respectiva remuneração") ✅</li>
+<li><strong>Gratificações de atividade/local:</strong> suspensas se afastamento > 30 dias (Decreto 9.991 art. 18 §1° II)  </li>
+</ul>
+<p class="md-p">  → Verificar se há GAEE ou adicional de local que seria suspenso.</p>
+<ul class="md-ul">
+<li><strong>Custos EUA:</strong> por conta do servidor, salvo se o IFRN custear via PDP (pouco provável sem convênio prévio). Passagem aérea + moradia + seguro saúde: estimativa R$15–25k dependendo do período.</li>
+<li><strong>Progressão funcional:</strong> não é impactada; licença capacitação conta como efetivo exercício para todos os fins.</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Impacto família</h3>
+
+<ul class="md-ul">
+<li>74 dias fora = <strong>~2,5 meses</strong> → significativo com Diana (3 anos) em Cidade Exemplo.</li>
+<li>Se a esposa e Diana acompanharem aos EUA: custos maiores mas impacto familiar menor.</li>
+<li>Q4 (out–dez) é período de festas; ausentar-se até 25/dez significa perdas em datas familiares.</li>
+<li>Mitigação: organizar retorno para o Natal (25/dez) como condição; planejar visita da família nas semanas nos EUA se viável.</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Impacto no jogo longo 2038</h3>
+
+<ul class="md-ul">
+<li><strong>Thalocan:</strong> conexão presencial de 30 dias com o projeto americano avança substancialmente a parceria e posiciona Servidor como colaborador ativo, não apenas remoto.</li>
+<li><strong>NADIC/IFRN internacional:</strong> visita a laboratório americano gera produção científica, redes de contato, e credibilidade para atrair parcerias futuras para o Campus Exemplo.</li>
+<li><strong>Visão 2038:</strong> Diana hoje = 3 anos. Em 2038 = 15 anos. Construir rede internacional hoje é exatamente o investimento de longo prazo descrito na bússola estratégica.</li>
+<li><strong>Porém:</strong> usar lic. cap. 2026 <strong>bloqueia pós-doc art. 96-A por 4 anos</strong> (até 2030). Se pós-doc de 12 meses for mais estratégico que lic. cap. de 74 dias, Cenário 4 pode superar este.</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Perguntas ao DGP/PROGEP</h3>
+
+<ol class="md-ol">
+<li>O motivo 2 (pós-doc) aceita carta de professor informal ou exige convênio IFRN + universidade?</li>
+<li>Posso usar motivos diferentes para a parte Brasil e parte EUA do mesmo período?</li>
+<li>Há custeio institucional disponível para diárias/passagens de missão exterior em 2026?</li>
+<li>O afastamento > 30 dias suspende quais adicionais especificamente na minha situação (EBTT, DE)?</li>
+</ol>
+
+<hr>
+
+<h3 class="md-h2">Impacto no grupo de informática (rodízio)</h3>
+
+<p class="md-p">⚠ <strong>74 dias contínuos = maior impacto de todos os cenários sobre o rodízio do grupo.</strong> Licença capacitação não gera substituto (art. 27 §6° da Resolução CONSUP/IFRN 18/2021). O grupo precisa cobrir a ausência por rodízio informal durante todo o período out–dez 2026, que inclui fim de semestre e bancas. <strong>Comunicação antecipada com chefia e grupo é mais crítica aqui do que em qualquer outro cenário.</strong> Se o impacto no grupo for uma restrição forte, considerar os Cenários 3 ou 6 (split em parcelas menores).</p>
+
+<hr>
+
+<h3 class="md-h2">Score de recomendação</h3>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Dimensão</th><th>Pontuação (1–5)</th><th>Notas</th></tr></thead><tbody><tr><td>Viabilidade normativa</td><td>4</td><td>Alta, mas condicional à carta de aceite EUA</td></tr><tr><td>Impacto financeiro</td><td>4</td><td>Remuneração mantida; custos EUA = servidor</td></tr><tr><td>Impacto família</td><td>3</td><td>74 dias longe de Diana; Q4 inclui festas</td></tr><tr><td>Impacto jogo longo</td><td>5</td><td>Conexão Thalocan + NADIC = maior avanço 2038</td></tr><tr><td>Risco de desclassificação</td><td>3</td><td>Depende de carta aceite + PDP + CH</td></tr><tr><td>Impacto no grupo (rodízio)</td><td>2</td><td>74d contínuos = maior impacto no grupo; sem substituto</td></tr><tr><td><strong>Total</strong></td><td><strong>21/30</strong></td><td><strong>Melhor cenário SE carta EUA confirmada e grupo suporta</strong></td></tr></tbody></table></div>
+
+</div></div>
+<div class="tab-pane" id="tab-cenario-2" role="tabpanel">
+<div class="cenario-tab-header">
+  <h2>Cenário 2 — Adiamento 2027</h2>
+  <span class="score-chip">Score: 22/30</span>
+</div>
+<div class="md-body">
+  <div class="decision-tree-wrap">
+    <div class="decision-tree-label">Infográfico de decisão — gates críticos</div>
+    <svg class="decision-tree" viewBox="0 0 680 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Infográfico de decisão Cenário 2" style="width:100%;max-width:680px"><defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#94a3b8"/></marker></defs><rect x="20" y="20" width="110" height="75" rx="8" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+<text x="75" y="38" text-anchor="middle" font-size="16">⏸</text><text x="75" y="54" text-anchor="middle" font-size="11" fill="#64748b" font-weight="600">Não submeter</text><text x="75" y="68" text-anchor="middle" font-size="11" fill="#64748b" font-weight="600">agora</text>
+<rect x="150" y="20" width="110" height="75" rx="8" fill="#fef3c7" stroke="#78350f" stroke-width="2"/>
+<text x="205" y="38" text-anchor="middle" font-size="16">🕐</text><text x="205" y="54" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">Aguardar 2027</text><text x="205" y="68" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">edital futuro</text>
+<rect x="280" y="20" width="110" height="75" rx="8" fill="#fee2e2" stroke="#7f1d1d" stroke-width="2"/>
+<text x="335" y="38" text-anchor="middle" font-size="16">🔴</text><text x="335" y="54" text-anchor="middle" font-size="11" fill="#7f1d1d" font-weight="600">PA2 expirar?</text><text x="335" y="68" text-anchor="middle" font-size="11" fill="#7f1d1d" font-weight="600">DD/MM/AAAA+5</text>
+<rect x="410" y="20" width="110" height="75" rx="8" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+<text x="465" y="38" text-anchor="middle" font-size="16">—</text><text x="465" y="54" text-anchor="middle" font-size="11" fill="#64748b" font-weight="600">Zero ação</text><text x="465" y="68" text-anchor="middle" font-size="11" fill="#64748b" font-weight="600">hoje</text>
+<rect x="540" y="20" width="120" height="75" rx="8" fill="#fee2e2" stroke="#7f1d1d" stroke-width="2"/>
+<text x="600" y="38" text-anchor="middle" font-size="16"></text><text x="600" y="54" text-anchor="middle" font-size="11" fill="#7f1d1d" font-weight="600">C2 — Adiamento</text><text x="600" y="68" text-anchor="middle" font-size="11" fill="#7f1d1d" font-weight="600">Risco PA2 expirar</text><line x1="130" y1="57" x2="142" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="260" y1="57" x2="272" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="390" y1="57" x2="402" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="520" y1="57" x2="532" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/></svg>
+  </div>
+  <h2 class="md-h1">Cenário 2: Adiamento — Não tirar 2026, pleitear edital 1º sem 2027</h2>
+
+<p class="md-p"><strong>Viabilidade:</strong> 🟡 Média — depende de edital para 1º sem 2027 abrir antes de DD/MM/AAAA+5.</p>
+
+<hr>
+
+<h3 class="md-h2">Viabilidade normativa</h3>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> O PA2 tem usufruto até DD/MM/AAAA+5. Um edital de 1º sem 2027 provavelmente abriria submissão em Nov 2026 (padrão histórico do IFRN). Se deferido, o usufruto começaria antes de DD/MM/AAAA+5. Possível, mas dependente de o IFRN manter a regularidade dos editais e de o período de abrangência iniciar antes de 09/04.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "Período aquisitivo 2 — fim usufruto: DD/MM/AAAA+5." — *SUAP checklist Servidor, matrícula 0000000*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "Os períodos de licença de que trata o caput não são acumuláveis." — *Lei 8.112/1990, art. 87, parágrafo único*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Leitura:</strong> Historicamente o IFRN publica ~2 editais/ano (1º sem: abertura ~Mar–Abr; 2º sem: abertura ~Abr–Mai). Um "edital 1º sem 2027" abriria ~Nov 2026 para abrangência Jan–Jun 2027. PA2 expira em Abr 2027, então o usufruto de Jan–Abr 2027 ainda cabe. Porém se o próximo edital tiver abrangência a partir de Jul 2027, os 90 dias serão perdidos definitivamente. Risco concreto.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟡 Média
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Pergunta ao DGP:</strong> Quando está previsto o próximo edital de licença capacitação? A abrangência do próximo edital incluirá Jan–Abr 2027? Se o servidor não usar o PA2 até DD/MM/AAAA+5, os dias são definitivamente perdidos?
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Requisitos específicos deste cenário</h3>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Requisito</th><th>Status</th></tr></thead><tbody><tr><td>PA2 ainda disponível em 2027 (até 09/04)</td><td>✅ (se usufruto antes de DD/MM/AAAA+5)</td></tr><tr><td>Edital 1º sem 2027 com abrangência anterior a 09/04</td><td>⚠ Incerto — depende do IFRN</td></tr><tr><td>Preservação do interstício para pós-doc 96-A</td><td>✅ (não compromete pós-doc até 2030)</td></tr></tbody></table></div>
+
+<hr>
+
+<h3 class="md-h2">Documentos necessários</h3>
+
+<ul class="md-ul">
+<li>Nenhum agora. Preparar para submissão no próximo edital quando abrir (~Nov 2026).</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Impacto financeiro</h3>
+
+<ul class="md-ul">
+<li><strong>2026:</strong> zero custo, zero mudança salarial.</li>
+<li><strong>Risco:</strong> perder 90 dias de licença remunerada (≈ 3 meses de salário "bônus" perdido) se PA2 expirar sem uso.</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Impacto família</h3>
+
+<ul class="md-ul">
+<li><strong>2026:</strong> zero impacto. Estabilidade total para Diana (3 anos) e esposa.</li>
+<li><strong>2027:</strong> planejamento mais organizado; Diana com 4 anos = mais adaptável.</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Impacto no jogo longo 2038</h3>
+
+<ul class="md-ul">
+<li>Sem avanço do Thalocan/NADIC em 2026. Perde o momentum da janela aberta agora.</li>
+<li>Preserva a opção de pós-doc art. 96-A em 2027 (já elegível desde mai/2025).</li>
+<li>Consistente com a bússola estratégica de "2026 = fundar" se a estratégia for pós-doc em 2027.</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Impacto no grupo de informática (rodízio)</h3>
+
+<p class="md-p">Sem afastamento em 2026, <strong>zero impacto sobre o rodízio do grupo</strong> este ano. Se o afastamento ocorrer em Jan–Abr 2027 (edital 1° sem 2027), o impacto recai no início de semestre — período crítico. A diferença em relação aos Cenários 3/6 é que não há Parcela 1 doméstica em 2026 para "ensaiar" o rodízio. O grupo teria um único bloco de ausência em 2027.</p>
+
+<hr>
+
+<h3 class="md-h2">Score de recomendação</h3>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Dimensão</th><th>Pontuação (1–5)</th><th>Notas</th></tr></thead><tbody><tr><td>Viabilidade normativa</td><td>3</td><td>Depende de edital 2027 antes de 09/04</td></tr><tr><td>Impacto financeiro</td><td>5</td><td>Sem custo 2026; risco de perda PA2</td></tr><tr><td>Impacto família</td><td>5</td><td>Zero disrupção 2026</td></tr><tr><td>Impacto jogo longo</td><td>2</td><td>Perde momentum Thalocan/NADIC em 2026</td></tr><tr><td>Risco de desclassificação</td><td>3</td><td>Risco de perder PA2 definitivamente</td></tr><tr><td>Impacto no grupo (rodízio)</td><td>4</td><td>Zero impacto 2026; impacto em 2027 depende do timing</td></tr><tr><td><strong>Total</strong></td><td><strong>22/30</strong></td><td><strong>Seguro no curto prazo, arriscado no longo</strong></td></tr></tbody></table></div>
+
+</div></div>
+<div class="tab-pane" id="tab-cenario-3" role="tabpanel">
+<div class="cenario-tab-header">
+  <h2>Cenário 3 — Split 2026+2027 ⭐ RECOMENDADO</h2>
+  <span class="score-chip">Score: 23/30</span>
+</div>
+<div class="md-body">
+  <div class="decision-tree-wrap">
+    <div class="decision-tree-label">Infográfico de decisão — gates críticos</div>
+    <svg class="decision-tree" viewBox="0 0 680 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Infográfico de decisão Cenário 3" style="width:100%;max-width:680px"><defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#94a3b8"/></marker></defs><rect x="20" y="20" width="110" height="75" rx="8" fill="#dcfce7" stroke="#14532d" stroke-width="2"/>
+<text x="75" y="38" text-anchor="middle" font-size="16">✅</text><text x="75" y="54" text-anchor="middle" font-size="11" fill="#14532d" font-weight="600">PDP</text><text x="75" y="68" text-anchor="middle" font-size="11" fill="#14532d" font-weight="600">âncora L88</text>
+<rect x="150" y="20" width="110" height="75" rx="8" fill="#fef3c7" stroke="#78350f" stroke-width="2"/>
+<text x="205" y="38" text-anchor="middle" font-size="16">⚠️</text><text x="205" y="54" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">CH ≥ 30h/sem</text><text x="205" y="68" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">P1 Brasil</text>
+<rect x="280" y="20" width="110" height="75" rx="8" fill="#fef3c7" stroke="#78350f" stroke-width="2"/>
+<text x="335" y="38" text-anchor="middle" font-size="16">⚠️</text><text x="335" y="54" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">Carta EUA</text><text x="335" y="68" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">P2 até Nov/26</text>
+<rect x="410" y="20" width="110" height="75" rx="8" fill="#dcfce7" stroke="#14532d" stroke-width="2"/>
+<text x="465" y="38" text-anchor="middle" font-size="16">✅</text><text x="465" y="54" text-anchor="middle" font-size="11" fill="#14532d" font-weight="600">Interstício</text><text x="465" y="68" text-anchor="middle" font-size="11" fill="#14532d" font-weight="600">60d respeitado</text>
+<rect x="540" y="20" width="120" height="75" rx="8" fill="#dcfce7" stroke="#14532d" stroke-width="2"/>
+<text x="600" y="38" text-anchor="middle" font-size="16"></text><text x="600" y="54" text-anchor="middle" font-size="11" fill="#14532d" font-weight="600">C3 — Split ⭐</text><text x="600" y="68" text-anchor="middle" font-size="11" fill="#14532d" font-weight="600">RECOMENDADO</text><line x1="130" y1="57" x2="142" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="260" y1="57" x2="272" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="390" y1="57" x2="402" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="520" y1="57" x2="532" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/></svg>
+  </div>
+  <h2 class="md-h1">Cenário 3: Split — Parcela curta 2026 (Brasil) + Parcela EUA 2027 (PA2)</h2>
+
+<p class="md-p"><strong>Viabilidade:</strong> 🟡 Alta — viável normativamente; risco moderado na segunda parcela (PA2 expira DD/MM/AAAA+5).</p>
+
+<hr>
+
+<h3 class="md-h2">Viabilidade normativa</h3>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> A licença capacitação pode ser parcelada em até 6 períodos, com mínimo de 15 dias por parcela e interstício mínimo de 60 dias entre elas. É possível usar os 90 dias do PA2 em duas parcelas: ~30–45 dias no Brasil em out–nov 2026 (via Edital 29/2026), e ~30–45 dias nos EUA em jan–mar 2027 (via edital 1º sem 2027), desde que a segunda parcela termine antes de DD/MM/AAAA+5.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "A licença para capacitação poderá ser parcelada em, no máximo, seis períodos e o menor período não poderá ser inferior a 15 (quinze) dias." — *Decreto nº 9.991/2019, art. 25, §3°*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "O interstício mínimo entre quaisquer parcelas da licença para capacitação deverá ser de 60 (sessenta) dias." — *Resolução CONSUP/IFRN nº 18/2021, art. 27, §4°*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Leitura:</strong> Exemplo de calendário viável: Parcela 1 = 13/out–25/nov/2026 (44 dias, Brasil); interstício 60 dias → Parcela 2 pode iniciar a partir de 24/jan/2027; Parcela 2 = 24/jan–09/mar/2027 (44 dias, EUA); total = 88 dias ≤ 90 dias PA2. Ambas dentro do usufruto PA2. Requer dois editais, mas é juridicamente sólido.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟢 Alta
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Pergunta ao DGP:</strong> As parcelas do mesmo quinquênio podem ser submetidas em editais diferentes? A segunda parcela precisa ser submetida no mesmo edital que a primeira?
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Requisitos específicos deste cenário</h3>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Requisito</th><th>Status</th></tr></thead><tbody><tr><td>PA2 com 90 dias disponíveis</td><td>✅</td></tr><tr><td>Parcelamento em 2 períodos (máx. 6)</td><td>✅</td></tr><tr><td>Mínimo 15 dias por parcela</td><td>✅ (44+44 dias)</td></tr><tr><td>Interstício ≥ 60 dias entre parcelas</td><td>✅ (calendário acima respeita)</td></tr><tr><td>Parcela 2 antes de DD/MM/AAAA+5</td><td>✅ (se terminar em 09/mar ou antes)</td></tr><tr><td>Carta de aceite EUA para Parcela 2</td><td>⚠ Pode ser obtida até Nov 2026 (mais tempo)</td></tr><tr><td>PDP e anuência para Parcela 1</td><td>⚠ Urgente (prazo 01/05/2026)</td></tr></tbody></table></div>
+
+<hr>
+
+<h3 class="md-h2">Documentos necessários</h3>
+
+<p class="md-p"><strong>Para submissão agora (Parcela 1):</strong></p>
+<ul class="md-ul">
+<li>[ ] Pedido via SUAP com datas de Parcela 1 (out–nov 2026)</li>
+<li>[ ] Plano de atividades para Parcela 1 (CH ≥ 30h/sem)</li>
+<li>[ ] Anuência da chefia</li>
+<li>[ ] PDP verificado</li>
+</ul>
+
+<p class="md-p"><strong>Para submissão no próximo edital (Parcela 2 — jan–mar 2027):</strong></p>
+<ul class="md-ul">
+<li>[ ] Novo pedido via SUAP com datas de Parcela 2</li>
+<li>[ ] Carta de aceite da universidade americana</li>
+<li>[ ] Plano de atividades EUA (CH ≥ 30h/sem)</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Impacto financeiro</h3>
+
+<ul class="md-ul">
+<li><strong>Remuneração:</strong> mantida em ambas as parcelas.</li>
+<li><strong>Custos EUA (Parcela 2):</strong> passagem + moradia + seguro = servidor ou IFRN (verificar). Custo estimado: R$15–25k.</li>
+<li><strong>Menos custo em 2026</strong> do que ir direto para EUA — Parcela 1 doméstica = custo zero.</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Impacto família</h3>
+
+<ul class="md-ul">
+<li><strong>Parcela 1 (Brasil, out–nov):</strong> menor impacto familiar; pode ser em Natal/PF sem deslocamento maior.</li>
+<li><strong>Parcela 2 (EUA, jan–mar 2027):</strong> ~44 dias, Diana com 4 anos; mais planejável do que em 2026. Possibilidade de levar família se custos permitirem.</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Impacto no jogo longo 2038</h3>
+
+<ul class="md-ul">
+<li>Parcela 1 = avança produção técnica doméstica no NADIC.</li>
+<li>Parcela 2 = conexão presencial Thalocan em 2027 com preparação mais sólida.</li>
+<li>Não bloqueia pós-doc 96-A (bloquearia apenas a partir da segunda parcela, até 2031 para pós-doc — mas o pós-doc já estaria disponível antes disso se não usar lic. cap. nenhuma).</li>
+</ul>
+
+<p class="md-p">⚠ <strong>ATENÇÃO:</strong> qualquer licença capacitação (mesmo Parcela 1 só no Brasil) bloqueia pós-doc art. 96-A por 4 anos. Se o pós-doc de 12 meses nos EUA (96-A) for a prioridade máxima, Cenários 3, 5 e 1 devem ser descartados em favor do Cenário 4.</p>
+
+<hr>
+
+<h3 class="md-h2">Impacto no grupo de informática (rodízio)</h3>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> A licença capacitação não gera professor substituto (art. 27 §6°). O grupo de informática do IFRN se organiza por rodízio informal para absorver ausências — parcelas menores são significativamente mais fáceis de cobrir que um afastamento contínuo de 74 dias.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "Não haverá contratação de substituto para o caso de servidor em usufruto de Licença para Capacitação." — *Resolução CONSUP/IFRN nº 18/2021, art. 27, §6°*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Leitura:</strong> O Cenário 3 (Split) tem <strong>vantagem estratégica dupla</strong> em relação ao Cenário 1 (74 dias contínuos):
+<br>1. <strong>PA2:</strong> cobre o prazo antes de DD/MM/AAAA+5 sem perder dias.
+<br>2. <strong>Rodízio do grupo:</strong> parcelas de ~44 dias permitem reorganização entre elas; o interstício de ≥ 60 dias (jan 2027) é uma janela natural para o grupo reequilibrar distribuição de turmas e responsabilidades.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p>Calendário indicativo de impacto sobre o grupo:
+<br>- <strong>Parcela 1 (out–nov 2026):</strong> fim do 2° semestre letivo — período de bancas e fechamento de notas, carga de aulas regradas menor. Impacto: <strong>Médio-Baixo</strong>.
+<br>- <strong>Parcela 2 (jan–mar 2027):</strong> início do 1° semestre — período mais crítico para o grupo. Comunicação antecipada (≥ 2 meses antes) é essencial.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟢 Alta (sobre ausência de substituto) / 🟡 Média (sobre impacto real — depende da composição do rodízio em 2026/2027)
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Ação de mitigação:</strong> Comunicar o grupo e a chefia com antecedência de cada parcela; verificar quem mais está planejando afastamento no mesmo período.
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Score de recomendação</h3>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Dimensão</th><th>Pontuação (1–5)</th><th>Notas</th></tr></thead><tbody><tr><td>Viabilidade normativa</td><td>4</td><td>Alta; dois editais, mas juridicamente sólido</td></tr><tr><td>Impacto financeiro</td><td>4</td><td>Remuneração mantida; custos EUA diferidos</td></tr><tr><td>Impacto família</td><td>4</td><td>Parcela 1 doméstica; EUA 2027 mais planejada</td></tr><tr><td>Impacto jogo longo</td><td>4</td><td>Avança Thalocan em 2027 com preparação</td></tr><tr><td>Risco de desclassificação</td><td>3</td><td>Segundo edital incerto; depende de 2 aprovações</td></tr><tr><td>Impacto no grupo (rodízio)</td><td>4</td><td>Parcelas menores facilitam rodízio vs. C1 (74d contínuos)</td></tr><tr><td><strong>Total</strong></td><td><strong>23/30</strong></td><td><strong>Melhor opção se não há carta EUA agora</strong></td></tr></tbody></table></div>
+
+</div></div>
+<div class="tab-pane" id="tab-cenario-4" role="tabpanel">
+<div class="cenario-tab-header">
+  <h2>Cenário 4 — Pós-Doc 96-A</h2>
+  <span class="score-chip">Score: 20/30</span>
+</div>
+<div class="md-body">
+  <div class="decision-tree-wrap">
+    <div class="decision-tree-label">Infográfico de decisão — gates críticos</div>
+    <svg class="decision-tree" viewBox="0 0 680 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Infográfico de decisão Cenário 4" style="width:100%;max-width:680px"><defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#94a3b8"/></marker></defs><rect x="20" y="20" width="110" height="75" rx="8" fill="#dcfce7" stroke="#14532d" stroke-width="2"/>
+<text x="75" y="38" text-anchor="middle" font-size="16">✅</text><text x="75" y="54" text-anchor="middle" font-size="11" fill="#14532d" font-weight="600">Elegível 96-A</text><text x="75" y="68" text-anchor="middle" font-size="11" fill="#14532d" font-weight="600">agora</text>
+<rect x="150" y="20" width="110" height="75" rx="8" fill="#fee2e2" stroke="#7f1d1d" stroke-width="2"/>
+<text x="205" y="38" text-anchor="middle" font-size="16">🔴</text><text x="205" y="54" text-anchor="middle" font-size="11" fill="#7f1d1d" font-weight="600">Seletivo IFRN</text><text x="205" y="68" text-anchor="middle" font-size="11" fill="#7f1d1d" font-weight="600">art. 35</text>
+<rect x="280" y="20" width="110" height="75" rx="8" fill="#fef3c7" stroke="#78350f" stroke-width="2"/>
+<text x="335" y="38" text-anchor="middle" font-size="16">⚠️</text><text x="335" y="54" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">Aceite EUA</text><text x="335" y="68" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">Thalocan</text>
+<rect x="410" y="20" width="110" height="75" rx="8" fill="#fee2e2" stroke="#7f1d1d" stroke-width="2"/>
+<text x="465" y="38" text-anchor="middle" font-size="16">🔴</text><text x="465" y="54" text-anchor="middle" font-size="11" fill="#7f1d1d" font-weight="600">PA2 perdido?</text><text x="465" y="68" text-anchor="middle" font-size="11" fill="#7f1d1d" font-weight="600">risco real</text>
+<rect x="540" y="20" width="120" height="75" rx="8" fill="#fee2e2" stroke="#7f1d1d" stroke-width="2"/>
+<text x="600" y="38" text-anchor="middle" font-size="16"></text><text x="600" y="54" text-anchor="middle" font-size="11" fill="#7f1d1d" font-weight="600">C4 — Pós-Doc</text><text x="600" y="68" text-anchor="middle" font-size="11" fill="#7f1d1d" font-weight="600">Condicionado (seletivo)</text><line x1="130" y1="57" x2="142" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="260" y1="57" x2="272" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="390" y1="57" x2="402" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="520" y1="57" x2="532" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/></svg>
+  </div>
+  <h2 class="md-h1">Cenário 4: Pós-Doc 2027+ — Reservar elegibilidade para afastamento pós-doutoral (art. 96-A)</h2>
+
+<p class="md-p"><strong>Viabilidade:</strong> 🟡 Média — juridicamente elegível AGORA; porém depende de processo seletivo IFRN complexo e não há edital aberto para isso.</p>
+
+<hr>
+
+<h3 class="md-h2">Viabilidade normativa</h3>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> Servidor está atualmente elegível para afastamento pós-doutoral: cumpre as duas condições do art. 42 da Resolução CONSUP/IFRN 18/2021 — tem 14 anos de cargo efetivo (Condição A) e nunca se afastou por LTAP, lic. cap. ou pós-doc anterior (Condição B). Para preservar essa elegibilidade, ele NÃO pode pedir lic. cap. em 2026. Se pedir, a Condição B trava o pós-doc até ~2030.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação (regra dos 4 anos — norma interna IFRN):</strong> "Os afastamentos para realização de programas de pós-doutorado somente serão concedidos aos servidores titulares de cargo efetivo no IFRN há pelo menos quatro anos, incluído o período de estágio probatório, e que não tenham se afastado por licença para tratar de assuntos particulares, para gozo de licença para capacitação ou com fundamento neste artigo nos <strong>quatro anos anteriores</strong> à data da solicitação do novo afastamento." — *Resolução CONSUP/IFRN nº 18/2021, art. 42, caput*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação (exceção docentes — dispensa Condição A apenas):</strong> "No caso dos docentes, a Lei 12.772/2012 permite a participação em programa de pós-graduação stricto sensu ou de pós-doutorado, independentemente do <strong>tempo ocupado no cargo ou na instituição</strong>." — *Resolução CONSUP/IFRN nº 18/2021, art. 42, parágrafo único*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação (regra geral 2 anos — não se aplica a pós-doc):</strong> "Não será concedido afastamento total, ao servidor que tenha se afastado por cessão, requisição, exercício provisório em outro órgão, licença para tratar de assuntos particulares e licença capacitação nos <strong>dois anos</strong> anteriores, conforme § 2º, Art. 96-A da Lei nº 8.112/1990." — *Resolução CONSUP/IFRN nº 18/2021, art. 48*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Leitura:</strong> O interstício de <strong>4 anos</strong> é regra interna do IFRN (art. 42), mais restritiva que a Lei 8.112 (que fala em 2 anos via §2° do art. 96-A). O parágrafo único do art. 42 dispensa <strong>apenas</strong> o requisito de tempo de cargo (Condição A) para docentes EBTT — a quarentena de 4 anos após licenças (Condição B) continua valendo para todos. Portanto: (a) Servidor cumpre Condição A com 14 anos (dispensada p/ docente de qualquer forma); (b) nunca fez lic. cap., então Condição B está limpa; (c) está ELEGÍVEL AGORA. O obstáculo não é legal — é processual: processo seletivo IFRN + aceite de universidade no exterior.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟢 Alta
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Pergunta ao DGP:</strong> O interstício de 4 anos (art. 42 da Resolução CONSUP/IFRN 18/2021) pode ser reduzido por Nota Técnica da DIGPE para docentes, dado o parágrafo único?
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Requisitos específicos deste cenário</h3>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Requisito</th><th>Status</th></tr></thead><tbody><tr><td>Mínimo 4 anos no cargo (para pós-doc)</td><td>✅ (14 anos)</td></tr><tr><td>Sem lic. cap. ou 96-A nos últimos 4 anos</td><td>✅ (nunca fez nenhum dos dois)</td></tr><tr><td>Doutorado concluído (pré-requisito prático)</td><td>✅ (2021)</td></tr><tr><td>Processo seletivo IFRN para 96-A</td><td>⚠ Não iniciado</td></tr><tr><td>Aceite de universidade estrangeira</td><td>⚠ Não iniciado</td></tr><tr><td>PA2 preservado (não usar em 2026)</td><td>⚠ RISCO: PA2 expira DD/MM/AAAA+5 e pode ser perdido</td></tr><tr><td>Não submeter ao Edital 29/2026</td><td>✅ (ação de não-fazer)</td></tr></tbody></table></div>
+
+<hr>
+
+<h3 class="md-h2">Documentos necessários (para pós-doc 96-A)</h3>
+
+<ul class="md-ul">
+<li>[ ] Projeto de pesquisa alinhado ao cargo EBTT</li>
+<li>[ ] Carta de aceite de universidade no exterior (supervisor)</li>
+<li>[ ] Processo seletivo IFRN (edital interno, critérios Resolução CONSUP Anexo I)</li>
+<li>[ ] Aprovação Reitor / autoridade máxima IFRN</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Disputa interna no IFRN — Processo seletivo art. 35 + Anexo I</h3>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> Diferente da licença capacitação (que usa critérios de prioridade do art. 28 — PA mais próximo de expirar, efetivo exercício etc.), o afastamento pós-doutoral exige <strong>processo seletivo interno do IFRN</strong> (art. 35), com pontuação meritocrática definida no <strong>Anexo I</strong> da Resolução CONSUP/IFRN 18/2021. Não existe cota fixa por campus — o limite global de 5% (art. 24) é institucional, mas a classificação é por pontuação individual. O campus entra na pontuação como fator diferenciador (art. 36 + Anexo I), não como cota.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação (processo seletivo obrigatório):</strong> "Os afastamentos para participação em programas de pós-graduação stricto sensu e pós-doutorado serão precedidos de processo seletivo realizado pelos órgãos responsáveis pela gestão de pessoas... assegurando critérios isonômicos e transparentes..." — *Resolução CONSUP/IFRN nº 18/2021, art. 35, caput*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação (ainda sem necessidade de substituto):</strong> "O processo seletivo de que trata o caput se realizará ainda que não seja necessária a contratação de professores substitutos ou que o número de candidatos seja inferior ao de vagas." — *Resolução CONSUP/IFRN nº 18/2021, art. 35, parágrafo único*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação (pontuação inclui tempo no campus):</strong> "Para os docentes, a análise considera o tempo de efetivo exercício no IFRN <strong>e no campus onde atua</strong>." — *Resolução CONSUP/IFRN nº 18/2021, art. 36 + Anexo I*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Leitura:</strong> Servidor tem 14 anos de IFRN com concentração no Campus Exemplo — é diferencial expressivo no Anexo I. Sua escolaridade (Doutorado), jornada (Dedicação Exclusiva) e tempo no campus tendem a posicioná-lo bem na pontuação. Porém o processo seletivo é aberto a todos os docentes do IFRN que atendam ao art. 42. Sem edital 96-A aberto hoje, não é possível avaliar a concorrência real.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟡 Média — regra do processo seletivo é 🟢 Alta; posição relativa de Servidor na pontuação é 🟡 Média (concorrência desconhecida).
+</blockquote>
+
+<h4 class="md-h3">O que ainda não sabemos (perguntas ao DGP/DIGPE)</h4>
+
+<ul class="md-ul">
+<li><strong>(a)</strong> Existe edital 96-A aberto ou previsto para 2026/2027 no IFRN?</li>
+<li><strong>(b)</strong> O limite de 5% (art. 24) é administrado globalmente ou há cotas por campus para pós-doc 96-A?</li>
+<li><strong>(c)</strong> Quem são os candidatos potenciais no Campus Exemplo / no grupo de informática para pós-doc 96-A?</li>
+<li><strong>(d)</strong> Na prática do Campus, o afastamento pós-doutoral (96-A) gera contratação de professor substituto? (art. 35 § único sugere que pode; lic. cap. definitivamente não gera — art. 27 §6°)</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Impacto financeiro</h3>
+
+<ul class="md-ul">
+<li><strong>96-A com ônus (se o IFRN custear):</strong> remuneração mantida; IFRN pode custear passagem/moradia via convênio.</li>
+<li><strong>96-A sem ônus (servidor paga):</strong> remuneração mantida; custos por conta própria. Para 12 meses nos EUA: R$80–150k (moradia, saúde, vida).</li>
+<li><strong>Risco financeiro do PA2 perdido:</strong> se não usar lic. cap. e PA2 expirar, perde 90 dias de licença remunerada adquirida (~3 meses de salário de "bônus"). Mas o pós-doc de 12 meses tem impacto de carreira muito superior.</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Impacto família</h3>
+
+<ul class="md-ul">
+<li><strong>12 meses no exterior = 1 ano inteiro fora</strong> → grande impacto em Diana (3→4 anos) e esposa.</li>
+<li>Se a família acompanhar: custo dobra, mas impacto familiar é menor. Para docentes EBTT com DE, a questão de acompanhamento da família é gerida pelo próprio servidor.</li>
+<li>Requer planejamento com ~1 ano de antecedência — não é uma decisão de 6 dias.</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Impacto no jogo longo 2038</h3>
+
+<ul class="md-ul">
+<li><strong>O maior alavancador de todos:</strong> 12 meses em laboratório de referência internacional vs. 90 dias de lic. cap. = diferença de 4x em tempo e potencialmente 10x em impacto na carreira.</li>
+<li>Potencial para colaborações duradouras, publicações internacionais, e trazer para o IFRN/NADIC um padrão que levaria anos para construir de outra forma.</li>
+<li>Diretamente alinhado ao "NADIC em padrão internacional" e ao horizonte 2038.</li>
+<li><strong>Porém:</strong> não é para 2026 — processo seletivo + aprovação + organização leva 6–18 meses. O PA2 pode ser perdido nesse meio-tempo.</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Trade-off central</h3>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Opção</th><th>O que se ganha</th><th>O que se perde</th></tr></thead><tbody><tr><td>Lic. cap. 2026 (Cenários 1/3/5/6)</td><td>PA2 usado antes de expirar (90 dias seguros)</td><td>Pós-doc 96-A bloqueado por 4 anos (até 2030)</td></tr><tr><td>Sem lic. cap. 2026 (Cenário 4)</td><td>Pós-doc 96-A disponível em 2027 (12 meses)</td><td>PA2 pode expirar e ser perdido (90 dias)</td></tr></tbody></table></div>
+
+<p class="md-p">Se a estratégia for pós-doc 96-A em 2027, a ação correta é: <strong>iniciar hoje o processo seletivo IFRN para pós-doc 96-A</strong> e NÃO submeter ao Edital 29/2026.</p>
+
+<h4 class="md-h3">A lógica da decisão</h4>
+
+<p class="md-p">A escolha entre Cenário 4 e os demais depende do horizonte planejado para o pós-doc:</p>
+
+<ul class="md-ul">
+<li>Se decidir <strong>não tirar a licença capacitação agora</strong> para preservar a elegibilidade pós-doc (art. 42 Condição B), isso implica um compromisso: <strong>o pós-doc precisa acontecer antes de 2030</strong> para que a troca faça sentido. Pós-doc em 2027, 2028 ou 2029 justifica abrir mão da lic. cap. agora.</li>
+<li>Se o pós-doc só for viável <strong>a partir de 2030</strong> (por razões pessoais, institucionais ou de timing), então <strong>a licença capacitação este ano é a decisão racional</strong> — usa-se o PA2 antes de expirar e o pós-doc fica para quando a quarentena de 4 anos tiver zerado.</li>
+</ul>
+
+<p class="md-p">Em síntese: <strong>a escolha pelo Cenário 4 só vale se o pós-doc for realizável no horizonte 2027–2029</strong>.</p>
+
+<hr>
+
+<h3 class="md-h2">Score de recomendação</h3>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Dimensão</th><th>Pontuação (1–5)</th><th>Notas</th></tr></thead><tbody><tr><td>Viabilidade normativa</td><td>3</td><td>Juridicamente elegível, mas processo complexo</td></tr><tr><td>Impacto financeiro</td><td>2</td><td>96-A sem ônus = R$80–150k/ano; PA2 perdido</td></tr><tr><td>Impacto família</td><td>3</td><td>12 meses fora = grande impacto familiar</td></tr><tr><td>Impacto jogo longo</td><td>5</td><td>Maior alavancador de carreira internacional</td></tr><tr><td>Risco de desclassificação</td><td>2</td><td>Processo seletivo IFRN + aceite exterior = muitos dependentes</td></tr><tr><td><strong>Total</strong></td><td><strong>15/25</strong></td><td><strong>Alta recompensa, alta complexidade. Decide hoje ou depois de 01/05.</strong></td></tr></tbody></table></div>
+
+</div></div>
+<div class="tab-pane" id="tab-cenario-5" role="tabpanel">
+<div class="cenario-tab-header">
+  <h2>Cenário 5 — Híbrido BR</h2>
+  <span class="score-chip">Score: 27/30</span>
+</div>
+<div class="md-body">
+  <div class="decision-tree-wrap">
+    <div class="decision-tree-label">Infográfico de decisão — gates críticos</div>
+    <svg class="decision-tree" viewBox="0 0 680 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Infográfico de decisão Cenário 5" style="width:100%;max-width:680px"><defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#94a3b8"/></marker></defs><rect x="20" y="20" width="110" height="75" rx="8" fill="#dcfce7" stroke="#14532d" stroke-width="2"/>
+<text x="75" y="38" text-anchor="middle" font-size="16">✅</text><text x="75" y="54" text-anchor="middle" font-size="11" fill="#14532d" font-weight="600">PDP</text><text x="75" y="68" text-anchor="middle" font-size="11" fill="#14532d" font-weight="600">âncora L88</text>
+<rect x="150" y="20" width="110" height="75" rx="8" fill="#fef3c7" stroke="#78350f" stroke-width="2"/>
+<text x="205" y="38" text-anchor="middle" font-size="16">⚠️</text><text x="205" y="54" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">CH ≥ 30h/sem</text><text x="205" y="68" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">plano pendente</text>
+<rect x="280" y="20" width="110" height="75" rx="8" fill="#dcfce7" stroke="#14532d" stroke-width="2"/>
+<text x="335" y="38" text-anchor="middle" font-size="16">✅</text><text x="335" y="54" text-anchor="middle" font-size="11" fill="#14532d" font-weight="600">Sem EUA</text><text x="335" y="68" text-anchor="middle" font-size="11" fill="#14532d" font-weight="600">motivo 7</text>
+<rect x="410" y="20" width="110" height="75" rx="8" fill="#fef3c7" stroke="#78350f" stroke-width="2"/>
+<text x="465" y="38" text-anchor="middle" font-size="16">⚠️</text><text x="465" y="54" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">Anuência</text><text x="465" y="68" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">chefia PF</text>
+<rect x="540" y="20" width="120" height="75" rx="8" fill="#fef3c7" stroke="#78350f" stroke-width="2"/>
+<text x="600" y="38" text-anchor="middle" font-size="16"></text><text x="600" y="54" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">C5 — Híbrido</text><text x="600" y="68" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">Conservador (sem EUA)</text><line x1="130" y1="57" x2="142" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="260" y1="57" x2="272" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="390" y1="57" x2="402" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="520" y1="57" x2="532" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/></svg>
+  </div>
+  <h2 class="md-h1">Cenário 5: Híbrido conservador — Licença curta 2026 só Brasil, máxima simplicidade</h2>
+
+<p class="md-p"><strong>Viabilidade:</strong> 🟢 Alta — menor risco de desclassificação. Porém bloqueia pós-doc 96-A por 4 anos.</p>
+
+<hr>
+
+<h3 class="md-h2">Viabilidade normativa</h3>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> Usar 30–60 dias do PA2 no Brasil em 2026 via motivo 7 (capacitação profissional) ou motivo 2 (elaboração de trabalho técnico/pós-doutoral) é o cenário de menor risco normativo. Sem dependências externas (carta EUA), sem motivo controverso.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "Curso de capacitação profissional presencial ou à distância (ações de desenvolvimento)." — *SUAP Edital 29/2026, motivo id=7*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "Elaboração de monografia, trabalho de conclusão de curso, dissertação de mestrado, tese de doutorado, de livre-docência ou estágio pós-doutoral." — *SUAP Edital 29/2026, motivo id=2*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Leitura:</strong> Qualquer ação de desenvolvimento no Brasil com CH ≥ 30h/sem, prevista no PDP, é aprovada com alta confiança. Motivo 7 é o mais amplo: cursos EAD, workshops, capacitação presencial. Motivo 2 permite dedicação exclusiva à escrita de papers/projeto pós-doc. Ambos são autocontidos — sem depender de terceiros no exterior.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟢 Alta
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Requisitos específicos deste cenário</h3>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Requisito</th><th>Status</th></tr></thead><tbody><tr><td>PA2 válido</td><td>✅</td></tr><tr><td>Motivo 7 ou 2, só Brasil</td><td>✅ Sem dependência externa</td></tr><tr><td>CH ≥ 30h/sem</td><td>✅ Fácil de atingir com curso/trabalho técnico</td></tr><tr><td>PDP IFRN 2026 incluindo ação doméstica</td><td>✅ (muito mais provável que ação exterior)</td></tr><tr><td>Anuência da chefia</td><td>⚠ Comunicar hoje</td></tr><tr><td>Carta de aceite EUA</td><td>✅ Não necessária</td></tr></tbody></table></div>
+
+<hr>
+
+<h3 class="md-h2">Documentos necessários</h3>
+
+<ul class="md-ul">
+<li>[ ] Pedido via SUAP (motivo 7 ou 2)</li>
+<li>[ ] Plano de atividades doméstico com CH ≥ 30h/sem</li>
+<li>[ ] Anuência da chefia</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Impacto financeiro</h3>
+
+<ul class="md-ul">
+<li><strong>Remuneração:</strong> mantida.</li>
+<li><strong>Custos adicionais:</strong> zero (atividade doméstica, sem viagem internacional).</li>
+<li><strong>Risco PA2:</strong> zero — usado antes de expirar.</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Impacto família</h3>
+
+<ul class="md-ul">
+<li>Atividade no Brasil (pode ser em Natal, UFRN, IFRN) → mínima separação da família.</li>
+<li>Se trabalhar de casa (modo remoto no IFRN ou EAD): impacto zero em Diana e esposa.</li>
+<li>Melhor cenário familiar de todos os que envolvem usar PA2.</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Impacto no jogo longo 2038</h3>
+
+<p class="md-p">⚠ <strong>ALERTA ESTRATÉGICO:</strong>  </p>
+<p class="md-p">Qualquer uso de licença capacitação em 2026 — mesmo 15 dias no Brasil — <strong>bloqueia pós-doc art. 96-A por 4 anos</strong> (até 2030).</p>
+
+<ul class="md-ul">
+<li>Não avança o Thalocan/EUA diretamente.</li>
+<li>Bloqueia a maior alavanca de carreira internacional (pós-doc 12 meses no exterior).</li>
+<li>Avança competências técnicas domésticas, mas com impacto limitado na visão 2038.</li>
+<li>Para a bússola estratégica ("NADIC em padrão internacional"), este cenário é o de <strong>menor retorno no jogo longo</strong> dentre os que envolvem submeter em 2026.</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Quando escolher este cenário</h3>
+
+<p class="md-p">Use o Cenário 5 SE:</p>
+<ol class="md-ol">
+<li>O pós-doc 96-A NÃO é prioridade para os próximos 4 anos (por razões pessoais, familiares, institucionais).</li>
+<li>O PA2 precisa ser usado AGORA (risco de expirar), mas sem logística EUA.</li>
+<li>A produção técnica doméstica tem urgência estratégica (papers, projeto de pesquisa, capacitação específica).</li>
+</ol>
+
+<hr>
+
+<h3 class="md-h2">Impacto no grupo de informática (rodízio)</h3>
+
+<p class="md-p">Afastamento doméstico de 30–60 dias, podendo ser em Natal (UFRN) ou remoto no IFRN. O impacto sobre o rodízio do grupo é o <strong>segundo menor dentre os cenários que envolvem submeter ao edital</strong> (perde apenas para o Cenário 2, que não submete). Período mais curto e doméstico facilita a cobertura informal. Licença capacitação não gera substituto (art. 27 §6°), mas duração menor = menor exposição do grupo.</p>
+
+<hr>
+
+<h3 class="md-h2">Score de recomendação</h3>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Dimensão</th><th>Pontuação (1–5)</th><th>Notas</th></tr></thead><tbody><tr><td>Viabilidade normativa</td><td>5</td><td>Mais simples e mais seguro</td></tr><tr><td>Impacto financeiro</td><td>5</td><td>Zero custo adicional</td></tr><tr><td>Impacto família</td><td>5</td><td>Mínima ou nula disrupção</td></tr><tr><td>Impacto jogo longo</td><td>2</td><td>Bloqueia pós-doc 96-A por 4 anos; não avança EUA</td></tr><tr><td>Risco de desclassificação</td><td>5</td><td>Mínimo: motivo 7 doméstico é o mais simples</td></tr><tr><td>Impacto no grupo (rodízio)</td><td>5</td><td>Menor impacto dentre cenários com submissão 2026</td></tr><tr><td><strong>Total</strong></td><td><strong>27/30</strong></td><td><strong>Maior score ABSOLUTO, pior jogo longo</strong></td></tr></tbody></table></div>
+
+</div></div>
+<div class="tab-pane" id="tab-cenario-6" role="tabpanel">
+<div class="cenario-tab-header">
+  <h2>Cenário 6 — Split EUA 2027</h2>
+  <span class="score-chip">Score: 22/30</span>
+</div>
+<div class="md-body">
+  <div class="decision-tree-wrap">
+    <div class="decision-tree-label">Infográfico de decisão — gates críticos</div>
+    <svg class="decision-tree" viewBox="0 0 680 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Infográfico de decisão Cenário 6" style="width:100%;max-width:680px"><defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#94a3b8"/></marker></defs><rect x="20" y="20" width="110" height="75" rx="8" fill="#dcfce7" stroke="#14532d" stroke-width="2"/>
+<text x="75" y="38" text-anchor="middle" font-size="16">✅</text><text x="75" y="54" text-anchor="middle" font-size="11" fill="#14532d" font-weight="600">PDP</text><text x="75" y="68" text-anchor="middle" font-size="11" fill="#14532d" font-weight="600">L88 + L69</text>
+<rect x="150" y="20" width="110" height="75" rx="8" fill="#dcfce7" stroke="#14532d" stroke-width="2"/>
+<text x="205" y="38" text-anchor="middle" font-size="16">✅</text><text x="205" y="54" text-anchor="middle" font-size="11" fill="#14532d" font-weight="600">P1 Brasil</text><text x="205" y="68" text-anchor="middle" font-size="11" fill="#14532d" font-weight="600">46d out–nov</text>
+<rect x="280" y="20" width="110" height="75" rx="8" fill="#fef3c7" stroke="#78350f" stroke-width="2"/>
+<text x="335" y="38" text-anchor="middle" font-size="16">⚠️</text><text x="335" y="54" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">Carta EUA</text><text x="335" y="68" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">até Nov/26</text>
+<rect x="410" y="20" width="110" height="75" rx="8" fill="#fef3c7" stroke="#78350f" stroke-width="2"/>
+<text x="465" y="38" text-anchor="middle" font-size="16">⚠️</text><text x="465" y="54" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">P2 EUA 2027</text><text x="465" y="68" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">44d jan–fev</text>
+<rect x="540" y="20" width="120" height="75" rx="8" fill="#fef3c7" stroke="#78350f" stroke-width="2"/>
+<text x="600" y="38" text-anchor="middle" font-size="16"></text><text x="600" y="54" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">C6 — Split EUA</text><text x="600" y="68" text-anchor="middle" font-size="11" fill="#78350f" font-weight="600">Variante do C3</text><line x1="130" y1="57" x2="142" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="260" y1="57" x2="272" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="390" y1="57" x2="402" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="520" y1="57" x2="532" y2="57" stroke="#94a3b8" stroke-width="2" marker-end="url(#arr)"/></svg>
+  </div>
+  <h2 class="md-h1">Cenário 6: Split EUA — Parcela curta Brasil 2026 + Parcela 30d EUA em 2027</h2>
+
+<p class="md-p"><strong>Viabilidade:</strong> 🟡 Média-Alta — juridicamente idêntico ao Cenário 3; diferença é a distribuição (mais dias no Brasil primeiro, EUA mais curto depois).</p>
+
+<hr>
+
+<h3 class="md-h2">Viabilidade normativa</h3>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> Idêntico ao Cenário 3 normativamente: dois pedidos no mesmo PA2, parcelados, com interstício ≥ 60 dias entre eles. Aqui a configuração privilegia um primeiro período doméstico mais produtivo (Natal/PF, produção técnica) e uma visita EUA mais curta e focada em 2027.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "A licença para capacitação poderá ser parcelada em, no máximo, seis períodos e o menor período não poderá ser inferior a 15 (quinze) dias." — *Decreto nº 9.991/2019, art. 25, §3°*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "O interstício mínimo entre quaisquer parcelas da licença para capacitação deverá ser de 60 (sessenta) dias." — *Resolução CONSUP/IFRN nº 18/2021, art. 27, §4°*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Leitura:</strong> Exemplo de calendário: Parcela 1 = 01/out–15/nov/2026 (46 dias, Brasil, motivo 2 ou 7); interstício ≥ 60 dias → Parcela 2 a partir de 14/jan/2027; Parcela 2 = 14/jan–27/fev/2027 (44 dias, EUA, motivo 2 ou 4); total = 90 dias = PA2 inteiro usado. Toda a estrutura é a mesma do Cenário 3 — a diferença é estratégica, não normativa.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟢 Alta
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Diferença em relação ao Cenário 3</h3>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Aspecto</th><th>Cenário 3 (Split puro)</th><th>Cenário 6 (Split EUA 2027)</th></tr></thead><tbody><tr><td>Parcela 1 (2026)</td><td>Curta, Brasil</td><td>Maior (46d), Brasil, mais produtiva</td></tr><tr><td>Parcela 2 (2027)</td><td>Mais longa (EUA)</td><td>Mais curta (44d), EUA focada</td></tr><tr><td>Objetivo Parcela 2</td><td>Exploratória Thalocan</td><td>Específica: missão/pós-doc Thalocan</td></tr><tr><td>Planejamento EUA</td><td>Menos específico</td><td>Carta aceite necessária até Nov 2026</td></tr></tbody></table></div>
+
+<p class="md-p">Em essência: o Cenário 6 é o Cenário 3 com a Parcela 2 (EUA) mais enxuta e definida.</p>
+
+<hr>
+
+<h3 class="md-h2">Requisitos específicos deste cenário</h3>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Requisito</th><th>Status</th></tr></thead><tbody><tr><td>PA2 com 90 dias</td><td>✅</td></tr><tr><td>Dois editais (Edital 29/2026 + edital 1º sem 2027)</td><td>⚠</td></tr><tr><td>Interstício 60 dias entre parcelas</td><td>✅ (calendário acima respeita)</td></tr><tr><td>Parcela 2 antes de DD/MM/AAAA+5</td><td>✅ (se EUA em Jan–Mar 2027)</td></tr><tr><td>Carta aceite EUA para Parcela 2</td><td>⚠ Obter até Nov 2026 (submissão do 2º edital)</td></tr></tbody></table></div>
+
+<hr>
+
+<h3 class="md-h2">Documentos necessários</h3>
+
+<p class="md-p"><strong>Agora (Parcela 1):</strong> mesmos do Cenário 3 sem carta EUA.  </p>
+<p class="md-p"><strong>Nov 2026 (Parcela 2):</strong> carta aceite universidade americana + plano de atividades EUA.</p>
+
+<hr>
+
+<h3 class="md-h2">Impacto financeiro</h3>
+
+<p class="md-p">Idêntico ao Cenário 3: remuneração mantida em ambas; custos EUA (Parcela 2) por conta do servidor (~R$8–15k para 44 dias vs. R$15–25k para 74 dias do Cenário 1).</p>
+
+<hr>
+
+<h3 class="md-h2">Impacto família</h3>
+
+<ul class="md-ul">
+<li><strong>Parcela 1 (Brasil):</strong> mínimo impacto familiar.</li>
+<li><strong>Parcela 2 (EUA, 44 dias):</strong> menos disruptivo que Cenário 1 (74 dias total com EUA). Diana terá 4 anos em Jan 2027 = mais adaptável.</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Impacto no jogo longo 2038</h3>
+
+<p class="md-p">⚠ Mesma restrição do Cenário 3: qualquer lic. cap. bloqueia pós-doc 96-A por 4 anos (até 2030+).</p>
+
+<ul class="md-ul">
+<li>Conecta ao Thalocan com visita presencial em 2027.</li>
+<li>Mantém NADIC ativo em 2026 (Parcela 1 doméstica = produção técnica).</li>
+<li>Porém bloqueia o maior alavancador (pós-doc 12 meses).</li>
+</ul>
+
+<hr>
+
+<h3 class="md-h2">Impacto no grupo de informática (rodízio)</h3>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> Idêntico ao Cenário 3: licença capacitação não gera substituto (art. 27 §6°). O split em duas parcelas de ~46 e ~44 dias mitiga o impacto sobre o rodízio do grupo de informática em comparação com 74 dias contínuos.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "Não haverá contratação de substituto para o caso de servidor em usufruto de Licença para Capacitação." — *Resolução CONSUP/IFRN nº 18/2021, art. 27, §6°*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Leitura:</strong> A lógica é a mesma do Cenário 3. A diferença é que a Parcela 1 neste cenário é ligeiramente mais longa (46 dias vs. ~44 dias no C3), mas ainda muito menor que 74 dias contínuos do Cenário 1.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p>- <strong>Parcela 1 (out–nov 2026, ~46d):</strong> fim de 2° semestre — bancas/fechamento de notas, menor carga de aulas. Impacto: <strong>Médio-Baixo</strong>.
+<br>- <strong>Parcela 2 (jan–fev 2027, ~44d EUA):</strong> início de 1° semestre — comunicar com ≥ 2 meses de antecedência.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟢 Alta (regra) / 🟡 Média (impacto real no grupo)
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Score de recomendação</h3>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Dimensão</th><th>Pontuação (1–5)</th><th>Notas</th></tr></thead><tbody><tr><td>Viabilidade normativa</td><td>4</td><td>Alta; dois editais, interstício respeitado</td></tr><tr><td>Impacto financeiro</td><td>3</td><td>Custo EUA menor que C1; PA2 seguro</td></tr><tr><td>Impacto família</td><td>4</td><td>Parcela 1 doméstica; EUA mais curto em 2027</td></tr><tr><td>Impacto jogo longo</td><td>4</td><td>Thalocan em 2027 com melhor preparação</td></tr><tr><td>Risco de desclassificação</td><td>3</td><td>Depende de dois editais; PA2 apertado (abr/2027)</td></tr><tr><td>Impacto no grupo (rodízio)</td><td>4</td><td>Parcelas menores facilitam rodízio vs. C1 (74d contínuos)</td></tr><tr><td><strong>Total</strong></td><td><strong>22/30</strong></td><td><strong>Variante do Cenário 3; escolha quando EUA precisa ser mais curta</strong></td></tr></tbody></table></div>
+
+</div></div>
+<div class="tab-pane" id="tab-checklist" role="tabpanel"><div class="md-body"><h2 class="md-h1">Checklist de Documentos — Licença Capacitação Edital 29/2026</h2>
+
+<blockquote class="md-bq"><p>Derivado do checklist SUAP, Decreto 9.991/2019 art. 23, Resolução CONSUP/IFRN 18/2021 art. 31.
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Documentos para submissão (prazo: 01/05/2026 23:59)</h3>
+
+<ul class="md-ul">
+<li>[ ] <strong>Pedido via SUAP</strong> — formulário do Edital 29/2026 preenchido  </li>
+</ul>
+<p class="md-p">  URL: <code>https://suap.ifrn.edu.br/[REDACTED]</code></p>
+<p class="md-p">  - Motivo selecionado (1–7)</p>
+<p class="md-p">  - Modalidade (PRESENCIAL / A DISTÂNCIA)</p>
+<p class="md-p">  - Carga horária total (≥ 30h/sem × nº dias ÷ 7)</p>
+<p class="md-p">  - Instituição + Local</p>
+<p class="md-p">  - Data início + Data final da(s) parcela(s)</p>
+<p class="md-p">  - Origem do custeio (Servidor / Instituição / Não se aplica)</p>
+
+<ul class="md-ul">
+<li>[ ] <strong>Plano de Atividades</strong> (anexo obrigatório)  </li>
+</ul>
+<p class="md-p">  Deve conter: objetivo, cronograma semanal, CH diária, alinhamento com cargo (EBTT) e PDP 2026.  </p>
+<p class="md-p">  CH mínima: ≥ 317h se 74 dias; ≥ 129h se 30 dias.</p>
+
+<ul class="md-ul">
+<li>[ ] <strong>Verificar inserção no PDP 2026 do IFRN</strong> ← fazer hoje  </li>
+</ul>
+<p class="md-p">  Contato: DIGPE/CODEPE. Confirmar se "estágio pós-doutoral" ou "curso língua estrangeira exterior" está no PDP aprovado.</p>
+
+<ul class="md-ul">
+<li>[ ] <strong>Anuência da chefia imediata</strong> (Diretor-Geral Campus Exemplo)  </li>
+</ul>
+<p class="md-p">  Comunicar hoje por e-mail; solicitar anuência formal via SUAP/processo eletrônico.</p>
+
+<hr>
+
+<h3 class="md-h2">Documentos adicionais (se atividade no exterior — EUA)</h3>
+
+<ul class="md-ul">
+<li>[ ] <strong>Carta de aceite da instituição americana</strong> (para motivos 2 ou 4)  </li>
+</ul>
+<p class="md-p">  Deve ser emitida pelo professor/supervisor/orientador na universidade receptora.  </p>
+<p class="md-p">  Conteúdo mínimo: nome do servidor, período, atividade prevista, assinatura.</p>
+
+<ul class="md-ul">
+<li>[ ] <strong>Justificativa de alinhamento</strong> entre a atividade no exterior e o cargo de Professor EBTT  </li>
+</ul>
+<p class="md-p">  Escrita pelo servidor; atestada pela chefia imediata.</p>
+
+<blockquote class="md-bq"><p><strong>Afirmação:</strong> O Decreto 9.991/2019 e a CONSUP 18/2021 determinam que o processo de afastamento conterá os documentos estabelecidos nas normas complementares da DIGPE. Para atividades no exterior, a carta de aceite é o único documento externo não produzido pelo próprio servidor.
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação:</strong> "O processo de afastamento do servidor conterá as informações e os documentos estabelecidos nas normas de que trata o art. 12." — *Decreto nº 9.991/2019, art. 23*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Citação (CONSUP IFRN):</strong> "Após o término do período de Licença para Capacitação, o servidor, obrigatoriamente, apresentará à respectiva gestão de pessoas documento comprobatório de realização de atividade motivadora da licença, bem como proporcionar a socialização dos conhecimentos adquiridos." — *Resolução CONSUP/IFRN nº 18/2021, art. 31*
+</blockquote>
+<p class="md-p">></p>
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟢 Alta
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Documentos de comprovação (após o afastamento)</h3>
+
+<ul class="md-ul">
+<li>[ ] Certificado / diploma de conclusão do curso ou declaração de participação  </li>
+<li>[ ] Relatório de atividades desenvolvidas  </li>
+<li>[ ] Cópia do trabalho de pós-doc (ou equivalente) com assinatura do orientador, se aplicável</li>
+</ul>
+
+<blockquote class="md-bq"><p><strong>Fonte:</strong> *Resolução CONSUP/IFRN nº 18/2021, Anexo II — Documentação necessária, linha "Licença para Capacitação"*
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Limite de anexos no SUAP</h3>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Limite</th><th>Valor</th></tr></thead><tbody><tr><td>Máximo de anexos</td><td>3 (padrão; pode adicionar mais)</td></tr><tr><td>Tamanho máximo por arquivo</td><td>10 MB</td></tr></tbody></table></div>
+
+<blockquote class="md-bq"><p><strong>Fonte:</strong> *SUAP, Edital 29/2026, seção de anexos*
+</blockquote>
+</div></div>
+<div class="tab-pane" id="tab-pdp" role="tabpanel"><div class="md-body"><h2 class="md-h1">PDP IFRN 2026 — Ações pertinentes ao Campus Exemplo</h2>
+
+<p class="md-p"><strong>Fonte:</strong> <code>corpus/normas/pdp<em>ifrn</em>2026.pdf</code> (DIGPE/CODEPE, IFRN, 2026)  </p>
+<p class="md-p"><strong>Extração:</strong> <code>corpus/pdp<em>ifrn</em>2026<em>pf.json</code> · <code>corpus/extracted/pdp</em>ifrn<em>2026</em>pau<em>dos</em>ferros.md</code>  </p>
+<p class="md-p"><strong>Perfil alvo:</strong> Servidor Exemplo — Docente EBTT, Doutor, Campus Exemplo, área Computação / Sistemas Distribuídos / HPC  </p>
+<p class="md-p"><strong>Atualizado:</strong> 2026-04-25</p>
+
+<hr>
+
+<h3 class="md-h2">Resumo executivo</h3>
+
+<p class="md-p">O PDP IFRN 2026 tem ações em dois grupos relevantes para o perfil:</p>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Grupo</th><th>Linhas</th><th>Relevância</th></tr></thead><tbody><tr><td>PF explícito</td><td>L14, L29, L53, L63, L88</td><td>Campus Exemplo citado nominalmente</td></tr><tr><td>Sistêmicas (todos os campi)</td><td>L36, L69, L73, L93, L114</td><td>Unidades IFRN-CODEPE/DINT/PROPI/PRODES cobrem PF</td></tr></tbody></table></div>
+
+<p class="md-p"><strong>Âncoras-chave para o perfil de Servidor:</strong></p>
+<ul class="md-ul">
+<li><strong>L88</strong> (MUITO ALTA) — Governo e Transformação Digital: IA, governança de dados, BI, LGPD — PF explícito.</li>
+<li><strong>L63</strong> (ALTA) — IA voltada para educação — PF explícito.</li>
+<li><strong>L69</strong> (ALTA) — Línguas adicionais (inglês) — sistêmica, cobre motivo 3.</li>
+<li><strong>L114</strong> (ALTA) — Informática — sistêmica IFRN-CODEPE.</li>
+</ul>
+
+<blockquote class="md-bq"><p><strong>Conclusão para Risco 2:</strong> o risco de rejeição por "ação não prevista no PDP" é <strong>BAIXO</strong> se o Plano de Atividades estiver ancorado em L88 ou L63 (para qualquer cenário) e em L69 (para o componente de inglês no exterior).
+</blockquote>
+
+<hr>
+
+<h3 class="md-h2">Tabela completa de ações</h3>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>ID</th><th>Grupo</th><th>Unidade</th><th>Perfil</th><th>Tema</th><th>Capacidade</th><th>Resultado</th><th>Aplicabilidade</th><th>Cenários</th></tr></thead><tbody><tr><td>L14</td><td>PF explícito</td><td>CAMPUS PAU DOS FERROS - DIAC/PF</td><td>Docentes e TAEs</td><td>Ciência de Alimentos</td><td>Inovação; análise por dados</td><td>Serviços à comunidade</td><td>🔴 BAIXA</td><td>—</td></tr><tr><td>L29</td><td>PF explícito</td><td>CAMPUS PAU DOS FERROS</td><td>TAEs e Professores</td><td>Produtividade — PGD</td><td>Orientar por metas e resultados</td><td>Melhoria nos planos de entrega</td><td>🟡 MÉDIA</td><td>C5</td></tr><tr><td>L36</td><td>Sistêmica</td><td>IFRN-DIGTI</td><td>Analistas/Técnicos TI, Gestores</td><td>Governança de TIC</td><td>Governança; PDTIC; COBIT/ITIL</td><td>Melhoria em governança de TI</td><td>🟡 MÉDIA</td><td>C4, C5</td></tr><tr><td>L53</td><td>PF explícito</td><td>IFRN-PROEN · CAMPUS PAU DOS FERROS</td><td>Docentes e TAEs; membros ETEP</td><td>Fundamentos da Educação (EPT/EJA)</td><td>Inovação; análise por dados</td><td>Aprimoramento curricular e gestão pedagógica</td><td>🟡 MÉDIA</td><td>C5</td></tr><tr><td>L63</td><td>PF explícito</td><td>CAMPUS PAU DOS FERROS - DIAC/PF</td><td>Docentes e TAEs</td><td>Tópicos Específicos de Educação — IA educacional</td><td>Prospectar cenários</td><td>Inovação nos serviços à comunidade</td><td>🟢 ALTA</td><td>C1, C3, C4, C5, C6</td></tr><tr><td>L69</td><td>Sistêmica</td><td>IFRN-DINT (todos os campi)</td><td>Gestores internacionais; servidores dos campi</td><td>Línguas adicionais</td><td>Comunicação em língua adicional</td><td>Qualificação para interações internacionais</td><td>🟢 ALTA</td><td>C1, C3, C6 (motivo 3)</td></tr><tr><td>L73</td><td>Sistêmica</td><td>IFRN-PROPI</td><td>Pesquisadores</td><td>Língua Portuguesa — Escrita científica</td><td>Soluções alinhadas a metas</td><td>Qualificação da produção científica</td><td>🟡 MÉDIA</td><td>C3, C5</td></tr><tr><td>L88</td><td>PF explícito + sistêmica</td><td>IFRN-PRODES · IFRN-DIGTI · CAMPUS PAU DOS FERROS</td><td>Professores; Gestores; Analistas de Dados</td><td>Governo e Transformação Digital — IA, governança de dados, BI, LGPD</td><td>Integrar tecnologias digitais; governança de dados; IA estratégica</td><td>Eficiência; cultura de dados; IA analítica</td><td>🟢🟢 MUITO ALTA</td><td>C1, C3, C4, C5, C6</td></tr><tr><td>L93</td><td>Sistêmica</td><td>IFRN-CODEPE · IFRN-PRODES · IFRN-AUDGE</td><td>TAEs e Professores; Gestores</td><td>Estratégia, Projetos e Processos</td><td>Gestão de projetos; inovação na administração pública</td><td>Qualificação em gestão de projetos</td><td>🟡 MÉDIA</td><td>C5</td></tr><tr><td>L114</td><td>Sistêmica</td><td>IFRN-CODEPE · Campi interior</td><td>Docentes e TAEs</td><td>Tecnologia da Informação — Informática</td><td>Integrar TI com gestão; superar desempenho</td><td>Práticas atualizadas em ensino, pesquisa e extensão</td><td>🟢 ALTA</td><td>C1, C3, C4, C5, C6</td></tr></tbody></table></div>
+
+<hr>
+
+<h3 class="md-h2">Matriz cenário → âncoras PDP recomendadas</h3>
+
+<div class="md-table-wrap"><table class="md-table"><thead><tr><th>Cenário</th><th>Âncoras primárias</th><th>Âncoras secundárias</th><th>Risco PDP</th><th>Motivo edital</th></tr></thead><tbody><tr><td>C1 — Base EUA 74d</td><td>L88 + L69</td><td>L63, L114</td><td>🟢 Baixo</td><td>Motivo 2 ou 4</td></tr><tr><td>C2 — Adiamento</td><td>—</td><td>—</td><td>—</td><td>Não se aplica agora</td></tr><tr><td>C3 — Split 2026+2027</td><td>Parcela 1: L88; Parcela 2: L88 + L69</td><td>L63, L73</td><td>🟢 Baixo</td><td>Mot. 2/7 + Mot. 2/3</td></tr><tr><td>C4 — Pós-doc 96-A</td><td>L88 + L63</td><td>L114</td><td>🟢 Baixo (PDP); 🟡 Médio (seletivo)</td><td>art. 96-A</td></tr><tr><td>C5 — Híbrido conservador</td><td>L88, L93 ou L114</td><td>L29, L53, L73</td><td>🟢 Muito baixo</td><td>Motivo 7</td></tr><tr><td>C6 — Split EUA 2027</td><td>L88 + L69</td><td>L63, L114</td><td>🟢 Baixo</td><td>Mot. 2/7 + Mot. 2/3</td></tr></tbody></table></div>
+
+<hr>
+
+<h3 class="md-h2">Perguntas pendentes ao DGP/CODEPE sobre o PDP</h3>
+
+<blockquote class="md-bq"><p><strong>Confiança:</strong> 🟡 Média — enquadramento das linhas sistêmicas para PF não confirmado formalmente.
+</blockquote>
+
+<ol class="md-ol">
+<li>A descrição "Inteligência Artificial" (L88) cobre HPC e Sistemas Distribuídos (área específica de Servidor), ou exige inclusão excepcional via art. 16 §2° do Decreto 9.991/2019?</li>
+<li>Para enquadrar atividade nos EUA via Motivo 4 (organismo internacional): exige convênio formal IFRN-universidade ou aceite informal do supervisor basta?</li>
+<li>L69 (línguas adicionais — IFRN-DINT) é suficiente para curso presencial de inglês no exterior, ou exige enquadramento via linha específica de Línguas Estrangeiras de outro campus?</li>
+<li>As linhas sistêmicas IFRN-CODEPE/PRODES (perfil "TAEs e Professores") incluem docentes EBTT do Campus Exemplo automaticamente, ou exige solicitação específica ao DGP?</li>
+</ol>
+</div></div>
+</div>
+
+
+  <footer class="footer">
+    <div class="footer-gate">
+      ⚠ <strong>GATE G2:</strong> Esta análise é insumo para decisão humana. Nenhuma ação no SUAP sem revisão explícita do servidor.
+    </div>
+    <div class="footer-meta">
+      Gerado em 2026-04-27 · Servidor Exemplo (matrícula 0000000) · IFRN Campus Exemplo
+    </div>
+  </footer>
+
+  <script>
+/* ============================================================
+   Dashboard Executivo — app.js (vanilla JS)
+   ============================================================ */
+
+'use strict';
+
+const D = JSON.parse(document.getElementById('dashboard-data').textContent);
+const STORAGE_KEY = 'afastamento.dashboard.v1';
+
+/* ── Persistence ─────────────────────────────────────────── */
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+  catch { return {}; }
+}
+function saveState(s) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch {}
+}
+let state = loadState();
+
+/* ── Countdown ───────────────────────────────────────────── */
+function renderCountdown() {
+  const el = document.getElementById('countdown');
+  if (!el) return;
+  const deadline = new Date(D.veredito.prazo_deadline);
+  function tick() {
+    const diff = deadline - Date.now();
+    if (diff <= 0) {
+      el.innerHTML = '<span class="countdown-expired">⏰ Prazo encerrado</span>';
+      return;
+    }
+    const days  = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const mins  = Math.floor((diff % 3600000) / 60000);
+    const secs  = Math.floor((diff % 60000) / 1000);
+    el.innerHTML = `
+      <div class="countdown">
+        <div class="countdown-unit"><span class="countdown-value">${String(days).padStart(2,'0')}</span><span class="countdown-label">dias</span></div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-unit"><span class="countdown-value">${String(hours).padStart(2,'0')}</span><span class="countdown-label">horas</span></div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-unit"><span class="countdown-value">${String(mins).padStart(2,'0')}</span><span class="countdown-label">min</span></div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-unit"><span class="countdown-value">${String(secs).padStart(2,'0')}</span><span class="countdown-label">seg</span></div>
+      </div>`;
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+/* ── Timeline SVG ─ anti-collision algorithm ─────────────── */
+function renderTimeline() {
+  const svg = document.getElementById('timeline-svg');
+  if (!svg) return;
+
+  const events = D.timeline;
+  const today  = new Date().toISOString().split('T')[0];
+
+  const W = 1000, H = 140, PAD = 55, TRACK_Y = 68;
+  const t0 = new Date(events[0].date);
+  const t1 = new Date(events[events.length - 1].date);
+  const span = t1 - t0;
+  const xOf = d => PAD + ((new Date(d) - t0) / span) * (W - 2 * PAD);
+
+  // 2 above and 2 below label rows; track last x used per row to detect collisions
+  const ABOVE_Y = [13, 31];
+  const BELOW_Y = [97, 116];
+  const MIN_GAP  = 54;
+  const rowLastX = { a0: -999, a1: -999, b0: -999, b1: -999 };
+
+  const pts = events.map(ev => {
+    const x = xOf(ev.date);
+    let row, labelY;
+    if (ev.above) {
+      if (x - rowLastX.a0 >= MIN_GAP) { row = 'a0'; labelY = ABOVE_Y[0]; }
+      else                             { row = 'a1'; labelY = ABOVE_Y[1]; }
+    } else {
+      if (x - rowLastX.b0 >= MIN_GAP) { row = 'b0'; labelY = BELOW_Y[0]; }
+      else                             { row = 'b1'; labelY = BELOW_Y[1]; }
+    }
+    const prevX = rowLastX[row];
+    rowLastX[row] = x;
+    // Nudge label x if still too close in this row
+    const labelX = (x - prevX < MIN_GAP && prevX > -900) ? prevX + MIN_GAP : x;
+    return { ...ev, x, labelY, labelX, isToday: ev.date === today };
+  });
+
+  let out = '';
+
+  // Track line
+  out += `<line x1="${PAD}" y1="${TRACK_Y}" x2="${W - PAD}" y2="${TRACK_Y}" stroke="rgba(14,23,38,.15)" stroke-width="2" stroke-linecap="round"/>`;
+
+  // Abrangência highlight
+  const xA0 = xOf('2026-07-01'), xA1 = xOf('2026-12-31');
+  out += `<rect x="${xA0}" y="${TRACK_Y - 8}" width="${xA1 - xA0}" height="16" rx="2" fill="rgba(26,58,92,.07)"/>`;
+  out += `<text x="${(xA0 + xA1) / 2}" y="${TRACK_Y + 30}" text-anchor="middle" font-size="7.5" fill="rgba(26,58,92,.5)" font-family="'Inter Tight',sans-serif" letter-spacing=".12em" font-weight="600">ABRANGÊNCIA DO EDITAL</text>`;
+
+  // Events
+  pts.forEach(pt => {
+    const fill = pt.deadline ? '#a13b2c' : pt.isToday ? '#3a7d5c' : 'rgba(14,23,38,.45)';
+    const r = pt.isToday ? 6 : pt.deadline ? 5 : 3.5;
+    const fs = 9;
+
+    if (pt.isToday) {
+      out += `<circle cx="${pt.x}" cy="${TRACK_Y}" r="13" fill="rgba(58,125,92,.1)" class="today-dot"/>`;
+    }
+    out += `<circle cx="${pt.x}" cy="${TRACK_Y}" r="${r}" fill="${fill}" stroke="#f7f4ee" stroke-width="1.5"/>`;
+
+    const lineY1 = pt.above ? pt.labelY + fs + 2 : pt.labelY - fs - 2;
+    const lineY2 = pt.above ? TRACK_Y - r - 2 : TRACK_Y + r + 2;
+    out += `<line x1="${pt.x}" y1="${lineY1}" x2="${pt.x}" y2="${lineY2}" stroke="${fill}" stroke-width="1" stroke-dasharray="2,2" opacity=".5"/>`;
+
+    const anchor = pt.labelX < PAD + 20 ? 'start' : pt.labelX > W - PAD - 20 ? 'end' : 'middle';
+    out += `<text x="${pt.labelX}" y="${pt.labelY}" text-anchor="${anchor}" font-size="${fs}" font-family="'Inter Tight',sans-serif" fill="${fill}" font-weight="${pt.deadline || pt.isToday ? '700' : '400'}">${pt.label}</text>`;
+  });
+
+  svg.innerHTML = out;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+}
+
+/* ── Score bars ── stagger via IntersectionObserver ──────── */
+function initScoreBars() {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.querySelectorAll('.score-fill').forEach((bar, i) => {
+        setTimeout(() => { bar.style.width = (bar.dataset.pct || '0') + '%'; }, i * 90);
+      });
+      obs.unobserve(e.target);
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.cenario-card, .scenario-card').forEach(card => obs.observe(card));
+}
+
+/* ── Reveal on scroll ────────────────────────────────────── */
+function initReveal() {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.06 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+}
+
+/* ── Decision tree ───────────────────────────────────────── */
+function initDecisionTree() {
+  document.querySelectorAll('[data-dtree-btn]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const group = btn.dataset.dtreeGroup;
+      document.querySelectorAll(`[data-dtree-group="${group}"]`).forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      const target = btn.dataset.dtreeTarget;
+      document.querySelectorAll('[data-dtree-result]').forEach(r => r.classList.remove('visible'));
+      if (target) {
+        const el = document.querySelector(`[data-dtree-result="${target}"]`);
+        if (el) el.classList.add('visible');
+      }
+    });
+  });
+}
+
+/* ── Bloqueantes (localStorage) ─────────────────────────── */
+function initBloqueantes() {
+  document.querySelectorAll('[data-blq-id]').forEach(card => {
+    const id  = card.dataset.blqId;
+    const btn = card.querySelector('.toggle-btn');
+    if (!btn) return;
+
+    const apply = done => {
+      card.classList.toggle('done', done);
+      btn.classList.toggle('done', done);
+      btn.textContent = done ? '✓' : '';
+      btn.title = done ? 'Marcar como pendente' : 'Marcar como resolvido';
+    };
+
+    apply(!!state[`blq_${id}`]);
+
+    btn.addEventListener('click', () => {
+      const nowDone = !state[`blq_${id}`];
+      state[`blq_${id}`] = nowDone;
+      saveState(state);
+      apply(nowDone);
+    });
+  });
+}
+
+/* ── Checklist (localStorage) ───────────────────────────── */
+function initChecklist() {
+  document.querySelectorAll('[data-chk-id]').forEach(item => {
+    const id  = item.dataset.chkId;
+    const box = item.querySelector('.chk-box');
+
+    const apply = checked => {
+      item.classList.toggle('checked', checked);
+      box.textContent = checked ? '✓' : '';
+    };
+
+    apply(!!state[`chk_${id}`]);
+
+    item.addEventListener('click', () => {
+      const nowChecked = !state[`chk_${id}`];
+      state[`chk_${id}`] = nowChecked;
+      saveState(state);
+      apply(nowChecked);
+    });
+  });
+}
+
+/* ── Accordion (next steps) ─────────────────────────────── */
+function initAccordion() {
+  document.querySelectorAll('.nextstep-trigger').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!expanded));
+      const body = btn.nextElementSibling;
+      body.classList.toggle('open', !expanded);
+    });
+  });
+}
+
+/* ── Charts ─────────────────────────────────────────────── */
+function initCharts() {
+  const cenarios  = D.cenarios;
+  const labels    = cenarios.map(c => `C${c.numero}`);
+  const longNames = cenarios.map(c => c.titulo_curto);
+
+  // Shared palette matching CSS tokens
+  const RULE    = '#1a3a5c';
+  const ACCENT  = '#b8895a';
+  const GRID_C  = 'rgba(14,23,38,.08)';
+
+  const colorOf = (c, i) => c.recommended ? ACCENT : `hsl(${210 + i * 22},35%,52%)`;
+
+  // Radar
+  const radarCtx = document.getElementById('radar-chart');
+  if (radarCtx) {
+    new Chart(radarCtx, {
+      type: 'radar',
+      data: {
+        labels: ['Viabilidade', 'Financeiro', 'Família', 'Jogo Longo', 'Baixo Risco'],
+        datasets: cenarios.map((c, i) => ({
+          label: `C${c.numero} ${c.titulo_curto}`,
+          data: [c.scores.viabilidade, c.scores.financeiro, c.scores.familia, c.scores.jogo_longo, c.scores.risco],
+          borderColor: colorOf(c, i),
+          borderWidth: c.recommended ? 2.5 : 1.5,
+          fill: c.recommended,
+          backgroundColor: c.recommended ? 'rgba(184,137,90,.1)' : 'transparent',
+          pointRadius: c.recommended ? 4 : 2,
+          pointBackgroundColor: colorOf(c, i),
+        }))
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          r: {
+            min: 0, max: 5,
+            ticks: { stepSize: 1, font: { family: "'Inter Tight', sans-serif", size: 9 }, color: 'rgba(14,23,38,.4)', backdropColor: 'transparent' },
+            grid: { color: GRID_C },
+            pointLabels: { font: { family: "'Inter Tight', sans-serif", size: 10 }, color: 'rgba(14,23,38,.7)' }
+          }
+        },
+        plugins: {
+          legend: { position: 'bottom', labels: { font: { family: "'Inter Tight', sans-serif", size: 9 }, boxWidth: 10, padding: 10 } },
+          title: { display: true, text: 'Comparativo multidimensional (1–5)', font: { family: "'Inter Tight', sans-serif", size: 11, weight: '600' }, color: 'rgba(14,23,38,.7)', padding: { bottom: 12 } }
+        }
+      }
+    });
+  }
+
+  // Bar — total scores
+  const barCtx = document.getElementById('bar-chart');
+  if (barCtx) {
+    new Chart(barCtx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Score total (/25)',
+          data: cenarios.map(c => c.scores.total),
+          backgroundColor: cenarios.map((c, i) => c.recommended ? ACCENT : 'rgba(26,58,92,.25)'),
+          borderColor: cenarios.map((c, i) => c.recommended ? ACCENT : RULE),
+          borderWidth: 1,
+          borderRadius: 0,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            min: 0, max: 25,
+            grid: { color: GRID_C },
+            ticks: { font: { family: "'Inter Tight', sans-serif", size: 10 }, stepSize: 5, color: 'rgba(14,23,38,.5)' }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { font: { family: "'Inter Tight', sans-serif", size: 10 }, color: 'rgba(14,23,38,.7)', fontWeight: '600' }
+          }
+        },
+        plugins: {
+          tooltip: {
+            bodyFont: { family: "'Inter Tight', sans-serif" },
+            callbacks: { label: ctx => ` ${ctx.raw}/25 — ${longNames[ctx.dataIndex]}` }
+          },
+          legend: { display: false },
+          title: { display: true, text: 'Score total por cenário', font: { family: "'Inter Tight', sans-serif", size: 11, weight: '600' }, color: 'rgba(14,23,38,.7)', padding: { bottom: 12 } }
+        }
+      }
+    });
+  }
+}
+
+/* ── Init ─────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  renderCountdown();
+  renderTimeline();
+  initReveal();
+  initScoreBars();
+  initDecisionTree();
+  initBloqueantes();
+  initChecklist();
+  initAccordion();
+  initCharts();
+});
+
+
+// ── Tab switching ──
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id === target));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+// Activate first tab on load
+const firstBtn = document.querySelector('.tab-btn');
+if (firstBtn) firstBtn.click();
+
+  </script>
+</body>
+</html>
