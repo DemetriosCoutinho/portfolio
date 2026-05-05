@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tutorial: API REST de Países com Flask — SD · IFRN</title>
+<style>
+/* =====================================================================
+   TEMA E VARIÁVEIS
+   ===================================================================== */
+:root {
+  --bg:          #faf9f7;
+  --surface:     #ffffff;
+  --surface-2:   #f5f3ef;
+  --border:      #e6e2d8;
+  --text:        #1a1814;
+  --muted:       #60594e;
+  --accent:      #0044cc;
+  --accent-soft: #eef3ff;
+  --accent-dark: #002fa3;
+  --green:       #0a6e31;
+  --green-soft:  #e6f4eb;
+  --red:         #c0152a;
+  --red-soft:    #fdf0f1;
+  --yellow:      #8a6200;
+  --yellow-soft: #fef9e6;
+  --code-bg:     #f0eee8;
+  --radius:      10px;
+  --shadow:      0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+  --serif:       Georgia, 'Times New Roman', serif;
+  --sans:        system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono:        'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:          #111110;
+    --surface:     #1c1b19;
+    --surface-2:   #252420;
+    --border:      #2e2c27;
+    --text:        #f0ede6;
+    --muted:       #948e82;
+    --accent:      #6ea8fe;
+    --accent-soft: #1a2540;
+    --accent-dark: #9bbeff;
+    --green:       #4ade80;
+    --green-soft:  #0d2b18;
+    --red:         #f87171;
+    --red-soft:    #2b0d10;
+    --yellow:      #fbbf24;
+    --yellow-soft: #2b2000;
+    --code-bg:     #252420;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  min-height: 100vh;
+}
+
+/* =====================================================================
+   HEADER
+   ===================================================================== */
+header {
+  background: linear-gradient(135deg, var(--accent-soft) 0%, var(--bg) 70%);
+  border-bottom: 1px solid var(--border);
+  padding: clamp(2.5rem, 5vw, 4rem) clamp(1.25rem, 4vw, 2.5rem) clamp(2rem, 4vw, 3rem);
+}
+
+.header-inner { max-width: 64rem; margin: 0 auto; }
+
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--accent);
+  background: var(--surface); padding: 0.35rem 0.8rem;
+  border-radius: 999px; border: 1px solid var(--border);
+  box-shadow: var(--shadow); margin-bottom: 1.2rem;
+}
+.eyebrow::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+header h1 {
+  font-family: var(--serif);
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  line-height: 1.15; letter-spacing: -0.02em;
+  color: var(--text); margin-bottom: 0.75rem;
+}
+
+.header-meta {
+  display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem;
+  font-size: 0.9rem; color: var(--muted); margin-top: 0.4rem;
+}
+.badge {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  background: var(--surface-2); border: 1px solid var(--border);
+  padding: 0.25rem 0.65rem; border-radius: 999px;
+  font-size: 0.78rem; font-weight: 600; color: var(--muted);
+}
+
+/* =====================================================================
+   ABAS
+   ===================================================================== */
+.tabs-wrapper {
+  max-width: 64rem; margin: 0 auto;
+  padding: 0 clamp(1.25rem, 4vw, 2.5rem);
+}
+
+.tablist-scroll {
+  overflow-x: auto; padding: 2rem 0 0;
+  border-bottom: 1px solid var(--border);
+  scrollbar-width: none;
+}
+.tablist-scroll::-webkit-scrollbar { display: none; }
+
+[role="tablist"] {
+  display: flex; gap: 0; list-style: none; width: max-content;
+}
+
+[role="tab"] {
+  padding: 0.65rem 1.2rem;
+  font-size: 0.88rem; font-weight: 600;
+  color: var(--muted);
+  background: transparent;
+  border: none; border-bottom: 2px solid transparent;
+  cursor: pointer; white-space: nowrap;
+  transition: color .2s, border-color .2s;
+  position: relative; bottom: -1px;
+}
+[role="tab"]:hover { color: var(--accent); }
+[role="tab"][aria-selected="true"] {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* =====================================================================
+   PAINÉIS
+   ===================================================================== */
+.tab-panels { padding: 2.5rem 0 4rem; }
+
+[role="tabpanel"] { display: none; }
+[role="tabpanel"].active { display: block; animation: panel-in .25s ease; }
+
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* =====================================================================
+   TIPOGRAFIA DENTRO DOS PAINÉIS
+   ===================================================================== */
+.panel-title {
+  font-family: var(--serif);
+  font-size: clamp(1.3rem, 2.5vw, 1.75rem);
+  line-height: 1.25; letter-spacing: -0.015em;
+  margin-bottom: 1.25rem;
+}
+
+.panel-lead {
+  font-size: 1rem; color: var(--muted);
+  max-width: 48rem; margin-bottom: 2rem; line-height: 1.7;
+}
+
+h3.section-h { font-size: 1rem; font-weight: 700; margin: 2rem 0 0.75rem; }
+
+p { margin-bottom: 0.9rem; font-size: 0.96rem; }
+
+/* =====================================================================
+   CÓDIGO
+   ===================================================================== */
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.25rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.83rem;
+  line-height: 1.55;
+  margin: 0.75rem 0 1.5rem;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+}
+
+pre code { background: none; padding: 0; font-size: inherit; }
+
+/* Comentários no código */
+.cm  { color: #6b8a6b; }
+/* Python keywords */
+.kw  { color: #0044cc; }
+/* Strings */
+.st  { color: #8a3a00; }
+/* Deco */
+.dc  { color: var(--accent); }
+
+@media (prefers-color-scheme: dark) {
+  .cm { color: #6a9060; }
+  .kw { color: #7fb3ff; }
+  .st { color: #ffaa70; }
+  .dc { color: #6ea8fe; }
+}
+
+/* =====================================================================
+   CARDS / GRID
+   ===================================================================== */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem; margin: 1.5rem 0;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.35rem;
+  box-shadow: var(--shadow);
+}
+.card-num {
+  font-family: var(--serif);
+  font-size: 1.5rem; color: var(--accent);
+  line-height: 1; margin-bottom: 0.5rem;
+}
+.card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.35rem; }
+.card p  { font-size: 0.88rem; color: var(--muted); margin: 0; }
+
+/* =====================================================================
+   CALLOUTS
+   ===================================================================== */
+.callout {
+  border-radius: var(--radius);
+  padding: 0.9rem 1.15rem;
+  font-size: 0.92rem;
+  margin: 1.25rem 0;
+  border-left: 3px solid;
+}
+.callout.info    { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-dark); }
+.callout.success { background: var(--green-soft);  border-color: var(--green);  color: var(--green); }
+.callout.warn    { background: var(--yellow-soft); border-color: var(--yellow); color: var(--yellow); }
+.callout.danger  { background: var(--red-soft);    border-color: var(--red);    color: var(--red); }
+
+/* =====================================================================
+   DIAGRAMAS SVG
+   ===================================================================== */
+.diagram-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+.diagram-label {
+  font-size: 0.78rem; color: var(--muted);
+  text-align: center; margin-top: 0.75rem;
+  font-style: italic;
+}
+
+/* =====================================================================
+   TABELA DE CONTRATO
+   ===================================================================== */
+.contract-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 0.88rem; margin: 1.25rem 0;
+}
+.contract-table th {
+  text-align: left; padding: 0.6rem 0.9rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--muted);
+}
+.contract-table td {
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--border);
+  vertical-align: top;
+}
+.contract-table tr:hover td { background: var(--surface-2); }
+
+.method {
+  display: inline-block;
+  padding: 0.15em 0.55em; border-radius: 4px;
+  font-family: var(--mono); font-size: 0.8rem; font-weight: 700;
+}
+.GET    { background: #dbeafe; color: #1d4ed8; }
+.POST   { background: #dcfce7; color: #166534; }
+.PUT    { background: #fef9c3; color: #854d0e; }
+.DELETE { background: #fee2e2; color: #991b1b; }
+
+@media (prefers-color-scheme: dark) {
+  .GET    { background: #1e3a5f; color: #93c5fd; }
+  .POST   { background: #0d2b18; color: #86efac; }
+  .PUT    { background: #2b2000; color: #fde047; }
+  .DELETE { background: #2b0d10; color: #fca5a5; }
+}
+
+/* =====================================================================
+   DOWNLOADS
+   ===================================================================== */
+.download-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem; margin: 1.25rem 0;
+}
+.dl-btn {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--accent);
+  text-decoration: none; font-size: 0.88rem; font-weight: 600;
+  box-shadow: var(--shadow);
+  transition: border-color .2s, box-shadow .2s, transform .15s;
+}
+.dl-btn:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 16px rgba(0,68,204,.12);
+  transform: translateY(-2px);
+}
+.dl-icon { font-size: 1.1rem; }
+.dl-zip {
+  background: var(--accent); color: #fff;
+  border-color: var(--accent);
+}
+.dl-zip:hover { background: var(--accent-dark); border-color: var(--accent-dark); color: #fff; }
+
+/* =====================================================================
+   EXERCÍCIOS
+   ===================================================================== */
+.exercise {
+  counter-increment: ex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.4rem;
+  margin: 1rem 0;
+  position: relative;
+}
+.exercise::before {
+  content: counter(ex);
+  position: absolute; top: 1.1rem; right: 1.25rem;
+  font-family: var(--serif); font-size: 1.8rem;
+  color: var(--border); line-height: 1; pointer-events: none;
+}
+.ex-level {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; margin-bottom: 0.5rem;
+}
+.ex-level.easy   { color: var(--green); }
+.ex-level.medium { color: var(--yellow); }
+.ex-level.hard   { color: var(--red); }
+.exercise h4 { font-size: 0.97rem; margin-bottom: 0.5rem; }
+.exercise p  { font-size: 0.91rem; color: var(--muted); margin: 0; }
+
+/* =====================================================================
+   STEPS VERTICAIS
+   ===================================================================== */
+.steps { counter-reset: step; list-style: none; display: flex; flex-direction: column; gap: 1rem; margin: 1.25rem 0; }
+.steps li {
+  counter-increment: step;
+  display: flex; gap: 1rem; align-items: flex-start;
+}
+.steps li::before {
+  content: counter(step);
+  flex-shrink: 0; width: 1.8rem; height: 1.8rem;
+  background: var(--accent); color: #fff;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 0.78rem; font-weight: 700; margin-top: 0.15rem;
+}
+
+/* =====================================================================
+   LAYOUT RESPONSIVO
+   ===================================================================== */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem; align-items: start; margin: 1.25rem 0;
+}
+@media (max-width: 680px) { .two-col { grid-template-columns: 1fr; } }
+
+/* =====================================================================
+   FOOTER
+   ===================================================================== */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 1.25rem clamp(1.25rem, 4vw, 2.5rem);
+  color: var(--muted); font-size: 0.83rem;
+}
+.footer-inner {
+  max-width: 64rem; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 0.5rem 1rem;
+}
+footer a { color: var(--accent); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+@media (prefers-reduced-motion: reduce) {
+  [role="tabpanel"].active { animation: none; }
+  .dl-btn:hover { transform: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ================================================================
+     HEADER
+     ================================================================ -->
+<header>
+  <div class="header-inner">
+    <span class="eyebrow">IFRN · TADS · Pau dos Ferros</span>
+    <h1>API REST de Países<br>com Flask + Python</h1>
+    <div class="header-meta">
+      <span class="badge">📘 Unidade 03 — Programação de Serviços</span>
+      <span class="badge">🐍 Flask · SQLite · SQLAlchemy</span>
+      <span class="badge">🎯 5º Período · ADS</span>
+    </div>
+  </div>
+</header>
+
+<!-- ================================================================
+     ABAS
+     ================================================================ -->
+<div class="tabs-wrapper">
+  <div class="tablist-scroll">
+    <ul role="tablist" aria-label="Seções do tutorial">
+      <li><button role="tab" aria-selected="true"  aria-controls="tab-visao"      id="btn-visao">      Visão Geral</button></li>
+      <li><button role="tab" aria-selected="false" aria-controls="tab-setup"      id="btn-setup">      Setup</button></li>
+      <li><button role="tab" aria-selected="false" aria-controls="tab-etapa1"     id="btn-etapa1">     Etapa 1 — Memória</button></li>
+      <li><button role="tab" aria-selected="false" aria-controls="tab-etapa2"     id="btn-etapa2">     Etapa 2 — SQLite</button></li>
+      <li><button role="tab" aria-selected="false" aria-controls="tab-etapa3"     id="btn-etapa3">     Etapa 3 — SQLAlchemy</button></li>
+      <li><button role="tab" aria-selected="false" aria-controls="tab-cliente"    id="btn-cliente">    Cliente Python</button></li>
+      <li><button role="tab" aria-selected="false" aria-controls="tab-contrato"   id="btn-contrato">   Contrato da API</button></li>
+      <li><button role="tab" aria-selected="false" aria-controls="tab-exercicios" id="btn-exercicios"> Exercícios</button></li>
+    </ul>
+  </div>
+
+  <!-- ================================================================
+       PAINÉIS
+       ================================================================ -->
+  <div class="tab-panels">
+
+    <!-- ── VISÃO GERAL ─────────────────────────────────────────────── -->
+    <section role="tabpanel" id="tab-visao" aria-labelledby="btn-visao" class="active">
+      <h2 class="panel-title">O que vamos construir</h2>
+      <p class="panel-lead">
+        Uma API REST que gerencia uma lista de países. Você vai construir três versões
+        do mesmo serviço, cada uma mais robusta que a anterior — da mais simples
+        (tudo em memória) até a que usa ORM e serialização automática.
+      </p>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-num">01</div>
+          <h4>API em Memória</h4>
+          <p>Lista Python. Simples, sem persistência. Entenda rotas e JSON.</p>
+        </div>
+        <div class="card">
+          <div class="card-num">02</div>
+          <h4>Persistência SQLite</h4>
+          <p>Banco de dados real. <code>db.py</code> abstrai cursor e conexão.</p>
+        </div>
+        <div class="card">
+          <div class="card-num">03</div>
+          <h4>SQLAlchemy + Marshmallow</h4>
+          <p>ORM + schemas. CRUD completo com serialização automática.</p>
+        </div>
+      </div>
+
+      <h3 class="section-h">Pré-requisitos</h3>
+      <ul style="margin: 0 0 1rem 1.25rem; font-size: .95rem; color: var(--muted);">
+        <li>Python 3.10 ou superior</li>
+        <li>Ter assistido ao slide <em>6 — REST com Flask/Python</em></li>
+        <li>Saber fazer requisições HTTP (métodos, cabeçalhos, body JSON)</li>
+      </ul>
+
+      <!-- Diagrama: visão geral das 3 etapas -->
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 700 180" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;display:block;margin:auto;font-family:system-ui,sans-serif">
+          <!-- Cliente -->
+          <rect x="10" y="65" width="110" height="50" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="65" y="88" text-anchor="middle" font-size="12" fill="var(--accent)" font-weight="700">Cliente</text>
+          <text x="65" y="104" text-anchor="middle" font-size="10" fill="var(--muted)">curl / browser / py</text>
+
+          <!-- Seta -->
+          <line x1="122" y1="90" x2="198" y2="90" stroke="var(--border)" stroke-width="2" marker-end="url(#arr)"/>
+          <text x="160" y="82" text-anchor="middle" font-size="9" fill="var(--muted)">HTTP</text>
+
+          <!-- Flask -->
+          <rect x="200" y="55" width="120" height="70" rx="8" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="260" y="83" text-anchor="middle" font-size="12" fill="var(--text)" font-weight="700">Flask App</text>
+          <text x="260" y="100" text-anchor="middle" font-size="10" fill="var(--muted)">@app.route</text>
+          <text x="260" y="115" text-anchor="middle" font-size="10" fill="var(--muted)">jsonify / request</text>
+
+          <!-- Seta -->
+          <line x1="322" y1="90" x2="398" y2="90" stroke="var(--border)" stroke-width="2" marker-end="url(#arr)"/>
+
+          <!-- Dados: 3 opções empilhadas -->
+          <!-- Mem -->
+          <rect x="400" y="20" width="130" height="38" rx="7" fill="var(--green-soft)" stroke="var(--green)" stroke-width="1.5"/>
+          <text x="465" y="36" text-anchor="middle" font-size="11" fill="var(--green)" font-weight="700">Lista Python</text>
+          <text x="465" y="50" text-anchor="middle" font-size="9.5" fill="var(--muted)">Etapa 1 · sem persistência</text>
+
+          <!-- SQLite -->
+          <rect x="400" y="71" width="130" height="38" rx="7" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="465" y="87" text-anchor="middle" font-size="11" fill="var(--accent)" font-weight="700">SQLite (raw)</text>
+          <text x="465" y="101" text-anchor="middle" font-size="9.5" fill="var(--muted)">Etapa 2 · sqlite3 + cursor</text>
+
+          <!-- SQLAlchemy -->
+          <rect x="400" y="122" width="130" height="38" rx="7" fill="var(--yellow-soft)" stroke="var(--yellow)" stroke-width="1.5"/>
+          <text x="465" y="138" text-anchor="middle" font-size="11" fill="var(--yellow)" font-weight="700">SQLAlchemy ORM</text>
+          <text x="465" y="152" text-anchor="middle" font-size="9.5" fill="var(--muted)">Etapa 3 · marshmallow</text>
+
+          <!-- Linhas verticais das opções -->
+          <line x1="398" y1="39" x2="400" y2="39" stroke="var(--border)" stroke-width="1.5"/>
+          <line x1="398" y1="90" x2="400" y2="90" stroke="var(--border)" stroke-width="1.5"/>
+          <line x1="398" y1="141" x2="400" y2="141" stroke="var(--border)" stroke-width="1.5"/>
+          <line x1="398" y1="39" x2="398" y2="141" stroke="var(--border)" stroke-width="1.5"/>
+
+          <!-- Seta de retorno -->
+          <path d="M122 97 Q160 115 122 97" fill="none"/>
+          <line x1="196" y1="97" x2="122" y2="97" stroke="var(--border)" stroke-width="2" marker-end="url(#arr)"/>
+          <text x="160" y="112" text-anchor="middle" font-size="9" fill="var(--muted)">JSON</text>
+
+          <defs>
+            <marker id="arr" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--border)"/>
+            </marker>
+          </defs>
+        </svg>
+        <p class="diagram-label">Figura 1 — Arquitetura geral: o mesmo Flask App evoluindo o mecanismo de persistência.</p>
+      </div>
+    </section>
+
+    <!-- ── SETUP ───────────────────────────────────────────────────── -->
+    <section role="tabpanel" id="tab-setup" aria-labelledby="btn-setup">
+      <h2 class="panel-title">Configuração do ambiente</h2>
+      <p class="panel-lead">Baixe os arquivos, instale as dependências e você estará pronto em menos de 2 minutos.</p>
+
+      <h3 class="section-h">1. Baixar os arquivos</h3>
+      <div class="download-grid">
+        <a class="dl-btn dl-zip" href="../code/u03-flask-countries/flask-countries.zip" download>
+          <span class="dl-icon">📦</span> flask-countries.zip <small>(tudo de uma vez)</small>
+        </a>
+      </div>
+
+      <p>Ou baixe arquivo por arquivo:</p>
+      <div class="download-grid">
+        <a class="dl-btn" href="../code/u03-flask-countries/requirements.txt" download>
+          <span class="dl-icon">📄</span> requirements.txt
+        </a>
+        <a class="dl-btn" href="../code/u03-flask-countries/01-no-db/app.py" download>
+          <span class="dl-icon">🐍</span> 01-no-db/app.py
+        </a>
+        <a class="dl-btn" href="../code/u03-flask-countries/02-sqlite/app.py" download>
+          <span class="dl-icon">🐍</span> 02-sqlite/app.py
+        </a>
+        <a class="dl-btn" href="../code/u03-flask-countries/02-sqlite/db.py" download>
+          <span class="dl-icon">🐍</span> 02-sqlite/db.py
+        </a>
+        <a class="dl-btn" href="../code/u03-flask-countries/02-sqlite/schema.sql" download>
+          <span class="dl-icon">🗄️</span> 02-sqlite/schema.sql
+        </a>
+        <a class="dl-btn" href="../code/u03-flask-countries/03-sqlalchemy/app.py" download>
+          <span class="dl-icon">🐍</span> 03-sqlalchemy/app.py
+        </a>
+        <a class="dl-btn" href="../code/u03-flask-countries/client.py" download>
+          <span class="dl-icon">📡</span> client.py
+        </a>
+      </div>
+
+      <h3 class="section-h">2. Instalar dependências</h3>
+      <pre>pip install -r requirements.txt</pre>
+      <div class="callout info">
+        Recomendado: use um <strong>ambiente virtual</strong> — <code>python -m venv .venv</code>
+        e <code>source .venv/bin/activate</code> (Linux/Mac) ou <code>.venv\Scripts\activate</code> (Windows).
+      </div>
+
+      <h3 class="section-h">3. Estrutura esperada</h3>
+      <pre>flask-countries/
+├── requirements.txt
+├── client.py
+├── 01-no-db/
+│   └── app.py
+├── 02-sqlite/
+│   ├── app.py
+│   ├── db.py
+│   └── schema.sql
+└── 03-sqlalchemy/
+    └── app.py</pre>
+
+      <h3 class="section-h">4. Testar se Flask está funcionando</h3>
+      <pre>python 01-no-db/app.py</pre>
+      <p>Acesse <code>http://localhost:8090/countries</code> no browser. Deve retornar JSON com 3 países.</p>
+    </section>
+
+    <!-- ── ETAPA 1 ─────────────────────────────────────────────────── -->
+    <section role="tabpanel" id="tab-etapa1" aria-labelledby="btn-etapa1">
+      <h2 class="panel-title">Etapa 1 — API em memória</h2>
+      <p class="panel-lead">
+        O ponto de partida mais simples possível. Os dados ficam em uma lista Python —
+        sem banco, sem arquivo. Perfeito para entender rotas e serialização JSON.
+      </p>
+
+      <!-- Diagrama: Etapa 1 -->
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 560 130" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;display:block;margin:auto;font-family:system-ui,sans-serif">
+          <rect x="10" y="40" width="120" height="50" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="70" y="63" text-anchor="middle" font-size="12" fill="var(--accent)" font-weight="700">Cliente</text>
+          <text x="70" y="79" text-anchor="middle" font-size="10" fill="var(--muted)">GET / POST</text>
+
+          <line x1="132" y1="65" x2="198" y2="65" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr2)"/>
+
+          <rect x="200" y="25" width="150" height="80" rx="8" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="275" y="50" text-anchor="middle" font-size="12" fill="var(--text)" font-weight="700">Flask App</text>
+          <text x="275" y="68" text-anchor="middle" font-size="10" fill="var(--muted)">@app.route("/countries")</text>
+          <text x="275" y="84" text-anchor="middle" font-size="10" fill="var(--muted)">GET, POST</text>
+          <text x="275" y="98" text-anchor="middle" font-size="9.5" fill="var(--muted)">jsonify(countries)</text>
+
+          <line x1="352" y1="65" x2="408" y2="65" stroke="var(--border)" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+          <rect x="410" y="40" width="140" height="50" rx="8" fill="var(--green-soft)" stroke="var(--green)" stroke-width="1.5"/>
+          <text x="480" y="62" text-anchor="middle" font-size="11" fill="var(--green)" font-weight="700">Lista Python</text>
+          <text x="480" y="78" text-anchor="middle" font-size="9.5" fill="var(--muted)">countries = [...]</text>
+
+          <line x1="198" y1="73" x2="132" y2="73" stroke="var(--border)" stroke-width="1.5" marker-end="url(#arr2)"/>
+          <text x="165" y="85" text-anchor="middle" font-size="9" fill="var(--muted)">JSON 200/201</text>
+
+          <defs>
+            <marker id="arr2" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--border)"/>
+            </marker>
+          </defs>
+        </svg>
+        <p class="diagram-label">Figura 2 — Ciclo de requisição na Etapa 1. Dados residem na memória do processo.</p>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <h3 class="section-h">GET /countries</h3>
+          <pre><span class="dc">@app.route</span>(<span class="st">"/countries"</span>, methods=[<span class="st">'GET'</span>])
+<span class="kw">def</span> get_countries():
+    <span class="kw">return</span> jsonify(countries)</pre>
+          <p>Retorna a lista completa em formato JSON com status <code>200</code>.</p>
+        </div>
+        <div>
+          <h3 class="section-h">POST /countries</h3>
+          <pre><span class="dc">@app.route</span>(<span class="st">"/countries"</span>, methods=[<span class="st">'POST'</span>])
+<span class="kw">def</span> add_country():
+    <span class="kw">if</span> request.is_json:
+        country = request.get_json()
+        country[<span class="st">"id"</span>] = _find_next_id()
+        countries.append(country)
+        <span class="kw">return</span> country, <span class="st">201</span>
+    <span class="kw">return</span> {<span class="st">"error"</span>: <span class="st">"..."</span>}, <span class="st">415</span></pre>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <strong>Limitação importante:</strong> ao reiniciar o servidor, todos os dados somem.
+        A memória do processo não é persistente. — Esta é a motivação para a Etapa 2.
+      </div>
+
+      <h3 class="section-h">Testar com curl</h3>
+      <pre><span class="cm"># Listar países</span>
+curl http://localhost:8090/countries
+
+<span class="cm"># Adicionar país</span>
+curl -X POST http://localhost:8090/countries \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Brasil","capital":"Brasília","area":8516000}'</pre>
+    </section>
+
+    <!-- ── ETAPA 2 ─────────────────────────────────────────────────── -->
+    <section role="tabpanel" id="tab-etapa2" aria-labelledby="btn-etapa2">
+      <h2 class="panel-title">Etapa 2 — Persistência com SQLite</h2>
+      <p class="panel-lead">
+        Agora os dados sobrevivem ao restart. Usamos o módulo <code>sqlite3</code> da
+        biblioteca padrão, encapsulado em <code>db.py</code> para separar
+        responsabilidades.
+      </p>
+
+      <!-- Diagrama Etapa 2 -->
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 680 160" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;display:block;margin:auto;font-family:system-ui,sans-serif">
+          <rect x="10" y="55" width="120" height="50" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="70" y="78" text-anchor="middle" font-size="12" fill="var(--accent)" font-weight="700">Cliente</text>
+          <text x="70" y="94" text-anchor="middle" font-size="10" fill="var(--muted)">GET / POST</text>
+
+          <line x1="132" y1="80" x2="188" y2="80" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr3)"/>
+
+          <rect x="190" y="35" width="150" height="90" rx="8" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="265" y="60" text-anchor="middle" font-size="12" fill="var(--text)" font-weight="700">Flask App</text>
+          <text x="265" y="77" text-anchor="middle" font-size="10" fill="var(--muted)">app.py</text>
+          <text x="265" y="94" text-anchor="middle" font-size="10" fill="var(--muted)">db.query_db()</text>
+          <text x="265" y="110" text-anchor="middle" font-size="10" fill="var(--muted)">db.insert()</text>
+
+          <line x1="342" y1="80" x2="398" y2="80" stroke="var(--border)" stroke-width="1.5" marker-end="url(#arr3)"/>
+
+          <rect x="400" y="35" width="130" height="90" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="465" y="60" text-anchor="middle" font-size="12" fill="var(--accent)" font-weight="700">db.py</text>
+          <text x="465" y="78" text-anchor="middle" font-size="10" fill="var(--muted)">get_db() → conexão</text>
+          <text x="465" y="94" text-anchor="middle" font-size="10" fill="var(--muted)">query_db() → list</text>
+          <text x="465" y="110" text-anchor="middle" font-size="10" fill="var(--muted)">insert() → id</text>
+
+          <line x1="532" y1="80" x2="578" y2="80" stroke="var(--border)" stroke-width="1.5" marker-end="url(#arr3)"/>
+
+          <rect x="580" y="55" width="90" height="50" rx="8" fill="var(--green-soft)" stroke="var(--green)" stroke-width="1.5"/>
+          <text x="625" y="77" text-anchor="middle" font-size="11" fill="var(--green)" font-weight="700">SQLite</text>
+          <text x="625" y="93" text-anchor="middle" font-size="9.5" fill="var(--muted)">database.db</text>
+
+          <line x1="188" y1="88" x2="132" y2="88" stroke="var(--border)" stroke-width="1.5" marker-end="url(#arr3)"/>
+          <text x="160" y="103" text-anchor="middle" font-size="9" fill="var(--muted)">JSON 200/201</text>
+
+          <defs>
+            <marker id="arr3" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--border)"/>
+            </marker>
+          </defs>
+        </svg>
+        <p class="diagram-label">Figura 3 — Etapa 2: Flask delega acesso a dados para db.py, que gerencia a conexão SQLite.</p>
+      </div>
+
+      <h3 class="section-h">schema.sql — estrutura da tabela</h3>
+      <pre><span class="kw">DROP TABLE IF</span> EXISTS countries;
+
+<span class="kw">CREATE TABLE</span> countries (
+  id           INTEGER <span class="kw">PRIMARY KEY AUTOINCREMENT</span>,
+  country_name TEXT    <span class="kw">UNIQUE NOT NULL</span>,
+  capital      TEXT    <span class="kw">UNIQUE NOT NULL</span>
+);</pre>
+
+      <h3 class="section-h">Inicializar o banco</h3>
+      <pre><span class="cm"># Dentro da pasta 02-sqlite/:</span>
+flask --app app init-db</pre>
+      <p>O comando <code>init-db</code> é registrado via <code>app.cli.add_command</code> em <code>db.py</code>.</p>
+
+      <h3 class="section-h">Padrão de conexão por request</h3>
+      <pre><span class="kw">def</span> get_db():
+    <span class="kw">if</span> <span class="st">'db'</span> <span class="kw">not in</span> g:
+        g.db = sqlite3.connect(DATABASE, detect_types=...)
+        g.db.row_factory = sqlite3.Row  <span class="cm"># retorna dict-like</span>
+    <span class="kw">return</span> g.db</pre>
+      <div class="callout info">
+        <code>g</code> é o objeto de contexto do Flask: vive durante um único request
+        e é limpo automaticamente no <code>teardown_appcontext</code>.
+      </div>
+    </section>
+
+    <!-- ── ETAPA 3 ─────────────────────────────────────────────────── -->
+    <section role="tabpanel" id="tab-etapa3" aria-labelledby="btn-etapa3">
+      <h2 class="panel-title">Etapa 3 — SQLAlchemy + Marshmallow</h2>
+      <p class="panel-lead">
+        ORM completo com serialização automática. Você define modelos como classes
+        Python e o SQLAlchemy cuida do SQL. Marshmallow transforma objetos em JSON
+        e valida dados de entrada.
+      </p>
+
+      <!-- Diagrama Etapa 3 -->
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 720 175" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;display:block;margin:auto;font-family:system-ui,sans-serif">
+          <rect x="10" y="62" width="110" height="50" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="65" y="84" text-anchor="middle" font-size="12" fill="var(--accent)" font-weight="700">Cliente</text>
+          <text x="65" y="100" text-anchor="middle" font-size="10" fill="var(--muted)">GET/POST/PUT/DEL</text>
+
+          <line x1="122" y1="87" x2="178" y2="87" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr4)"/>
+
+          <rect x="180" y="30" width="155" height="120" rx="8" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="257" y="55" text-anchor="middle" font-size="12" fill="var(--text)" font-weight="700">Flask App</text>
+          <text x="257" y="73" text-anchor="middle" font-size="10" fill="var(--muted)">@app.route(…, methods=[…])</text>
+          <text x="257" y="90" text-anchor="middle" font-size="10" fill="var(--muted)">Country.query.all()</text>
+          <text x="257" y="107" text-anchor="middle" font-size="10" fill="var(--muted)">country_schema.dump()</text>
+          <text x="257" y="124" text-anchor="middle" font-size="10" fill="var(--muted)">db.session.commit()</text>
+
+          <line x1="337" y1="87" x2="393" y2="87" stroke="var(--border)" stroke-width="1.5" marker-end="url(#arr4)"/>
+
+          <rect x="395" y="30" width="140" height="120" rx="8" fill="var(--yellow-soft)" stroke="var(--yellow)" stroke-width="1.5"/>
+          <text x="465" y="55" text-anchor="middle" font-size="11" fill="var(--yellow)" font-weight="700">SQLAlchemy ORM</text>
+          <text x="465" y="73" text-anchor="middle" font-size="10" fill="var(--muted)">class Country(db.Model)</text>
+          <text x="465" y="90" text-anchor="middle" font-size="10" fill="var(--muted)">CountrySchema</text>
+          <text x="465" y="107" text-anchor="middle" font-size="10" fill="var(--muted)">(Marshmallow)</text>
+          <text x="465" y="124" text-anchor="middle" font-size="10" fill="var(--muted)">session / query</text>
+
+          <line x1="537" y1="87" x2="583" y2="87" stroke="var(--border)" stroke-width="1.5" marker-end="url(#arr4)"/>
+
+          <rect x="585" y="62" width="110" height="50" rx="8" fill="var(--green-soft)" stroke="var(--green)" stroke-width="1.5"/>
+          <text x="640" y="84" text-anchor="middle" font-size="11" fill="var(--green)" font-weight="700">SQLite</text>
+          <text x="640" y="100" text-anchor="middle" font-size="9.5" fill="var(--muted)">/tmp/test.db</text>
+
+          <line x1="178" y1="95" x2="122" y2="95" stroke="var(--border)" stroke-width="1.5" marker-end="url(#arr4)"/>
+          <text x="150" y="111" text-anchor="middle" font-size="9" fill="var(--muted)">JSON</text>
+
+          <defs>
+            <marker id="arr4" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--border)"/>
+            </marker>
+          </defs>
+        </svg>
+        <p class="diagram-label">Figura 4 — Etapa 3: ORM abstrai SQL; Marshmallow serializa/deserializa JSON automaticamente.</p>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <h3 class="section-h">Modelo (ORM)</h3>
+          <pre><span class="kw">class</span> Country(db.Model):
+    id           = db.Column(db.Integer,
+                     primary_key=<span class="kw">True</span>)
+    country_name = db.Column(db.String(100))
+    capital      = db.Column(db.String(100))</pre>
+        </div>
+        <div>
+          <h3 class="section-h">Schema (Marshmallow)</h3>
+          <pre><span class="kw">class</span> CountrySchema(ma.SQLAlchemyAutoSchema):
+    <span class="kw">class</span> Meta:
+        model = Country
+        load_instance = <span class="kw">True</span>
+
+country_schema  = CountrySchema()
+countries_schema = CountrySchema(many=<span class="kw">True</span>)</pre>
+        </div>
+      </div>
+
+      <h3 class="section-h">Inicializar e rodar</h3>
+      <pre>python 03-sqlalchemy/app.py</pre>
+      <div class="callout success">
+        O banco é criado automaticamente via <code>db.create_all()</code> dentro do
+        contexto da aplicação — não precisa de <code>init-db</code> manual.
+      </div>
+
+      <h3 class="section-h">CRUD completo disponível nesta etapa</h3>
+      <p>Além de GET e POST, agora temos PUT e DELETE por ID:</p>
+      <pre>curl -X PUT http://localhost:8090/countries/1 \
+  -H "Content-Type: application/json" \
+  -d '{"country_name":"Thailand","capital":"Bangkok"}'
+
+curl -X DELETE http://localhost:8090/countries/1</pre>
+    </section>
+
+    <!-- ── CLIENTE ─────────────────────────────────────────────────── -->
+    <section role="tabpanel" id="tab-cliente" aria-labelledby="btn-cliente">
+      <h2 class="panel-title">Cliente Python</h2>
+      <p class="panel-lead">
+        <code>client.py</code> demonstra como consumir a API usando a biblioteca
+        <code>requests</code> — a mesma forma que qualquer sistema distribuído
+        cliente usaria.
+      </p>
+
+      <pre><span class="kw">import</span> requests
+
+api_url = <span class="st">'http://127.0.0.1:8090/countries'</span>
+
+<span class="kw">def</span> get():
+    response = requests.get(api_url)
+    print(response.json())
+
+<span class="kw">def</span> insert():
+    country = {<span class="st">"country_name"</span>: <span class="st">"Franca"</span>, <span class="st">"capital"</span>: <span class="st">"Paris"</span>}
+    response = requests.post(api_url, json=country)
+    print(response.json())
+
+get()     <span class="cm"># lista antes</span>
+insert()  <span class="cm"># adiciona</span>
+get()     <span class="cm"># lista depois</span></pre>
+
+      <h3 class="section-h">Equivalentes em curl</h3>
+      <pre><span class="cm"># GET</span>
+curl http://localhost:8090/countries
+
+<span class="cm"># POST</span>
+curl -X POST http://localhost:8090/countries \
+  -H "Content-Type: application/json" \
+  -d '{"country_name":"Brasil","capital":"Brasilia"}'
+
+<span class="cm"># GET por ID (Etapa 3)</span>
+curl http://localhost:8090/countries/1
+
+<span class="cm"># PUT (Etapa 3)</span>
+curl -X PUT http://localhost:8090/countries/1 \
+  -H "Content-Type: application/json" \
+  -d '{"country_name":"Brasil","capital":"Brasília"}'
+
+<span class="cm"># DELETE (Etapa 3)</span>
+curl -X DELETE http://localhost:8090/countries/1</pre>
+
+      <div class="callout info">
+        <strong>Por que usar <code>requests</code>?</strong> Em sistemas distribuídos reais,
+        clientes não são humanos no terminal — são outros serviços. <code>requests</code>
+        simula esse papel programaticamente.
+      </div>
+    </section>
+
+    <!-- ── CONTRATO ───────────────────────────────────────────────── -->
+    <section role="tabpanel" id="tab-contrato" aria-labelledby="btn-contrato">
+      <h2 class="panel-title">Contrato da API</h2>
+      <p class="panel-lead">
+        O "contrato" define o que o servidor garante ao cliente: rotas, métodos,
+        formato dos dados e códigos de status. Esta é a documentação que um consumidor
+        precisa para integrar sem ver o código-fonte.
+      </p>
+
+      <table class="contract-table">
+        <thead>
+          <tr>
+            <th>Método</th>
+            <th>Rota</th>
+            <th>Body (JSON)</th>
+            <th>Resposta de sucesso</th>
+            <th>Erros</th>
+            <th>Etapas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="method GET">GET</span></td>
+            <td><code>/countries</code></td>
+            <td>—</td>
+            <td><code>200</code> — array de objetos</td>
+            <td>—</td>
+            <td>1, 2, 3</td>
+          </tr>
+          <tr>
+            <td><span class="method POST">POST</span></td>
+            <td><code>/countries</code></td>
+            <td><code>{"country_name": "...", "capital": "..."}</code></td>
+            <td><code>201</code> — objeto criado com <code>id</code></td>
+            <td><code>415</code> se não-JSON</td>
+            <td>1, 2, 3</td>
+          </tr>
+          <tr>
+            <td><span class="method GET">GET</span></td>
+            <td><code>/countries/{id}</code></td>
+            <td>—</td>
+            <td><code>200</code> — objeto</td>
+            <td><code>404</code> não encontrado</td>
+            <td>3</td>
+          </tr>
+          <tr>
+            <td><span class="method PUT">PUT</span></td>
+            <td><code>/countries/{id}</code></td>
+            <td><code>{"country_name": "...", "capital": "..."}</code></td>
+            <td><code>200</code> — objeto atualizado</td>
+            <td><code>404</code>, <code>415</code></td>
+            <td>3</td>
+          </tr>
+          <tr>
+            <td><span class="method DELETE">DELETE</span></td>
+            <td><code>/countries/{id}</code></td>
+            <td>—</td>
+            <td><code>200</code> — <code>{"message": "País deletado"}</code></td>
+            <td><code>404</code></td>
+            <td>3</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="section-h">Formato do objeto Country</h3>
+      <div class="two-col">
+        <div>
+          <p><strong>Etapas 1 e 2</strong></p>
+          <pre>{
+  "id":           1,
+  "name":         "Thailand",   <span class="cm">// Etapa 1</span>
+  "country_name": "Thailand",   <span class="cm">// Etapa 2</span>
+  "capital":      "Bangkok",
+  "area":         513120        <span class="cm">// Etapa 1 apenas</span>
+}</pre>
+        </div>
+        <div>
+          <p><strong>Etapa 3</strong></p>
+          <pre>{
+  "id":           1,
+  "country_name": "Thailand",
+  "capital":      "Bangkok"
+}</pre>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <strong>Atenção às inconsistências entre etapas:</strong> a Etapa 1 usa o campo
+        <code>name</code>, enquanto as Etapas 2 e 3 usam <code>country_name</code>.
+        Em uma API de produção, o contrato seria padronizado desde o início.
+      </div>
+
+      <h3 class="section-h">Cabeçalhos obrigatórios para POST/PUT</h3>
+      <pre>Content-Type: application/json</pre>
+      <p>Sem este cabeçalho, o servidor retorna <code>415 Unsupported Media Type</code>.</p>
+    </section>
+
+    <!-- ── EXERCÍCIOS ─────────────────────────────────────────────── -->
+    <section role="tabpanel" id="tab-exercicios" aria-labelledby="btn-exercicios">
+      <h2 class="panel-title">Exercícios</h2>
+      <p class="panel-lead">
+        Desafios em ordem crescente de dificuldade. Cada um constrói sobre o anterior.
+      </p>
+
+      <div style="counter-reset: ex">
+        <div class="exercise">
+          <div class="ex-level easy">Fácil — Etapa 1</div>
+          <h4>Validar payload no POST</h4>
+          <p>
+            Em <code>01-no-db/app.py</code>, adicione validação: se <code>name</code>
+            ou <code>capital</code> não estiverem no JSON recebido, retorne
+            <code>400 Bad Request</code> com <code>{"error": "Campos obrigatórios: name e capital"}</code>.
+            Teste com curl enviando um body incompleto.
+          </p>
+        </div>
+
+        <div class="exercise">
+          <div class="ex-level medium">Médio — Etapa 2</div>
+          <h4>Adicionar rota GET /countries/&lt;id&gt;</h4>
+          <p>
+            Em <code>02-sqlite/app.py</code>, implemente <code>GET /countries/&lt;id&gt;</code>
+            usando <code>db.query_db('SELECT * FROM countries WHERE id = ?', [id], one=True)</code>.
+            Retorne <code>404</code> se o país não existir. Dica: o argumento <code>one=True</code>
+            em <code>query_db</code> já está implementado em <code>db.py</code>.
+          </p>
+        </div>
+
+        <div class="exercise">
+          <div class="ex-level hard">Desafio — Etapa 3</div>
+          <h4>Adicionar campo population e endpoint de estatísticas</h4>
+          <p>
+            Em <code>03-sqlalchemy/app.py</code>: (1) adicione o campo <code>population</code>
+            (Integer) ao modelo; (2) crie o endpoint
+            <code>GET /countries/stats</code> retornando
+            <code>{"total": N, "avg_population": X}</code>
+            usando <code>db.session.query(db.func.count(), db.func.avg(Country.population)).one()</code>.
+            Recrie o banco antes de testar.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /tab-panels -->
+</div><!-- /tabs-wrapper -->
+
+<footer>
+  <div class="footer-inner">
+    <span>Sistemas Distribuídos · TADS · IFRN Campus Pau dos Ferros · Prof. Demetrios A. M. Coutinho</span>
+    <a href="../../README.md">Voltar ao repositório</a>
+  </div>
+</footer>
+
+<script>
+/* =====================================================================
+   CONTROLE DE ABAS
+   ===================================================================== */
+const tabs   = document.querySelectorAll('[role="tab"]');
+const panels = document.querySelectorAll('[role="tabpanel"]');
+
+function activate(tab) {
+  tabs.forEach(t => {
+    t.setAttribute('aria-selected', 'false');
+    t.tabIndex = -1;
+  });
+  panels.forEach(p => p.classList.remove('active'));
+
+  tab.setAttribute('aria-selected', 'true');
+  tab.tabIndex = 0;
+  document.getElementById(tab.getAttribute('aria-controls')).classList.add('active');
+  tab.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+}
+
+tabs.forEach((tab, i) => {
+  tab.tabIndex = i === 0 ? 0 : -1;
+
+  tab.addEventListener('click', () => activate(tab));
+
+  tab.addEventListener('keydown', e => {
+    const list = [...tabs];
+    const idx  = list.indexOf(tab);
+    if (e.key === 'ArrowRight') { e.preventDefault(); activate(list[(idx + 1) % list.length]); }
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); activate(list[(idx - 1 + list.length) % list.length]); }
+    if (e.key === 'Home')       { e.preventDefault(); activate(list[0]); }
+    if (e.key === 'End')        { e.preventDefault(); activate(list[list.length - 1]); }
+  });
+});
+
+/* Deep link via hash */
+const hash = location.hash.slice(1);
+if (hash) {
+  const found = [...tabs].find(t => t.getAttribute('aria-controls') === hash);
+  if (found) activate(found);
+}
+</script>
+</body>
+</html>
