@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mensageria com RabbitMQ — SD · IFRN</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* =====================================================================
+   TEMA — paper cream + ink + terracota (idioma visual da Unidade 03)
+   ===================================================================== */
+:root {
+  --paper:        #f0e9dc;
+  --paper-soft:   #e9e1d2;
+  --paper-card:   #f7f1e6;
+  --ink:          #1a1612;
+  --ink-soft:     #2a2520;
+  --muted:        rgba(26,22,18,0.58);
+  --faint:        rgba(26,22,18,0.32);
+  --line:         rgba(26,22,18,0.16);
+  --line-soft:    rgba(26,22,18,0.08);
+  --terra:        #c4744f;
+  --terra-deep:   #a85e3d;
+  --terra-soft:   rgba(196,116,79,0.14);
+  --http-get:     #6b8e4e;
+  --http-post:    #c4744f;
+  --http-put:     #c8a64b;
+  --http-del:     #a84d3d;
+  --charcoal:     #1c1916;
+  --charcoal-text:#ede6d6;
+  --charcoal-mute:rgba(237,230,214,0.45);
+  --sans:         'Inter Tight', system-ui, -apple-system, sans-serif;
+  --serif:        'Fraunces', Georgia, serif;
+  --mono:         'JetBrains Mono', ui-monospace, monospace;
+  --ease:         cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-feature-settings: 'ss01', 'ss02';
+  -webkit-font-smoothing: antialiased;
+}
+
+/* =====================================================================
+   DECK
+   ===================================================================== */
+.deck { position: fixed; inset: 0; overflow: hidden; }
+
+.slides-track {
+  display: flex;
+  height: 100%;
+  transition: transform 0.6s var(--ease);
+}
+
+.slide {
+  flex-shrink: 0;
+  width: 100vw;
+  height: 100vh;
+  background: var(--paper);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: clamp(1.8rem, 3.5vh, 2.5rem) clamp(2.5rem, 5vw, 4rem);
+  position: relative;
+}
+
+.slide.slide-terra {
+  background: var(--terra);
+  color: #f5ecdf;
+  --ink: #f5ecdf;
+  --muted: rgba(245,236,223,0.72);
+  --faint: rgba(245,236,223,0.45);
+  --line: rgba(245,236,223,0.25);
+}
+
+/* =====================================================================
+   TOP / BOTTOM BARS
+   ===================================================================== */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.top-bar .lhs::before {
+  content: '•';
+  color: var(--terra);
+  margin-right: 0.55rem;
+  font-size: 1.1em;
+  vertical-align: -1px;
+}
+.slide.slide-terra .top-bar .lhs::before { color: #f5ecdf; }
+
+.bottom-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* =====================================================================
+   STAGE
+   ===================================================================== */
+.stage {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(1rem, 3vh, 2.5rem) 0;
+  min-height: 0;
+}
+
+/* =====================================================================
+   ANIMAÇÕES
+   ===================================================================== */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+}
+.slide.active .reveal { opacity: 1; transform: translateY(0); }
+.r1 { transition-delay: 0.05s; } .r2 { transition-delay: 0.16s; }
+.r3 { transition-delay: 0.27s; } .r4 { transition-delay: 0.38s; }
+.r5 { transition-delay: 0.49s; } .r6 { transition-delay: 0.60s; }
+.r7 { transition-delay: 0.71s; }
+
+/* =====================================================================
+   TIPOGRAFIA
+   ===================================================================== */
+.section-label {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--terra);
+  font-weight: 500;
+  margin-bottom: 1.4rem;
+}
+.slide.slide-terra .section-label { color: rgba(245,236,223,0.85); }
+
+.headline {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: clamp(2.6rem, 5.6vw, 5.2rem);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  margin-bottom: 1.3rem;
+}
+.headline .accent {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--terra);
+}
+.slide.slide-terra .headline .accent { color: #f5ecdf; }
+
+.lead {
+  font-family: var(--sans);
+  font-size: clamp(1.05rem, 1.4vw, 1.25rem);
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: 50rem;
+}
+
+/* =====================================================================
+   CAPA
+   ===================================================================== */
+.cover-grid {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.8fr) 4fr;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: center;
+  height: 100%;
+}
+.cover-numeral {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(8rem, 18vw, 16rem);
+  line-height: 0.85;
+  color: rgba(245,236,223,0.92);
+  text-align: right;
+}
+.cover-meta {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(245,236,223,0.85);
+  margin-bottom: 1.5rem;
+}
+.cover-h {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: clamp(3rem, 7vw, 6.4rem);
+  line-height: 1.0;
+  letter-spacing: -0.025em;
+  color: #f8f0e3;
+}
+.cover-h .accent {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  color: #fbecd9;
+}
+.cover-sub {
+  margin-top: 1.4rem;
+  font-size: 1.15rem;
+  line-height: 1.5;
+  color: rgba(245,236,223,0.80);
+  max-width: 38rem;
+}
+
+/* =====================================================================
+   STEP CARDS (Visão Geral / Exercícios)
+   ===================================================================== */
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1rem, 2vw, 1.6rem);
+  margin-top: 0.5rem;
+}
+.step-card {
+  background: transparent;
+  border-top: 2px solid var(--ink);
+  padding-top: 1.2rem;
+}
+.step-card .step-tag {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--terra);
+  font-weight: 500;
+  margin-bottom: 0.85rem;
+}
+.step-card h3 {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  margin-bottom: 0.5rem;
+}
+.step-card p {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.step-card p code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  color: var(--ink);
+  background: var(--terra-soft);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+.step-card .level-easy   { color: var(--http-get); }
+.step-card .level-medium { color: var(--http-put); }
+.step-card .level-hard   { color: var(--http-del); }
+
+/* =====================================================================
+   DIAGRAMA
+   ===================================================================== */
+.diagram-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+.diagram-frame {
+  background: var(--paper-card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: clamp(1.2rem, 2.5vw, 2rem) clamp(1.5rem, 3vw, 2.5rem);
+  width: 100%;
+  max-width: 56rem;
+}
+.diagram-frame svg { display: block; width: 100%; height: auto; }
+
+/* =====================================================================
+   SETUP
+   ===================================================================== */
+.setup-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.6rem;
+  margin-top: 0.5rem;
+}
+.panel-label {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 500;
+  margin-bottom: 0.7rem;
+}
+.terminal {
+  background: var(--charcoal);
+  color: var(--charcoal-text);
+  border-radius: 12px;
+  padding: 1.3rem 1.5rem;
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  line-height: 1.75;
+}
+.terminal .prompt { color: var(--terra); margin-right: 0.5rem; }
+.terminal .hint   { color: var(--charcoal-mute); }
+
+.tree {
+  background: var(--paper-card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1.3rem 1.6rem;
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  line-height: 1.85;
+  color: var(--ink-soft);
+}
+.tree .dir { color: var(--terra); font-weight: 500; }
+
+/* =====================================================================
+   CÓDIGO
+   ===================================================================== */
+.code-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.4rem;
+  margin-top: 0.5rem;
+}
+.code-panel {
+  background: var(--charcoal);
+  color: var(--charcoal-text);
+  border-radius: 12px;
+  padding: 1.2rem 1.4rem;
+}
+.code-panel .cb-label {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--terra);
+  display: inline-block;
+  margin-bottom: 0.85rem;
+  font-weight: 500;
+}
+.code-panel pre {
+  font-family: var(--mono);
+  font-size: 0.88rem;
+  line-height: 1.65;
+  overflow-x: auto;
+  color: var(--charcoal-text);
+}
+.code-full {
+  background: var(--charcoal);
+  color: var(--charcoal-text);
+  border-radius: 12px;
+  padding: 1.3rem 1.6rem;
+  margin-top: 0.5rem;
+}
+.code-full .cb-label {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--terra);
+  display: block;
+  margin-bottom: 0.85rem;
+  font-weight: 500;
+}
+.code-full pre {
+  font-family: var(--mono);
+  font-size: 0.88rem;
+  line-height: 1.72;
+  overflow-x: auto;
+}
+
+/* Syntax tokens */
+.cm { color: rgba(237,230,214,0.40); font-style: italic; }
+.kw { color: #d6a87a; }
+.st { color: #a8c995; }
+.dc { color: var(--terra); }
+
+/* =====================================================================
+   CALLOUT
+   ===================================================================== */
+.callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  background: var(--terra-soft);
+  border-left: 3px solid var(--terra);
+  border-radius: 0 8px 8px 0;
+  padding: 0.95rem 1.2rem;
+  margin-top: 1.2rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  max-width: 60rem;
+}
+.callout strong { font-weight: 700; }
+.callout .ico { color: var(--terra); font-weight: 700; flex-shrink: 0; }
+
+.callout.info {
+  background: rgba(107,142,78,0.10);
+  border-color: var(--http-get);
+}
+.callout.info .ico { color: var(--http-get); }
+
+.callout.amber {
+  background: rgba(200,166,75,0.10);
+  border-color: var(--http-put);
+}
+.callout.amber .ico { color: var(--http-put); }
+
+/* =====================================================================
+   CONTRACT TABLE
+   ===================================================================== */
+.contract-wrap {
+  margin-top: 0.5rem;
+  background: var(--paper-card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.contract-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.contract-table th {
+  text-align: left;
+  padding: 0.55rem 0.9rem;
+  background: var(--paper-soft);
+  font-family: var(--mono);
+  font-size: 0.71rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 500;
+  border-bottom: 1px solid var(--line);
+}
+.contract-table td {
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid var(--line-soft);
+  vertical-align: top;
+  color: var(--ink);
+  line-height: 1.45;
+}
+.contract-table tr:last-child td { border-bottom: none; }
+.contract-table code {
+  font-family: var(--mono);
+  font-size: 0.82em;
+  color: var(--ink);
+  background: var(--terra-soft);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+
+.mbadge {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.2em 0.55em;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.mbadge-get  { background: rgba(107,142,78,0.15);  color: var(--http-get); }
+.mbadge-post { background: rgba(196,116,79,0.15);  color: var(--http-post); }
+.mbadge-put  { background: rgba(200,166,75,0.13);  color: #8a6200; }
+.mbadge-del  { background: rgba(168,77,61,0.13);   color: var(--http-del); }
+
+/* =====================================================================
+   DOWNLOADS
+   ===================================================================== */
+.dl-zip-row { margin-top: 0.3rem; }
+.dl-zip {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--terra);
+  color: #f8f0e3;
+  padding: 0.95rem 1.4rem 0.95rem 1.05rem;
+  border-radius: 12px;
+  text-decoration: none;
+  border: 1px solid var(--terra-deep);
+  transition: background 0.2s;
+}
+.dl-zip:hover { background: var(--terra-deep); }
+.dl-zip .dl-ico {
+  width: 36px; height: 36px;
+  background: rgba(245,236,223,0.18);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.05rem;
+}
+.dl-zip .dl-meta { display: flex; flex-direction: column; }
+.dl-zip .dl-title {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  color: #f8f0e3;
+}
+.dl-zip .dl-sub {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.10em;
+  color: rgba(245,236,223,0.78);
+  text-transform: uppercase;
+  margin-top: 0.15rem;
+}
+.dl-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
+  margin-top: 1.2rem;
+}
+.dl-link {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: var(--paper-card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.55rem 0.85rem;
+  text-decoration: none;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+.dl-link:hover {
+  border-color: var(--terra);
+  background: var(--terra-soft);
+  color: var(--ink);
+}
+.dl-link .dl-bullet { color: var(--terra); font-weight: 700; }
+
+/* =====================================================================
+   NAVEGAÇÃO
+   ===================================================================== */
+.nav-arrows {
+  position: fixed;
+  bottom: 3.6rem;
+  right: 1.4rem;
+  display: flex;
+  gap: 0.5rem;
+  z-index: 100;
+}
+.nav-arrow {
+  width: 38px; height: 38px;
+  background: var(--paper-card);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--muted);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  font-family: var(--sans);
+}
+.nav-arrow:hover { background: var(--terra); border-color: var(--terra); color: #fff; }
+
+.nav-dots {
+  position: fixed;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  z-index: 100;
+}
+.nav-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--faint);
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s;
+  padding: 0;
+}
+.nav-dot.active { background: var(--terra); transform: scale(1.5); }
+.nav-dot:hover:not(.active) { background: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { transition: opacity 0.3s ease; transform: none; }
+  .slides-track { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav-dots" aria-label="Navegação por slides">
+  <button class="nav-dot" data-index="0"></button>
+  <button class="nav-dot" data-index="1"></button>
+  <button class="nav-dot" data-index="2"></button>
+  <button class="nav-dot" data-index="3"></button>
+  <button class="nav-dot" data-index="4"></button>
+  <button class="nav-dot" data-index="5"></button>
+  <button class="nav-dot" data-index="6"></button>
+  <button class="nav-dot" data-index="7"></button>
+  <button class="nav-dot" data-index="8"></button>
+  <button class="nav-dot" data-index="9"></button>
+  <button class="nav-dot" data-index="10"></button>
+  <button class="nav-dot" data-index="11"></button>
+</nav>
+
+<div class="nav-arrows">
+  <button class="nav-arrow" id="prev" aria-label="Slide anterior">←</button>
+  <button class="nav-arrow" id="next" aria-label="Próximo slide">→</button>
+</div>
+
+<div class="deck">
+<div class="slides-track" id="track">
+
+<!-- ===================================================================
+     SLIDE 01 — Capa
+     =================================================================== -->
+<section class="slide slide-terra" data-index="0">
+  <div class="top-bar">
+    <span class="lhs">Aula 08</span>
+    <span class="rhs">Unidade 03 · Programação de Serviços · 2026.1</span>
+  </div>
+  <div class="stage">
+    <div class="cover-grid">
+      <div class="reveal r1 cover-numeral">08</div>
+      <div>
+        <div class="reveal r2 cover-meta">Sistema de Pedidos · 3 Microserviços · 40 min</div>
+        <h1 class="reveal r3 cover-h">
+          Mensageria com<br>
+          <span class="accent">RabbitMQ</span><span style="font-family:var(--sans);font-weight:700;color:#f8f0e3;">.</span>
+        </h1>
+        <p class="reveal r4 cover-sub">
+          Broker, exchange, fila, producer e consumer — do acoplamento síncrono
+          ao desacoplamento assíncrono em Python com pika.
+        </p>
+        <div class="reveal r5" style="margin-top:1.6rem;">
+          <svg viewBox="0 0 520 72" xmlns="http://www.w3.org/2000/svg"
+               style="font-family:'JetBrains Mono',ui-monospace,monospace; max-width:420px; display:block;"
+               role="img" aria-label="Arquitetura: Gateway publica na Exchange, que distribui para Estoque e Notificação">
+            <defs>
+              <marker id="arrCov" viewBox="0 0 8 8" refX="6" refY="4"
+                      markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M0,1 L6,4 L0,7 Z" fill="rgba(245,236,223,0.6)"/>
+              </marker>
+            </defs>
+            <!-- Gateway -->
+            <rect x="2" y="22" width="100" height="28" rx="6"
+                  fill="rgba(245,236,223,0.18)" stroke="rgba(245,236,223,0.45)" stroke-width="1"/>
+            <text x="52" y="40" text-anchor="middle" font-size="11" fill="rgba(245,236,223,0.92)">gateway.py</text>
+            <!-- Arrow 1 -->
+            <line x1="103" y1="36" x2="148" y2="36"
+                  stroke="rgba(245,236,223,0.5)" stroke-width="1.5"
+                  marker-end="url(#arrCov)"/>
+            <!-- Exchange -->
+            <rect x="150" y="16" width="120" height="40" rx="6"
+                  fill="rgba(245,236,223,0.18)" stroke="rgba(245,236,223,0.45)" stroke-width="1"/>
+            <text x="210" y="33" text-anchor="middle" font-size="10" fill="rgba(245,236,223,0.92)">Exchange</text>
+            <text x="210" y="47" text-anchor="middle" font-size="10" fill="rgba(245,236,223,0.72)">pedidos · direct</text>
+            <!-- Arrow to Estoque -->
+            <line x1="272" y1="28" x2="318" y2="16"
+                  stroke="rgba(245,236,223,0.5)" stroke-width="1.5"
+                  marker-end="url(#arrCov)"/>
+            <!-- Arrow to Notificacao -->
+            <line x1="272" y1="44" x2="318" y2="56"
+                  stroke="rgba(245,236,223,0.5)" stroke-width="1.5"
+                  marker-end="url(#arrCov)"/>
+            <!-- Estoque -->
+            <rect x="320" y="4" width="100" height="24" rx="6"
+                  fill="rgba(245,236,223,0.18)" stroke="rgba(245,236,223,0.45)" stroke-width="1"/>
+            <text x="370" y="20" text-anchor="middle" font-size="11" fill="rgba(245,236,223,0.92)">Estoque</text>
+            <!-- Notificacao -->
+            <rect x="320" y="44" width="100" height="24" rx="6"
+                  fill="rgba(245,236,223,0.18)" stroke="rgba(245,236,223,0.45)" stroke-width="1"/>
+            <text x="370" y="60" text-anchor="middle" font-size="11" fill="rgba(245,236,223,0.92)">Notificação</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <span>IFRN · TADS · 2026.1</span>
+    <span>01 / 12</span>
+  </div>
+</section>
+
+<!-- ===================================================================
+     SLIDE 02 — O pedido que pode falhar
+     =================================================================== -->
+<section class="slide" data-index="1">
+  <div class="top-bar">
+    <span class="lhs">Motivação</span>
+    <span class="rhs">Unidade 03 · Programação de Serviços · 2026.1</span>
+  </div>
+  <div class="stage">
+    <div class="reveal r1 section-label">Bloco 1 · Problema</div>
+    <h2 class="reveal r2 headline">
+      Um pedido, dois serviços, um <span class="accent">problema</span>.
+    </h2>
+    <div class="reveal r3 diagram-wrap">
+      <div class="diagram-frame">
+        <svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg"
+             style="font-family:'JetBrains Mono',ui-monospace,monospace;"
+             role="img" aria-label="Diagrama de sequência: falha no serviço de Notificação impede o Estoque e retorna 500 ao Cliente">
+          <defs>
+            <marker id="arrS2" viewBox="0 0 8 8" refX="6" refY="4"
+                    markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M0,1 L6,4 L0,7 Z" fill="rgba(26,22,18,0.40)"/>
+            </marker>
+            <marker id="arrS2r" viewBox="0 0 8 8" refX="6" refY="4"
+                    markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M0,1 L6,4 L0,7 Z" fill="#c0392b"/>
+            </marker>
+          </defs>
+          <!-- Column labels -->
+          <text x="80" y="22" text-anchor="middle" font-size="12" letter-spacing="1" fill="rgba(26,22,18,0.55)">CLIENTE</text>
+          <text x="260" y="22" text-anchor="middle" font-size="12" letter-spacing="1" fill="rgba(26,22,18,0.55)">GATEWAY</text>
+          <text x="450" y="22" text-anchor="middle" font-size="12" letter-spacing="1" fill="rgba(26,22,18,0.55)">ESTOQUE</text>
+          <text x="630" y="22" text-anchor="middle" font-size="12" letter-spacing="1" fill="rgba(26,22,18,0.55)">NOTIFICAÇÃO</text>
+          <!-- Lifelines -->
+          <line x1="80"  y1="30" x2="80"  y2="210" stroke="rgba(26,22,18,0.15)" stroke-width="1" stroke-dasharray="4,3"/>
+          <line x1="260" y1="30" x2="260" y2="210" stroke="rgba(26,22,18,0.15)" stroke-width="1" stroke-dasharray="4,3"/>
+          <line x1="450" y1="30" x2="450" y2="210" stroke="rgba(26,22,18,0.15)" stroke-width="1" stroke-dasharray="4,3"/>
+          <line x1="630" y1="30" x2="630" y2="210" stroke="rgba(26,22,18,0.15)" stroke-width="1" stroke-dasharray="4,3"/>
+          <!-- Arrow 1: POST /pedido -->
+          <line x1="85"  y1="70" x2="253" y2="70" stroke="rgba(26,22,18,0.45)" stroke-width="1.5" marker-end="url(#arrS2)"/>
+          <text x="168" y="64" text-anchor="middle" font-size="11" fill="rgba(26,22,18,0.65)">POST /pedido</text>
+          <!-- Arrow 2a: → Estoque -->
+          <line x1="265" y1="100" x2="443" y2="100" stroke="rgba(26,22,18,0.40)" stroke-width="1.5" marker-end="url(#arrS2)"/>
+          <text x="354" y="94" text-anchor="middle" font-size="10" fill="rgba(26,22,18,0.55)">HTTP estoque</text>
+          <!-- Arrow 2b: → Notificação -->
+          <line x1="265" y1="130" x2="623" y2="130" stroke="rgba(26,22,18,0.40)" stroke-width="1.5" marker-end="url(#arrS2)"/>
+          <text x="444" y="124" text-anchor="middle" font-size="10" fill="rgba(26,22,18,0.55)">HTTP notificacao</text>
+          <!-- X on Notificação -->
+          <text x="630" y="158" text-anchor="middle" font-size="26" font-weight="700" fill="#c0392b">✕</text>
+          <text x="630" y="178" text-anchor="middle" font-size="10" letter-spacing="1" fill="#c0392b">FALHA</text>
+          <!-- Error arrow back -->
+          <line x1="625" y1="168" x2="90" y2="168"
+                stroke="#c0392b" stroke-width="1.5" stroke-dasharray="5,3"
+                marker-end="url(#arrS2r)"/>
+          <text x="358" y="188" text-anchor="middle" font-size="11" fill="#c0392b">500 Error — pedido perdido</text>
+          <!-- Estoque grayed out note -->
+          <text x="450" y="110" text-anchor="middle" font-size="10" fill="rgba(26,22,18,0.30)">não executado</text>
+        </svg>
+      </div>
+    </div>
+    <div class="reveal r4 callout" style="margin-top:0.9rem;">
+      <span class="ico">▸</span>
+      <span>Serviços acoplados: a falha de <strong>Notificação</strong> derruba o pedido inteiro.
+      O Estoque nunca é baixado. O cliente recebe erro. <strong>Como garantir resiliência?</strong></span>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <span>IFRN · TADS · 2026.1</span>
+    <span>02 / 12</span>
+  </div>
+</section>
+
+<!-- ===================================================================
+     SLIDE 03 — HTTP espera. Mensageria desacopla.
+     =================================================================== -->
+<section class="slide" data-index="2">
+  <div class="top-bar">
+    <span class="lhs">Conceito</span>
+    <span class="rhs">Unidade 03 · Programação de Serviços · 2026.1</span>
+  </div>
+  <div class="stage">
+    <div class="reveal r1 section-label">Bloco 2 · Comunicação Assíncrona</div>
+    <h2 class="reveal r2 headline">
+      HTTP <span class="accent">espera</span>. Mensageria desacopla.
+    </h2>
+    <div class="reveal r3" style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; margin-top:0.4rem;">
+      <!-- Left: HTTP síncrono -->
+      <div>
+        <div style="font-family:var(--mono); font-size:0.75rem; letter-spacing:0.14em; text-transform:uppercase; color:rgba(168,77,61,0.85); margin-bottom:0.5rem; font-weight:500;">HTTP Síncrono</div>
+        <div class="diagram-frame" style="background:rgba(200,50,50,0.04);">
+          <svg viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg"
+               style="font-family:'JetBrains Mono',ui-monospace,monospace;"
+               role="img" aria-label="HTTP síncrono: producer bloqueia quando consumer falha, retornando 500">
+            <defs>
+              <marker id="arrS3L" viewBox="0 0 8 8" refX="6" refY="4"
+                      markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M0,1 L6,4 L0,7 Z" fill="rgba(26,22,18,0.40)"/>
+              </marker>
+              <marker id="arrS3Lr" viewBox="0 0 8 8" refX="6" refY="4"
+                      markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M0,1 L6,4 L0,7 Z" fill="#c0392b"/>
+              </marker>
+            </defs>
+            <text x="60"  y="18" text-anchor="middle" font-size="10" fill="rgba(26,22,18,0.50)">PRODUCER</text>
+            <text x="240" y="18" text-anchor="middle" font-size="10" fill="rgba(26,22,18,0.50)">CONSUMER</text>
+            <line x1="60"  y1="24" x2="60"  y2="148" stroke="rgba(26,22,18,0.15)" stroke-width="1" stroke-dasharray="3,3"/>
+            <line x1="240" y1="24" x2="240" y2="148" stroke="rgba(26,22,18,0.15)" stroke-width="1" stroke-dasharray="3,3"/>
+            <!-- call arrow -->
+            <line x1="65" y1="55" x2="233" y2="55" stroke="rgba(26,22,18,0.45)" stroke-width="1.5" marker-end="url(#arrS3L)"/>
+            <text x="148" y="49" text-anchor="middle" font-size="10" fill="rgba(26,22,18,0.60)">chamada HTTP</text>
+            <!-- clock: producer blocked -->
+            <rect x="44" y="60" width="32" height="44" rx="3" fill="rgba(200,50,50,0.08)" stroke="rgba(168,77,61,0.35)" stroke-width="1"/>
+            <text x="60" y="86" text-anchor="middle" font-size="18">⏳</text>
+            <!-- X on consumer -->
+            <text x="240" y="80" text-anchor="middle" font-size="22" font-weight="700" fill="#c0392b">✕</text>
+            <text x="240" y="98" text-anchor="middle" font-size="9" letter-spacing="1" fill="#c0392b">FALHA</text>
+            <!-- 500 back -->
+            <line x1="235" y1="108" x2="82" y2="108"
+                  stroke="#c0392b" stroke-width="1.5" stroke-dasharray="4,3"
+                  marker-end="url(#arrS3Lr)"/>
+            <text x="158" y="124" text-anchor="middle" font-size="10" fill="#c0392b">500 Error</text>
+          </svg>
+        </div>
+      </div>
+      <!-- Right: Mensageria assíncrona -->
+      <div>
+        <div style="font-family:var(--mono); font-size:0.75rem; letter-spacing:0.14em; text-transform:uppercase; color:rgba(107,142,78,0.90); margin-bottom:0.5rem; font-weight:500;">Mensageria Assíncrona</div>
+        <div class="diagram-frame" style="background:rgba(100,160,80,0.05);">
+          <svg viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg"
+               style="font-family:'JetBrains Mono',ui-monospace,monospace;"
+               role="img" aria-label="Mensageria assíncrona: producer publica na fila e retorna 201 imediatamente; consumer falha mas mensagem persiste na fila">
+            <defs>
+              <marker id="arrS3R" viewBox="0 0 8 8" refX="6" refY="4"
+                      markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M0,1 L6,4 L0,7 Z" fill="rgba(26,22,18,0.40)"/>
+              </marker>
+              <marker id="arrS3Rg" viewBox="0 0 8 8" refX="6" refY="4"
+                      markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M0,1 L6,4 L0,7 Z" fill="#6b8e4e"/>
+              </marker>
+            </defs>
+            <text x="42"  y="18" text-anchor="middle" font-size="10" fill="rgba(26,22,18,0.50)">PRODUCER</text>
+            <text x="152" y="18" text-anchor="middle" font-size="10" fill="rgba(26,22,18,0.50)">QUEUE</text>
+            <text x="258" y="18" text-anchor="middle" font-size="10" fill="rgba(26,22,18,0.50)">CONSUMER</text>
+            <line x1="42"  y1="24" x2="42"  y2="148" stroke="rgba(26,22,18,0.15)" stroke-width="1" stroke-dasharray="3,3"/>
+            <line x1="258" y1="24" x2="258" y2="148" stroke="rgba(26,22,18,0.15)" stroke-width="1" stroke-dasharray="3,3"/>
+            <!-- Queue box -->
+            <rect x="112" y="38" width="80" height="74" rx="6"
+                  fill="rgba(107,142,78,0.08)" stroke="rgba(107,142,78,0.35)" stroke-width="1.5"/>
+            <text x="152" y="72" text-anchor="middle" font-size="18">📨</text>
+            <text x="152" y="92" text-anchor="middle" font-size="9" fill="rgba(26,22,18,0.55)">mensagem</text>
+            <text x="152" y="104" text-anchor="middle" font-size="9" fill="rgba(26,22,18,0.55)">persistida</text>
+            <!-- publish arrow -->
+            <line x1="47" y1="55" x2="109" y2="55" stroke="rgba(26,22,18,0.40)" stroke-width="1.5" marker-end="url(#arrS3R)"/>
+            <!-- 201 OK back -->
+            <line x1="108" y1="68" x2="48" y2="68"
+                  stroke="#6b8e4e" stroke-width="1.5"
+                  marker-end="url(#arrS3Rg)"/>
+            <text x="78" y="82" text-anchor="middle" font-size="10" fill="#6b8e4e">201 OK</text>
+            <!-- X on consumer (but queue intact) -->
+            <text x="258" y="80" text-anchor="middle" font-size="22" font-weight="700" fill="#c0392b">✕</text>
+            <text x="258" y="98" text-anchor="middle" font-size="9" letter-spacing="1" fill="rgba(168,77,61,0.70)">FALHA</text>
+            <text x="258" y="114" text-anchor="middle" font-size="9" fill="rgba(26,22,18,0.40)">fila intacta</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <span>IFRN · TADS · 2026.1</span>
+    <span>03 / 12</span>
+  </div>
+</section>
+
+<!-- ===================================================================
+     SLIDE 04 — Três consequências do desacoplamento
+     =================================================================== -->
+<section class="slide" data-index="3">
+  <div class="top-bar">
+    <span class="lhs">Conceito</span>
+    <span class="rhs">Unidade 03 · Programação de Serviços · 2026.1</span>
+  </div>
+  <div class="stage">
+    <div class="reveal r1 section-label">Bloco 2 · Desacoplamento</div>
+    <h2 class="reveal r2 headline">
+      Três <span class="accent">consequências</span> do desacoplamento.
+    </h2>
+    <div class="steps-grid">
+      <div class="reveal r3 step-card">
+        <div class="step-tag">— 01 · Resiliência</div>
+        <h3>Consumer cai, fila preserva</h3>
+        <p>O producer não sente a queda. A mensagem fica na fila até o consumer voltar.</p>
+      </div>
+      <div class="reveal r4 step-card">
+        <div class="step-tag">— 02 · Escalabilidade</div>
+        <h3>Adicione workers sem tocar o producer</h3>
+        <p>Novos consumers se conectam à mesma fila. O producer não precisa saber que existem.</p>
+      </div>
+      <div class="reveal r5 step-card">
+        <div class="step-tag">— 03 · Independência</div>
+        <h3>Serviços evoluem no próprio ritmo</h3>
+        <p>Estoque e Notificação podem ser deployados, atualizados e reiniciados de forma separada.</p>
+      </div>
+    </div>
+    <div class="reveal r6 callout amber" style="margin-top:1rem;">
+      <span class="ico" style="color:var(--http-put);">▲</span>
+      <span>
+        <strong>Trade-off:</strong> consistência eventual — o producer não sabe se o consumer
+        processou. Se o cliente precisa do resultado imediatamente, HTTP ainda é a escolha certa.
+      </span>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <span>IFRN · TADS · 2026.1</span>
+    <span>04 / 12</span>
+  </div>
+</section>
+
+<!-- ===================================================================
+     SLIDE 05 — Componentes do RabbitMQ mapeados ao projeto
+     =================================================================== -->
+<section class="slide" data-index="4">
+  <div class="top-bar">
+    <span class="lhs">Componentes</span>
+    <span class="rhs">Unidade 03 · Programação de Serviços · 2026.1</span>
+  </div>
+  <div class="stage">
+    <div class="reveal r1 section-label">Bloco 3 · RabbitMQ</div>
+    <h2 class="reveal r2 headline">
+      Cada <span class="accent">peça</span> tem um papel.
+    </h2>
+    <div class="reveal r3 diagram-wrap">
+      <div class="diagram-frame">
+        <svg viewBox="0 0 760 200" xmlns="http://www.w3.org/2000/svg"
+             style="font-family:'JetBrains Mono',ui-monospace,monospace;"
+             role="img" aria-label="Diagrama completo: gateway.py (producer) publica na exchange pedidos (direct), que roteia por routing_key para queues estoque e notificacao, consumidas por estoque.py e notificacao.py. Tudo dentro do broker RabbitMQ.">
+          <defs>
+            <marker id="arrS5" viewBox="0 0 8 8" refX="6" refY="4"
+                    markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M0,1 L6,4 L0,7 Z" fill="rgba(26,22,18,0.40)"/>
+            </marker>
+          </defs>
+          <!-- Broker border -->
+          <rect x="158" y="10" width="420" height="180" rx="10"
+                fill="transparent" stroke="rgba(26,22,18,0.20)"
+                stroke-width="1.5" stroke-dasharray="6,4"/>
+          <text x="348" y="26" text-anchor="middle" font-size="10" letter-spacing="2" fill="rgba(26,22,18,0.40)">BROKER (RabbitMQ)</text>
+
+          <!-- gateway.py -->
+          <rect x="10" y="76" width="110" height="48" rx="8"
+                fill="#c4744f" stroke="#a85e3d" stroke-width="1"/>
+          <text x="65" y="97" text-anchor="middle" font-size="12" font-weight="500" fill="#fbf3e6">gateway.py</text>
+          <text x="65" y="113" text-anchor="middle" font-size="9" letter-spacing="1.5" fill="rgba(251,243,230,0.75)">PRODUCER</text>
+
+          <!-- Arrow: gateway → exchange -->
+          <line x1="121" y1="100" x2="177" y2="100"
+                stroke="rgba(26,22,18,0.35)" stroke-width="1.5" marker-end="url(#arrS5)"/>
+          <text x="149" y="94" text-anchor="middle" font-size="9" fill="rgba(26,22,18,0.45)">publica</text>
+
+          <!-- Exchange -->
+          <rect x="178" y="70" width="130" height="60" rx="8"
+                fill="#c8a64b" stroke="#a88030" stroke-width="1"/>
+          <text x="243" y="97" text-anchor="middle" font-size="11" font-weight="500" fill="#1c1410">Exchange</text>
+          <text x="243" y="113" text-anchor="middle" font-size="10" fill="rgba(28,20,16,0.70)">pedidos · direct</text>
+          <text x="243" y="124" text-anchor="middle" font-size="9" letter-spacing="1.5" fill="rgba(28,20,16,0.55)">EXCHANGE</text>
+
+          <!-- Arrow: exchange → queue estoque -->
+          <line x1="309" y1="88" x2="368" y2="68"
+                stroke="rgba(26,22,18,0.35)" stroke-width="1.5" marker-end="url(#arrS5)"/>
+          <text x="340" y="72" text-anchor="middle" font-size="9" fill="rgba(26,22,18,0.45)">rk: estoque</text>
+
+          <!-- Arrow: exchange → queue notificacao -->
+          <line x1="309" y1="112" x2="368" y2="132"
+                stroke="rgba(26,22,18,0.35)" stroke-width="1.5" marker-end="url(#arrS5)"/>
+          <text x="340" y="148" text-anchor="middle" font-size="9" fill="rgba(26,22,18,0.45)">rk: notificacao</text>
+
+          <!-- Queue estoque -->
+          <rect x="370" y="44" width="100" height="40" rx="6"
+                fill="rgba(107,142,78,0.18)" stroke="rgba(107,142,78,0.50)" stroke-width="1.5"/>
+          <text x="420" y="62" text-anchor="middle" font-size="11" fill="#1a1612">Queue</text>
+          <text x="420" y="76" text-anchor="middle" font-size="10" fill="rgba(26,22,18,0.65)">estoque</text>
+
+          <!-- Queue notificacao -->
+          <rect x="370" y="116" width="100" height="40" rx="6"
+                fill="rgba(107,142,78,0.18)" stroke="rgba(107,142,78,0.50)" stroke-width="1.5"/>
+          <text x="420" y="134" text-anchor="middle" font-size="11" fill="#1a1612">Queue</text>
+          <text x="420" y="148" text-anchor="middle" font-size="10" fill="rgba(26,22,18,0.65)">notificacao</text>
+
+          <!-- Arrow: q.estoque → estoque.py -->
+          <line x1="471" y1="64" x2="530" y2="74"
+                stroke="rgba(26,22,18,0.35)" stroke-width="1.5" marker-end="url(#arrS5)"/>
+          <!-- Arrow: q.notificacao → notificacao.py -->
+          <line x1="471" y1="136" x2="530" y2="126"
+                stroke="rgba(26,22,18,0.35)" stroke-width="1.5" marker-end="url(#arrS5)"/>
+
+          <!-- estoque.py -->
+          <rect x="532" y="56" width="110" height="40" rx="8"
+                fill="rgba(107,142,78,0.25)" stroke="rgba(107,142,78,0.55)" stroke-width="1"/>
+          <text x="587" y="74" text-anchor="middle" font-size="11" font-weight="500" fill="#1a1612">estoque.py</text>
+          <text x="587" y="88" text-anchor="middle" font-size="9" letter-spacing="1.5" fill="rgba(26,22,18,0.55)">CONSUMER</text>
+
+          <!-- notificacao.py -->
+          <rect x="532" y="104" width="110" height="40" rx="8"
+                fill="rgba(107,142,78,0.25)" stroke="rgba(107,142,78,0.55)" stroke-width="1"/>
+          <text x="587" y="122" text-anchor="middle" font-size="11" font-weight="500" fill="#1a1612">notificacao.py</text>
+          <text x="587" y="136" text-anchor="middle" font-size="9" letter-spacing="1.5" fill="rgba(26,22,18,0.55)">CONSUMER</text>
+
+          <!-- Labels QUEUE under rects -->
+          <text x="420" y="195" text-anchor="middle" font-size="9" letter-spacing="1.5" fill="rgba(26,22,18,0.38)">QUEUES</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <span>IFRN · TADS · 2026.1</span>
+    <span>05 / 12</span>
+  </div>
+</section>
+
+<!-- ===================================================================
+     SLIDE 06 — O caminho de uma mensagem
+     =================================================================== -->
+<section class="slide" data-index="5">
+  <div class="top-bar">
+    <span class="lhs">Componentes</span>
+    <span class="rhs">Unidade 03 · Programação de Serviços · 2026.1</span>
+  </div>
+  <div class="stage">
+    <div class="reveal r1 section-label">Bloco 3 · Fluxo AMQP</div>
+    <h2 class="reveal r2 headline">
+      Da requisição HTTP ao <span class="accent">consumer</span>.
+    </h2>
+    <div class="reveal r3 diagram-wrap">
+      <div class="diagram-frame">
+        <svg viewBox="0 0 760 230" xmlns="http://www.w3.org/2000/svg"
+             style="font-family:'JetBrains Mono',ui-monospace,monospace;"
+             role="img" aria-label="Diagrama de sequência temporal: gateway retorna 201 ao cliente ANTES de os consumers processarem. Seta 5 (201 OK) ocorre na linha do tempo acima das entregas 3a e 3b.">
+          <defs>
+            <marker id="arrS6" viewBox="0 0 8 8" refX="6" refY="4"
+                    markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M0,1 L6,4 L0,7 Z" fill="rgba(26,22,18,0.40)"/>
+            </marker>
+            <marker id="arrS6g" viewBox="0 0 8 8" refX="6" refY="4"
+                    markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M0,1 L6,4 L0,7 Z" fill="#6b8e4e"/>
+            </marker>
+            <marker id="arrS6d" viewBox="0 0 8 8" refX="6" refY="4"
+                    markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M0,1 L6,4 L0,7 Z" fill="rgba(26,22,18,0.28)"/>
+            </marker>
+          </defs>
+          <!-- Participant labels -->
+          <text x="55"  y="20" text-anchor="middle" font-size="10" letter-spacing="1" fill="rgba(26,22,18,0.50)">CLIENTE</text>
+          <text x="210" y="20" text-anchor="middle" font-size="10" letter-spacing="1" fill="rgba(26,22,18,0.50)">GATEWAY</text>
+          <text x="390" y="20" text-anchor="middle" font-size="10" letter-spacing="1" fill="rgba(26,22,18,0.50)">BROKER</text>
+          <text x="560" y="20" text-anchor="middle" font-size="10" letter-spacing="1" fill="rgba(26,22,18,0.50)">ESTOQUE</text>
+          <text x="700" y="20" text-anchor="middle" font-size="10" letter-spacing="1" fill="rgba(26,22,18,0.50)">NOTIF.</text>
+          <!-- Lifelines -->
+          <line x1="55"  y1="26" x2="55"  y2="228" stroke="rgba(26,22,18,0.14)" stroke-width="1" stroke-dasharray="3,3"/>
+          <line x1="210" y1="26" x2="210" y2="228" stroke="rgba(26,22,18,0.14)" stroke-width="1" stroke-dasharray="3,3"/>
+          <line x1="390" y1="26" x2="390" y2="228" stroke="rgba(26,22,18,0.14)" stroke-width="1" stroke-dasharray="3,3"/>
+          <line x1="560" y1="26" x2="560" y2="228" stroke="rgba(26,22,18,0.14)" stroke-width="1" stroke-dasharray="3,3"/>
+          <line x1="700" y1="26" x2="700" y2="228" stroke="rgba(26,22,18,0.14)" stroke-width="1" stroke-dasharray="3,3"/>
+
+          <!-- ① POST /pedido -->
+          <line x1="60" y1="55" x2="202" y2="55" stroke="rgba(26,22,18,0.50)" stroke-width="1.5" marker-end="url(#arrS6)"/>
+          <text x="128" y="49" text-anchor="middle" font-size="10" fill="rgba(26,22,18,0.60)">① POST /pedido</text>
+
+          <!-- ② basic_publish -->
+          <line x1="215" y1="80" x2="382" y2="80" stroke="rgba(26,22,18,0.45)" stroke-width="1.5" marker-end="url(#arrS6)"/>
+          <text x="298" y="74" text-anchor="middle" font-size="10" fill="rgba(26,22,18,0.55)">② basic_publish</text>
+
+          <!-- ⑤ 201 OK — imediato (before consumers) -->
+          <line x1="385" y1="105" x2="64" y2="105" stroke="#6b8e4e" stroke-width="2" marker-end="url(#arrS6g)"/>
+          <text x="224" y="120" text-anchor="middle" font-size="10" font-weight="500" fill="#6b8e4e">⑤ 201 OK — imediato</text>
+
+          <!-- Separator note -->
+          <line x1="40" y1="136" x2="720" y2="136" stroke="rgba(26,22,18,0.10)" stroke-width="1" stroke-dasharray="2,4"/>
+          <text x="384" y="132" text-anchor="middle" font-size="9" fill="rgba(26,22,18,0.35)">consumers processam depois do 201</text>
+
+          <!-- ③a deliver estoque -->
+          <line x1="395" y1="155" x2="552" y2="155"
+                stroke="rgba(26,22,18,0.30)" stroke-width="1.5" stroke-dasharray="5,3"
+                marker-end="url(#arrS6d)"/>
+          <text x="473" y="149" text-anchor="middle" font-size="10" fill="rgba(26,22,18,0.45)">③a deliver: estoque</text>
+
+          <!-- ③b deliver notificacao -->
+          <line x1="395" y1="185" x2="692" y2="185"
+                stroke="rgba(26,22,18,0.30)" stroke-width="1.5" stroke-dasharray="5,3"
+                marker-end="url(#arrS6d)"/>
+          <text x="543" y="179" text-anchor="middle" font-size="10" fill="rgba(26,22,18,0.45)">③b deliver: notificacao</text>
+
+          <!-- ④ callbacks -->
+          <text x="560" y="210" text-anchor="middle" font-size="9" fill="rgba(26,22,18,0.38)">④ callback()</text>
+          <text x="700" y="210" text-anchor="middle" font-size="9" fill="rgba(26,22,18,0.38)">④ callback()</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <span>IFRN · TADS · 2026.1</span>
+    <span>06 / 12</span>
+  </div>
+</section>
+
+<!-- ===================================================================
+     SLIDE 07 — Setup em 2 minutos
+     =================================================================== -->
+<section class="slide" data-index="6">
+  <div class="top-bar">
+    <span class="lhs">Setup</span>
+    <span class="rhs">Unidade 03 · Programação de Serviços · 2026.1</span>
+  </div>
+  <div class="stage">
+    <div class="reveal r1 section-label">Bloco 4 · Ambiente</div>
+    <h2 class="reveal r2 headline">
+      Broker no ar em <span class="accent">2 minutos</span>.
+    </h2>
+    <div class="setup-grid">
+      <div>
+        <div class="reveal r3 panel-label">— instalar via Docker</div>
+        <div class="reveal r4 terminal">
+          <span class="prompt">$</span>docker run -d \<br>
+          &nbsp;&nbsp;--hostname rabbit-dev \<br>
+          &nbsp;&nbsp;--name rabbitmq \<br>
+          &nbsp;&nbsp;-p 5672:5672 \<br>
+          &nbsp;&nbsp;-p 15672:15672 \<br>
+          &nbsp;&nbsp;rabbitmq:management<br><br>
+          <span class="prompt">$</span>pip install pika flask<br><br>
+          <span class="hint"># verificar → http://localhost:15672</span><br>
+          <span class="hint"># credenciais → guest / guest</span>
+        </div>
+      </div>
+      <div>
+        <div class="reveal r3 panel-label">— portas e acesso</div>
+        <div class="reveal r4 tree">
+          <span class="dir">RabbitMQ</span><br>
+          ├── :5672 &nbsp; <span style="color:var(--muted)">← AMQP (pika)</span><br>
+          └── :15672 &nbsp;<span style="color:var(--muted)">← Management UI</span><br><br>
+          <span class="dir">Management UI</span><br>
+          ├── Exchanges &nbsp;<span style="color:var(--muted)">← amq.direct…</span><br>
+          ├── Queues &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--muted)">← vazias no início</span><br>
+          └── Connections<br>
+        </div>
+        <div class="reveal r5 callout info" style="margin-top:0.8rem;">
+          <span class="ico">◎</span>
+          <span>Checkpoint: exchanges padrão (<code style="font-family:var(--mono);font-size:0.88em;background:rgba(107,142,78,0.15);padding:0.1em 0.3em;border-radius:3px;">amq.direct</code>, <code style="font-family:var(--mono);font-size:0.88em;background:rgba(107,142,78,0.15);padding:0.1em 0.3em;border-radius:3px;">amq.fanout</code>…) já aparecem na UI. Nenhuma fila criada ainda — criaremos via código.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <span>IFRN · TADS · 2026.1</span>
+    <span>07 / 12</span>
+  </div>
+</section>
+
+<!-- ===================================================================
+     SLIDE 08 — gateway.py: o producer
+     =================================================================== -->
+<section class="slide" data-index="7">
+  <div class="top-bar">
+    <span class="lhs">Implementação</span>
+    <span class="rhs">Unidade 03 · Programação de Serviços · 2026.1</span>
+  </div>
+  <div class="stage">
+    <div class="reveal r1 section-label">Bloco 5 · Producer</div>
+    <h2 class="reveal r2 headline" style="font-size:clamp(2rem,4vw,3.6rem); margin-bottom:0.8rem;">
+      gateway.py — quem <span class="accent">publica</span> o pedido.
+    </h2>
+    <div class="reveal r3 code-full">
+      <span class="cb-label">▸ gateway.py</span>
+<pre><span class="kw">from</span> flask <span class="kw">import</span> Flask, jsonify, request   <span class="cm"># framework HTTP</span>
+<span class="kw">import</span> pika, json
+
+app = Flask(__name__)
+
+<span class="kw">def</span> get_channel():
+    conn = pika.BlockingConnection(              <span class="cm"># producer: conexão TCP</span>
+        pika.ConnectionParameters(<span class="st">'localhost'</span>))
+    ch = conn.channel()
+    ch.exchange_declare(                         <span class="cm"># cria a exchange</span>
+        exchange=<span class="st">'pedidos'</span>,
+        exchange_type=<span class="st">'direct'</span>)
+    <span class="kw">return</span> conn, ch
+
+<span class="dc">@app.route</span>(<span class="st">'/pedido'</span>, methods=[<span class="st">'POST'</span>])
+<span class="kw">def</span> criar_pedido():
+    pedido = request.get_json()
+    conn, ch = get_channel()
+    body = json.dumps(pedido)
+    ch.basic_publish(exchange=<span class="st">'pedidos'</span>,        <span class="cm"># publica → estoque</span>
+                     routing_key=<span class="st">'estoque'</span>,
+                     body=body)
+    ch.basic_publish(exchange=<span class="st">'pedidos'</span>,        <span class="cm"># publica → notificacao</span>
+                     routing_key=<span class="st">'notificacao'</span>,
+                     body=body)
+    conn.close()
+    <span class="kw">return</span> jsonify({<span class="st">'status'</span>: <span class="st">'ok'</span>}), <span class="st">201</span>      <span class="cm"># retorna sem esperar</span></pre>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <span>IFRN · TADS · 2026.1</span>
+    <span>08 / 12</span>
+  </div>
+</section>
+
+<!-- ===================================================================
+     SLIDE 09 — estoque.py e notificacao.py: os consumers
+     =================================================================== -->
+<section class="slide" data-index="8">
+  <div class="top-bar">
+    <span class="lhs">Implementação</span>
+    <span class="rhs">Unidade 03 · Programação de Serviços · 2026.1</span>
+  </div>
+  <div class="stage">
+    <div class="reveal r1 section-label">Bloco 5 · Consumer</div>
+    <h2 class="reveal r2 headline" style="font-size:clamp(2rem,4vw,3.4rem); margin-bottom:0.7rem;">
+      Consumer: declarar fila, <span class="accent">binding</span>, callback.
+    </h2>
+    <div class="reveal r3 code-grid">
+      <div class="code-panel">
+        <span class="cb-label">▸ estoque.py</span>
+<pre><span class="kw">import</span> pika, json
+
+<span class="kw">def</span> callback(ch, method, props, body):
+    p = json.loads(body)
+    print(<span class="st">f"📦 Estoque: {p}"</span>)
+
+conn = pika.BlockingConnection(
+    pika.ConnectionParameters(<span class="st">'localhost'</span>))
+ch = conn.channel()
+ch.exchange_declare(
+    exchange=<span class="st">'pedidos'</span>,
+    exchange_type=<span class="st">'direct'</span>)
+<span class="cm"># declara e faz binding da fila</span>
+<span style="background:rgba(200,166,75,0.15);border-radius:2px;">ch.queue_declare(queue=<span class="st">'estoque'</span>)</span>
+<span style="background:rgba(200,166,75,0.15);border-radius:2px;">ch.queue_bind(exchange=<span class="st">'pedidos'</span>,</span>
+<span style="background:rgba(200,166,75,0.15);border-radius:2px;">             queue=<span class="st">'estoque'</span>,</span>
+<span style="background:rgba(200,166,75,0.15);border-radius:2px;">             routing_key=<span class="st">'estoque'</span>)</span>
+ch.basic_consume(
+    queue=<span class="st">'estoque'</span>,
+    on_message_callback=callback,
+    auto_ack=<span class="kw">True</span>)
+print(<span class="st">'Aguardando...'</span>)
+ch.start_consuming()</pre>
+      </div>
+      <div class="code-panel">
+        <span class="cb-label">▸ notificacao.py</span>
+<pre><span class="kw">import</span> pika, json
+
+<span class="kw">def</span> callback(ch, method, props, body):
+    p = json.loads(body)
+    <span style="background:rgba(200,166,75,0.15);border-radius:2px;">print(<span class="st">f"📧 E-mail: {p}"</span>)</span>
+
+conn = pika.BlockingConnection(
+    pika.ConnectionParameters(<span class="st">'localhost'</span>))
+ch = conn.channel()
+ch.exchange_declare(
+    exchange=<span class="st">'pedidos'</span>,
+    exchange_type=<span class="st">'direct'</span>)
+<span class="cm"># declara e faz binding da fila</span>
+<span style="background:rgba(200,166,75,0.15);border-radius:2px;">ch.queue_declare(queue=<span class="st">'notificacao'</span>)</span>
+<span style="background:rgba(200,166,75,0.15);border-radius:2px;">ch.queue_bind(exchange=<span class="st">'pedidos'</span>,</span>
+<span style="background:rgba(200,166,75,0.15);border-radius:2px;">             queue=<span class="st">'notificacao'</span>,</span>
+<span style="background:rgba(200,166,75,0.15);border-radius:2px;">             routing_key=<span class="st">'notificacao'</span>)</span>
+ch.basic_consume(
+    queue=<span class="st">'notificacao'</span>,
+    on_message_callback=callback,
+    auto_ack=<span class="kw">True</span>)
+print(<span class="st">'Aguardando...'</span>)
+ch.start_consuming()</pre>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <span>IFRN · TADS · 2026.1</span>
+    <span>09 / 12</span>
+  </div>
+</section>
+
+<!-- ===================================================================
+     SLIDE 10 — Executar e observar
+     =================================================================== -->
+<section class="slide" data-index="9">
+  <div class="top-bar">
+    <span class="lhs">Implementação</span>
+    <span class="rhs">Unidade 03 · Programação de Serviços · 2026.1</span>
+  </div>
+  <div class="stage">
+    <div class="reveal r1 section-label">Bloco 5 · Execução</div>
+    <h2 class="reveal r2 headline" style="font-size:clamp(2rem,4vw,3.6rem); margin-bottom:0.7rem;">
+      3 terminais, 1 pedido, <span class="accent">2 respostas</span>.
+    </h2>
+    <div class="reveal r3 code-full">
+      <span class="cb-label">▸ rodar os serviços</span>
+<pre><span class="cm"># T1</span>  <span class="prompt" style="color:var(--terra);">$</span> python estoque.py
+<span class="cm"># T2</span>  <span class="prompt" style="color:var(--terra);">$</span> python notificacao.py
+<span class="cm"># T3</span>  <span class="prompt" style="color:var(--terra);">$</span> python gateway.py</pre>
+    </div>
+    <div class="reveal r4 code-full" style="margin-top:0.7rem;">
+      <span class="cb-label">▸ enviar pedido</span>
+<pre><span class="prompt" style="color:var(--terra);">$</span> curl -X POST http://localhost:5000/pedido \
+     -H <span class="st">"Content-Type: application/json"</span> \
+     -d <span class="st">'{"id": 1, "produto": "Notebook"}'</span>
+
+<span class="cm">→ {"status": "ok"}  HTTP 201   ← imediato, sem esperar consumers</span></pre>
+    </div>
+    <div class="reveal r5 code-full" style="margin-top:0.7rem;">
+      <span class="cb-label">▸ output nos terminals</span>
+<pre><span style="color:#6b8e4e;">📦 Estoque: {'id': 1, 'produto': 'Notebook'}    </span><span class="cm">← T1, simultaneamente</span>
+<span style="color:#6b8e4e;">📧 E-mail: {'id': 1, 'produto': 'Notebook'}     </span><span class="cm">← T2, simultaneamente</span></pre>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <span>IFRN · TADS · 2026.1</span>
+    <span>10 / 12</span>
+  </div>
+</section>
+
+<!-- ===================================================================
+     SLIDE 11 — Atividade: Serviço de Pagamento
+     =================================================================== -->
+<section class="slide" data-index="10">
+  <div class="top-bar">
+    <span class="lhs">Atividade</span>
+    <span class="rhs">Unidade 03 · Programação de Serviços · 2026.1</span>
+  </div>
+  <div class="stage" style="justify-content:flex-start; padding-top:1.2rem;">
+    <div class="reveal r1 section-label">Bloco 6 · Transferência</div>
+    <h2 class="reveal r2 headline" style="font-size:clamp(2rem,4vw,3.4rem); margin-bottom:0.8rem;">
+      Sua vez: adicione o <span class="accent">Pagamento</span>.
+    </h2>
+    <div style="display:grid; grid-template-columns:1fr 1.1fr; gap:1.4rem; margin-top:0.2rem;">
+      <div>
+        <ul class="reveal r3" style="list-style:none; font-size:1rem; line-height:2; color:var(--ink-soft);">
+          <li>▸ Crie <code style="font-family:var(--mono);font-size:0.88em;background:var(--terra-soft);padding:0.1em 0.4em;border-radius:3px;">pagamento.py</code> seguindo o padrão de <code style="font-family:var(--mono);font-size:0.88em;background:var(--terra-soft);padding:0.1em 0.4em;border-radius:3px;">estoque.py</code></li>
+          <li>▸ Queue: <code style="font-family:var(--mono);font-size:0.88em;background:var(--terra-soft);padding:0.1em 0.4em;border-radius:3px;">'pagamento'</code> · routing_key: <code style="font-family:var(--mono);font-size:0.88em;background:var(--terra-soft);padding:0.1em 0.4em;border-radius:3px;">'pagamento'</code></li>
+          <li>▸ Callback: <code style="font-family:var(--mono);font-size:0.88em;background:var(--terra-soft);padding:0.1em 0.4em;border-radius:3px;">💳 Pagamento: {body}</code></li>
+          <li>▸ Atualize <code style="font-family:var(--mono);font-size:0.88em;background:var(--terra-soft);padding:0.1em 0.4em;border-radius:3px;">gateway.py</code>: novo <code style="font-family:var(--mono);font-size:0.88em;background:var(--terra-soft);padding:0.1em 0.4em;border-radius:3px;">basic_publish</code></li>
+          <li>▸ Critério: 3 terminais respondem ao mesmo pedido</li>
+        </ul>
+        <div class="reveal r5 callout amber" style="margin-top:0.8rem;">
+          <span class="ico" style="color:var(--http-put);">⏱</span>
+          <span><strong>7 min · faça você mesmo.</strong> Qual linha de <code style="font-family:var(--mono);font-size:0.88em;background:rgba(200,166,75,0.15);padding:0.1em 0.3em;border-radius:3px;">estoque.py</code> você precisa mudar primeiro?</span>
+        </div>
+      </div>
+      <div class="reveal r4 diagram-wrap" style="margin-top:0;">
+        <div class="diagram-frame">
+          <svg viewBox="0 0 380 220" xmlns="http://www.w3.org/2000/svg"
+               style="font-family:'JetBrains Mono',ui-monospace,monospace;"
+               role="img" aria-label="Diagrama com componentes existentes sólidos e pagamento.py representado por blocos tracejados âmbar a serem criados pelo aluno">
+            <defs>
+              <marker id="arrS11" viewBox="0 0 8 8" refX="6" refY="4"
+                      markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M0,1 L6,4 L0,7 Z" fill="rgba(26,22,18,0.38)"/>
+              </marker>
+              <marker id="arrS11a" viewBox="0 0 8 8" refX="6" refY="4"
+                      markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M0,1 L6,4 L0,7 Z" fill="#c8a64b"/>
+              </marker>
+            </defs>
+            <!-- Broker border -->
+            <rect x="68" y="8" width="220" height="206" rx="8"
+                  fill="transparent" stroke="rgba(26,22,18,0.18)"
+                  stroke-width="1" stroke-dasharray="5,4"/>
+            <text x="178" y="21" text-anchor="middle" font-size="9" letter-spacing="1.5" fill="rgba(26,22,18,0.35)">BROKER</text>
+
+            <!-- gateway.py -->
+            <rect x="4" y="80" width="60" height="36" rx="6"
+                  fill="#c4744f" stroke="#a85e3d" stroke-width="1"/>
+            <text x="34" y="97" text-anchor="middle" font-size="9" fill="#fbf3e6">gateway</text>
+            <text x="34" y="110" text-anchor="middle" font-size="8" fill="rgba(251,243,230,0.75)">.py</text>
+
+            <!-- Arrow gw → exchange -->
+            <line x1="65" y1="98" x2="86" y2="98"
+                  stroke="rgba(26,22,18,0.35)" stroke-width="1.2" marker-end="url(#arrS11)"/>
+
+            <!-- Exchange -->
+            <rect x="88" y="72" width="76" height="52" rx="6"
+                  fill="#c8a64b" stroke="#a88030" stroke-width="1"/>
+            <text x="126" y="94" text-anchor="middle" font-size="9" fill="#1c1410">Exchange</text>
+            <text x="126" y="108" text-anchor="middle" font-size="8" fill="rgba(28,20,16,0.65)">pedidos</text>
+
+            <!-- Arrows ex → existing queues -->
+            <line x1="165" y1="86" x2="196" y2="62"
+                  stroke="rgba(26,22,18,0.32)" stroke-width="1.2" marker-end="url(#arrS11)"/>
+            <line x1="165" y1="98" x2="196" y2="112"
+                  stroke="rgba(26,22,18,0.32)" stroke-width="1.2" marker-end="url(#arrS11)"/>
+            <!-- Arrow ex → pagamento (dashed) -->
+            <line x1="165" y1="110" x2="196" y2="162"
+                  stroke="#c8a64b" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrS11a)"/>
+
+            <!-- Queue estoque (solid) -->
+            <rect x="198" y="44" width="62" height="30" rx="4"
+                  fill="rgba(107,142,78,0.15)" stroke="rgba(107,142,78,0.45)" stroke-width="1"/>
+            <text x="229" y="62" text-anchor="middle" font-size="9" fill="#1a1612">estoque</text>
+
+            <!-- Queue notificacao (solid) -->
+            <rect x="198" y="96" width="62" height="30" rx="4"
+                  fill="rgba(107,142,78,0.15)" stroke="rgba(107,142,78,0.45)" stroke-width="1"/>
+            <text x="229" y="114" text-anchor="middle" font-size="9" fill="#1a1612">notificacao</text>
+
+            <!-- Queue pagamento (dashed amber) -->
+            <rect x="198" y="148" width="62" height="30" rx="4"
+                  fill="rgba(200,166,75,0.08)" stroke="#c8a64b" stroke-width="1.5"
+                  stroke-dasharray="4,3"/>
+            <text x="229" y="166" text-anchor="middle" font-size="9" fill="#c8a64b">pagamento</text>
+
+            <!-- Arrows queues → consumers (existing solid) -->
+            <line x1="261" y1="59" x2="290" y2="72"
+                  stroke="rgba(26,22,18,0.28)" stroke-width="1.2" marker-end="url(#arrS11)"/>
+            <line x1="261" y1="111" x2="290" y2="112"
+                  stroke="rgba(26,22,18,0.28)" stroke-width="1.2" marker-end="url(#arrS11)"/>
+            <!-- Arrow pagamento queue → pagamento.py (dashed) -->
+            <line x1="261" y1="163" x2="290" y2="163"
+                  stroke="#c8a64b" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrS11a)"/>
+
+            <!-- estoque.py (solid) -->
+            <rect x="292" y="54" width="72" height="30" rx="4"
+                  fill="rgba(107,142,78,0.20)" stroke="rgba(107,142,78,0.45)" stroke-width="1"/>
+            <text x="328" y="72" text-anchor="middle" font-size="9" fill="#1a1612">estoque.py</text>
+
+            <!-- notificacao.py (solid) -->
+            <rect x="292" y="96" width="72" height="30" rx="4"
+                  fill="rgba(107,142,78,0.20)" stroke="rgba(107,142,78,0.45)" stroke-width="1"/>
+            <text x="328" y="114" text-anchor="middle" font-size="9" fill="#1a1612">notific..py</text>
+
+            <!-- pagamento.py (dashed amber) -->
+            <rect x="292" y="148" width="72" height="30" rx="4"
+                  fill="rgba(200,166,75,0.08)" stroke="#c8a64b" stroke-width="1.5"
+                  stroke-dasharray="4,3"
+                  aria-label="componente a ser criado pelo aluno"/>
+            <text x="328" y="162" text-anchor="middle" font-size="9" fill="#c8a64b">pagamento</text>
+            <text x="328" y="174" text-anchor="middle" font-size="9" fill="#c8a64b">.py  ?</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <span>IFRN · TADS · 2026.1</span>
+    <span>11 / 12</span>
+  </div>
+</section>
+
+<!-- ===================================================================
+     SLIDE 12 — Fechamento e conexão com o PI
+     =================================================================== -->
+<section class="slide" data-index="11">
+  <div class="top-bar">
+    <span class="lhs">Fechamento</span>
+    <span class="rhs">Unidade 03 · Programação de Serviços · 2026.1</span>
+  </div>
+  <div class="stage" style="justify-content:flex-start; padding-top:1rem;">
+    <div class="reveal r1 section-label">Bloco 7 · Síntese</div>
+    <h2 class="reveal r2 headline" style="font-size:clamp(2rem,4vw,3.4rem); margin-bottom:0.8rem;">
+      O que você <span class="accent">construiu</span> hoje.
+    </h2>
+    <div class="steps-grid" style="margin-bottom:0.8rem;">
+      <div class="reveal r3 step-card">
+        <div class="step-tag">— Producer</div>
+        <h3>Publica sem esperar</h3>
+        <p><code>basic_publish</code> + <code>routing_key</code> — o gateway retorna 201 antes dos consumers.</p>
+      </div>
+      <div class="reveal r4 step-card">
+        <div class="step-tag">— Exchange</div>
+        <h3>Roteia por routing key</h3>
+        <p>Tipo <code>direct</code>: cada routing_key entrega apenas na fila correspondente.</p>
+      </div>
+      <div class="reveal r5 step-card">
+        <div class="step-tag">— Consumer</div>
+        <h3>Processa independente</h3>
+        <p><code>queue_declare</code> + <code>queue_bind</code> + <code>basic_consume</code> — o padrão é replicável.</p>
+      </div>
+    </div>
+    <div class="reveal r6" style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; align-items:start;">
+      <div class="callout info">
+        <span class="ico">◎</span>
+        <span>
+          <strong>No Projeto Integrador:</strong> pedidos, notificações, logs e eventos de auditoria são candidatos naturais à mensageria. Qual parte do seu PI poderia virar uma mensagem em vez de chamada HTTP?
+        </span>
+      </div>
+      <div>
+        <div style="font-family:var(--mono);font-size:0.75rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem;font-weight:500;">— Leitura recomendada</div>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+          <a class="dl-link" href="https://www.cloudamqp.com/rabbitmq_ebook.html" target="_blank" rel="noopener">
+            <span class="dl-bullet">▸</span>RabbitMQ for Developers — CloudAMQP (e-book gratuito)
+          </a>
+          <a class="dl-link" href="https://www.rabbitmq.com/tutorials/tutorial-one-python" target="_blank" rel="noopener">
+            <span class="dl-bullet">▸</span>Official tutorial: Hello World with pika (rabbitmq.com)
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <span>IFRN · TADS · Sistemas Distribuídos · Prof. Demetrios Coutinho</span>
+    <span>12 / 12</span>
+  </div>
+</section>
+
+</div><!-- /slides-track -->
+</div><!-- /deck -->
+
+<script>
+/* =====================================================================
+   Controlador do deck — teclado · dots · setas · swipe
+   ===================================================================== */
+const track  = document.getElementById('track');
+const slides = Array.from(document.querySelectorAll('.slide'));
+const dots   = Array.from(document.querySelectorAll('.nav-dot'));
+const total  = slides.length;
+let current  = 0;
+
+function goTo(n) {
+  if (n < 0 || n >= total || n === current) return;
+  slides[current].classList.remove('active');
+  current = n;
+  track.style.transform = `translateX(${-current * 100}vw)`;
+  slides[current].classList.add('active');
+  dots.forEach((d, i) => d.classList.toggle('active', i === current));
+}
+
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    slides[0].classList.add('active');
+    dots[0].classList.add('active');
+  });
+});
+
+dots.forEach(d => d.addEventListener('click', () => goTo(+d.dataset.index)));
+document.getElementById('prev').addEventListener('click', () => goTo(current - 1));
+document.getElementById('next').addEventListener('click', () => goTo(current + 1));
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+  else if (e.key === 'ArrowLeft')              { e.preventDefault(); goTo(current - 1); }
+  else if (e.key === 'Home')                   { e.preventDefault(); goTo(0); }
+  else if (e.key === 'End')                    { e.preventDefault(); goTo(total - 1); }
+});
+
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend',   e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 50) goTo(dx < 0 ? current + 1 : current - 1);
+}, { passive: true });
+</script>
+</body>
+</html>
