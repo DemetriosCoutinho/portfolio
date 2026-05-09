@@ -1,0 +1,2101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forja de Heróis — POO · IFRN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ─── */
+:root {
+  --bg:#fef9f3; --card:#ffffff; --text:#1a1230; --muted:#5a5370; --border:#e8e0f5;
+  --l1:#8b5cf6; --l1-soft:#f3eeff; --l1-border:#d8b4fe;
+  --l2:#06b6d4; --l2-soft:#e0f9ff; --l2-border:#a5f3fc;
+  --l3:#f97316; --l3-soft:#fff3e9; --l3-border:#fed7aa;
+  --l4:#ec4899; --l4-soft:#fce7f3; --l4-border:#fbcfe8;
+  --boss:#7c3aed; --boss-soft:#ede9fe; --boss-border:#c4b5fd;
+  --ok:#22c55e; --ok-soft:#dcfce7;
+  --warn-bg:#fffbeb; --warn-border:#fcd34d; --warn-text:#92400e;
+  --radius:16px; --shadow:0 4px 20px rgba(0,0,0,.08);
+  --heading:'Baloo 2',sans-serif; --body:'Comic Neue',cursive;
+  --mono:'Fira Code','Courier New',monospace;
+}
+
+/* ─── RESET ─── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);background:var(--bg);color:var(--text);line-height:1.65;min-height:100vh;display:flex;flex-direction:column}
+
+/* ─── HERO ─── */
+.hero{
+  padding:clamp(2rem,5vw,3.5rem) clamp(1.25rem,5vw,3rem);
+  background:
+    radial-gradient(ellipse 900px 500px at 80% -20%,var(--l1-soft),transparent 60%),
+    radial-gradient(ellipse 600px 400px at 10% 110%,var(--l4-soft),transparent 60%),
+    var(--bg);
+  border-bottom:1px solid var(--border);text-align:center;position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background-image:radial-gradient(circle,rgba(139,92,246,.12) 1px,transparent 1px);
+  background-size:28px 28px;pointer-events:none;
+}
+.hero-inner{max-width:700px;margin:0 auto;position:relative}
+.dragon{display:inline-block;font-size:3rem;line-height:1;margin-bottom:.4rem;
+  animation:dragonBob 2.5s ease-in-out infinite;cursor:default;user-select:none}
+.dragon:hover{animation:dragonSpin .6s ease forwards}
+@keyframes dragonBob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-10px) rotate(3deg)}}
+@keyframes dragonSpin{0%{transform:rotate(0) scale(1)}50%{transform:rotate(200deg) scale(1.4)}100%{transform:rotate(360deg) scale(1)}}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:.5rem;
+  font-family:var(--heading);font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--l1);background:var(--l1-soft);padding:.35rem .9rem;border-radius:999px;
+  border:1px solid var(--l1-border);margin-bottom:.75rem;
+}
+.hero h1{
+  font-family:var(--heading);font-size:clamp(2rem,6vw,3.8rem);
+  font-weight:800;line-height:1.1;letter-spacing:-.02em;
+  background:linear-gradient(135deg,var(--l1) 0%,var(--l4) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:.5rem;
+}
+.hero-sub{font-size:clamp(.9rem,2.5vw,1.05rem);color:var(--muted);max-width:520px;margin:0 auto 1rem}
+
+/* ─── QUEST TABS ─── */
+.quest-tabs-wrap{position:sticky;top:0;z-index:50;background:var(--card);border-bottom:2px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.quest-tabs{display:flex;overflow-x:auto;scrollbar-width:none;padding:.45rem .75rem 0;gap:.3rem;max-width:960px;margin:0 auto}
+.quest-tabs::-webkit-scrollbar{display:none}
+.tab-btn{
+  display:flex;flex-direction:column;align-items:center;gap:.06rem;
+  border:2.5px solid var(--border);border-radius:12px 12px 0 0;border-bottom:none;
+  background:none;cursor:pointer;padding:.38rem .85rem .52rem;
+  font-family:var(--heading);transition:all 200ms;min-width:82px;white-space:nowrap;
+  position:relative;flex-shrink:0;
+}
+.tab-btn:hover{border-color:var(--ac,var(--l1));transform:translateY(-2px)}
+.tab-btn[aria-selected="true"]{
+  background:var(--ac-bg,var(--l1-soft));border-color:var(--ac,var(--l1));
+  transform:translateY(-2px);
+}
+.tab-btn[data-tab="1"]{--ac:var(--l1);--ac-bg:var(--l1-soft)}
+.tab-btn[data-tab="2"]{--ac:var(--l2);--ac-bg:var(--l2-soft)}
+.tab-btn[data-tab="3"]{--ac:var(--l3);--ac-bg:var(--l3-soft)}
+.tab-btn[data-tab="4"]{--ac:var(--l4);--ac-bg:var(--l4-soft)}
+.tab-btn[data-tab="5"]{--ac:var(--boss);--ac-bg:var(--boss-soft)}
+.tab-btn[data-tab="6"]{--ac:var(--ok);--ac-bg:var(--ok-soft)}
+.tab-num{font-size:1rem;font-weight:800;color:var(--ac,var(--muted));line-height:1}
+.tab-emoji{font-size:.95rem;line-height:1}
+.tab-name{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.tab-btn[aria-selected="true"] .tab-name{color:var(--ac)}
+.tab-done-badge{
+  position:absolute;top:-7px;right:-7px;width:18px;height:18px;border-radius:50%;
+  background:var(--ok);display:none;align-items:center;justify-content:center;
+  font-size:.62rem;color:#fff;font-weight:800;box-shadow:0 2px 6px rgba(34,197,94,.4);
+}
+.tab-btn.tab-done .tab-done-badge{display:flex}
+
+/* ─── HERO STATUS BAR ─── */
+.hero-status-bar{
+  display:flex;align-items:center;gap:.55rem;
+  padding:.32rem .75rem .4rem;max-width:960px;margin:0 auto;
+  border-top:1px solid var(--border);flex-wrap:wrap;
+}
+.hero-avatar{font-size:1.5rem;flex-shrink:0;transition:transform 400ms;cursor:help;position:relative}
+.hero-avatar:hover::after{
+  content:attr(data-level);position:absolute;left:50%;transform:translateX(-50%);
+  bottom:110%;background:var(--text);color:#fff;font-family:var(--heading);font-size:.65rem;
+  font-weight:700;white-space:nowrap;padding:.2rem .5rem;border-radius:6px;pointer-events:none;
+}
+.hero-level-txt{font-family:var(--heading);font-size:.7rem;font-weight:800;color:var(--l1);white-space:nowrap;flex-shrink:0}
+.xp-bar-bg{flex:1;min-width:50px;height:7px;background:var(--border);border-radius:999px;overflow:hidden}
+.xp-bar-fill{height:100%;background:linear-gradient(90deg,var(--l1),var(--l2),var(--ok));border-radius:999px;width:0%;transition:width 700ms cubic-bezier(.34,1.56,.64,1)}
+.xp-text{font-family:var(--heading);font-size:.65rem;font-weight:700;color:var(--muted);white-space:nowrap;flex-shrink:0}
+.medals-row{display:flex;gap:.22rem;align-items:center;flex-shrink:0}
+.medal{font-size:1.15rem;transition:all 300ms;filter:grayscale(1) opacity(.28);cursor:default;display:inline-block}
+.medal[title]{cursor:help}
+.medal.unlocked{filter:none;animation:medalPop .45s cubic-bezier(.34,1.56,.64,1)}
+@keyframes medalPop{0%{transform:scale(0) rotate(-20deg)}60%{transform:scale(1.3) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
+
+/* ─── PANELS ─── */
+[role="tabpanel"]{max-width:880px;margin:0 auto;padding:1.75rem 1.25rem 3rem}
+[role="tabpanel"][hidden]{display:none}
+.panel-l1{--lc:var(--l1);--ls:var(--l1-soft);--lb:var(--l1-border)}
+.panel-l2{--lc:var(--l2);--ls:var(--l2-soft);--lb:var(--l2-border)}
+.panel-l3{--lc:var(--l3);--ls:var(--l3-soft);--lb:var(--l3-border)}
+.panel-l4{--lc:var(--l4);--ls:var(--l4-soft);--lb:var(--l4-border)}
+.panel-boss{--lc:var(--boss);--ls:var(--boss-soft);--lb:var(--boss-border)}
+
+/* ─── SCENE BANNER ─── */
+.scene-banner{
+  text-align:center;padding:1.25rem 1rem;
+  background:var(--ls);border:2px solid var(--lb);border-radius:var(--radius);
+  margin-bottom:2rem;position:relative;overflow:hidden;
+}
+.scene-banner::before{
+  content:attr(data-bg);position:absolute;right:-1rem;top:-1rem;
+  font-size:7rem;opacity:.08;line-height:1;pointer-events:none;user-select:none;
+}
+.scene-art{font-size:2.2rem;line-height:1.4;display:block;margin-bottom:.3rem}
+.scene-title{font-family:var(--heading);font-size:1rem;font-weight:800;color:var(--lc)}
+.scene-sub{font-size:.84rem;color:var(--muted);margin-top:.2rem}
+
+/* ─── LAB BANNER ─── */
+.lab-banner{
+  display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;
+  gap:1rem;background:var(--ls);border:2px solid var(--lb);
+  border-left:5px solid var(--lc);border-radius:var(--radius);padding:1.1rem 1.5rem;margin-bottom:1.75rem;
+}
+.lab-banner-left h2{font-family:var(--heading);font-size:clamp(1.3rem,3.5vw,1.75rem);font-weight:800;color:var(--lc);margin:0 0 .4rem}
+.lab-meta{display:flex;flex-wrap:wrap;gap:.35rem}
+.lab-meta-item{font-family:var(--heading);font-size:.73rem;font-weight:600;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:.18rem .55rem;border-radius:999px;display:inline-flex;align-items:center;gap:.22rem}
+.time-badge{font-family:var(--heading);font-size:.8rem;font-weight:700;background:var(--lc);color:#fff;padding:.35rem .9rem;border-radius:999px;white-space:nowrap;align-self:flex-start}
+.lab-objective{margin-top:.75rem;font-size:.92rem;color:var(--text)}
+.lab-objective strong{color:var(--lc);font-family:var(--heading)}
+
+/* ─── BLOCKS ─── */
+.block{margin-bottom:2rem;scroll-margin-top:90px}
+.block-label{
+  display:inline-flex;align-items:center;gap:.42rem;
+  font-family:var(--heading);font-size:.76rem;font-weight:800;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--lc);margin-bottom:.85rem;
+}
+.block-label::before{content:'';display:inline-block;width:3px;height:1.1em;background:var(--lc);border-radius:2px}
+
+/* ─── NEXT STEP BUTTON ─── */
+.next-step-btn{
+  display:inline-flex;align-items:center;gap:.45rem;margin-top:1.25rem;
+  font-family:var(--heading);font-size:.9rem;font-weight:700;
+  background:var(--lc,var(--l1));color:#fff;border:none;
+  border-radius:999px;padding:.6rem 1.45rem;cursor:pointer;
+  transition:all 180ms;box-shadow:0 4px 14px rgba(0,0,0,.18);
+}
+.next-step-btn:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.22)}
+.next-step-btn:focus-visible{outline:3px solid var(--lc,var(--l1));outline-offset:2px}
+.next-step-btn.goto-next-lab{
+  background:linear-gradient(135deg,var(--l1),var(--l4));
+  box-shadow:0 4px 18px rgba(139,92,246,.4);font-size:.95rem;padding:.65rem 1.6rem;
+}
+.next-step-btn.goto-next-lab:hover{box-shadow:0 8px 28px rgba(139,92,246,.55)}
+
+/* ─── LAB COMPLETE BANNER ─── */
+.lab-complete-banner{
+  margin-top:2.5rem;border-radius:var(--radius);border:2px dashed var(--border);
+  padding:1.5rem;text-align:center;transition:all 400ms;background:var(--card);
+}
+.lab-complete-banner.ready{
+  border-style:solid;border-color:var(--ok);background:var(--ok-soft);
+  animation:bannerGlow 2s ease infinite alternate;
+}
+@keyframes bannerGlow{from{box-shadow:0 0 0 rgba(34,197,94,0)}to{box-shadow:0 0 24px rgba(34,197,94,.3)}}
+.banner-emoji{font-size:2.5rem;display:block;margin-bottom:.5rem}
+.lab-complete-banner h3{font-family:var(--heading);font-size:1.15rem;font-weight:800;color:var(--text);margin-bottom:.35rem}
+.lab-complete-banner p{font-size:.88rem;color:var(--muted);margin-bottom:.9rem}
+
+/* ─── CONTENT TYPOGRAPHY ─── */
+.content h3{font-family:var(--heading);font-size:1.05rem;font-weight:700;color:var(--text);margin:1.3rem 0 .5rem}
+.content h3:first-child{margin-top:0}
+.content p{margin-bottom:.75rem;font-size:.94rem}
+.content ul,.content ol{padding-left:1.3rem;margin-bottom:.8rem}
+.content li{margin-bottom:.3rem;font-size:.92rem}
+
+/* ─── BOXES ─── */
+.briefing-box{background:var(--ls);border:2px solid var(--lb);border-left:5px solid var(--lc);border-radius:var(--radius);padding:1rem 1.35rem}
+.briefing-box p{font-size:.93rem;margin-bottom:.4rem}
+.briefing-box p:last-child{margin-bottom:0}
+.briefing-box strong{color:var(--lc);font-family:var(--heading)}
+.build-chips{display:flex;flex-wrap:wrap;gap:.32rem;margin-top:.7rem}
+.build-chip{font-family:var(--heading);font-size:.72rem;font-weight:700;background:var(--card);border:1.5px solid var(--lb);color:var(--lc);padding:.2rem .6rem;border-radius:999px}
+.concept-box{background:var(--ls);border:1.5px solid var(--lb);border-left:4px solid var(--lc);border-radius:12px;padding:.9rem 1.15rem;margin-bottom:1rem}
+.concept-box .box-label{font-family:var(--heading);font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--lc);margin-bottom:.35rem}
+.warn-box{background:var(--warn-bg);border:1.5px solid var(--warn-border);border-left:4px solid #f59e0b;border-radius:12px;padding:.9rem 1.15rem;margin:1rem 0}
+.warn-box .box-label{font-family:var(--heading);font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--warn-text);margin-bottom:.35rem}
+.world-box{background:var(--ok-soft);border:1.5px solid #86efac;border-left:4px solid var(--ok);border-radius:12px;padding:.9rem 1.15rem;margin:1rem 0}
+.world-box .box-label{font-family:var(--heading);font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#15803d;margin-bottom:.35rem}
+
+/* ─── CODE ─── */
+.code-wrap{position:relative;margin:1rem 0;border-radius:12px;overflow:hidden;border:1.5px solid var(--border);box-shadow:var(--shadow)}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:.45rem .9rem;background:#1e1b2e;font-family:var(--heading);font-size:.7rem;font-weight:700;letter-spacing:.06em;color:#9b97b8}
+.code-dots{display:flex;gap:5px}
+.code-dots span{width:10px;height:10px;border-radius:50%}
+.dot-r{background:#ff5f57}.dot-y{background:#ffbd2e}.dot-g{background:#28c840}
+.copy-btn{font-family:var(--heading);font-size:.68rem;font-weight:700;background:rgba(255,255,255,.1);color:#c4c0e8;border:1px solid rgba(255,255,255,.15);padding:.2rem .6rem;border-radius:6px;cursor:pointer;transition:all 180ms;white-space:nowrap}
+.copy-btn:hover{background:rgba(255,255,255,.22);color:#fff}
+pre{background:#13111e;color:#e2deff;padding:1rem 1.2rem;margin:0;overflow-x:auto;font-family:var(--mono);font-size:.84rem;line-height:1.7;tab-size:4}
+.kw{color:#c084fc;font-weight:600}.str{color:#86efac}.cmt{color:#6b7280;font-style:italic}
+.fn{color:#7dd3fc}.num{color:#fb923c}.cl{color:#fbbf24}.dec{color:#f472b6}
+
+/* ─── DICA DETAILS ─── */
+.dica-details{margin-top:.5rem}
+.dica-details summary{font-family:var(--heading);font-size:.74rem;font-weight:700;color:var(--l2);cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .55rem;border:1px solid var(--l2-border);border-radius:6px;background:var(--l2-soft);transition:all 150ms}
+.dica-details summary:hover{background:var(--l2-border)}
+.dica-details summary::-webkit-details-marker{display:none}
+.dica-details[open] summary{background:var(--l2-border)}
+.dica-body{font-size:.85rem;color:var(--muted);margin-top:.4rem;padding:.55rem .75rem;background:var(--l2-soft);border-radius:8px;border:1px solid var(--l2-border)}
+
+/* ─── TODO LIST ─── */
+.todo-list{list-style:none;padding:0;margin:1rem 0}
+.todo-item{display:flex;align-items:flex-start;gap:.6rem;padding:.55rem .8rem;margin-bottom:.38rem;background:var(--card);border:1.5px solid var(--border);border-radius:10px;transition:border-color 180ms}
+.todo-item:hover{border-color:var(--lc)}
+.todo-tag{font-family:var(--heading);font-size:.65rem;font-weight:800;color:var(--lc);background:var(--ls);padding:.08rem .4rem;border-radius:6px;border:1px solid var(--lb);white-space:nowrap;margin-top:.1rem;flex-shrink:0}
+.todo-tag-bonus{background:#fce7f3;color:#be185d;border-color:#fbcfe8}
+.todo-text{font-size:.9rem;flex:1}
+
+/* ─── CHECKLIST ─── */
+.checklist{list-style:none;padding:0;margin:1.1rem 0}
+.checklist li{display:flex;align-items:center;gap:.65rem;padding:.45rem .8rem;margin-bottom:.36rem;background:var(--card);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all 180ms;font-size:.9rem}
+.checklist li:hover{border-color:var(--ok)}
+.checklist li.checked{background:var(--ok-soft);border-color:#86efac;text-decoration:line-through;color:var(--muted)}
+.check-box{width:20px;height:20px;border-radius:6px;flex-shrink:0;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;transition:all 180ms}
+.checklist li.checked .check-box{background:var(--ok);border-color:var(--ok)}
+.check-icon{width:12px;height:12px;stroke:#fff;display:none}
+.checklist li.checked .check-icon{display:block}
+
+/* ─── QUESTIONS ─── */
+.question-card{background:var(--card);border:1.5px solid var(--border);border-left:4px solid var(--lc);border-radius:12px;padding:.9rem 1.05rem;margin-bottom:.85rem}
+.q-num{font-family:var(--heading);font-size:.66rem;font-weight:800;color:var(--lc);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+.question-card p{font-size:.9rem;margin:0 0 .52rem}
+.q-btns{display:flex;gap:.42rem;flex-wrap:wrap}
+.q-copy-btn{font-family:var(--heading);font-size:.68rem;font-weight:700;color:var(--muted);background:var(--bg);border:1px solid var(--border);padding:.16rem .55rem;border-radius:6px;cursor:pointer;transition:all 150ms}
+.q-copy-btn:hover{color:var(--lc);border-color:var(--lc)}
+.pense-check-btn{display:inline-flex;align-items:center;gap:.3rem;font-family:var(--heading);font-size:.68rem;font-weight:700;color:var(--muted);background:var(--bg);border:1.5px solid var(--border);padding:.16rem .58rem;border-radius:6px;cursor:pointer;transition:all 150ms}
+.pense-check-btn:hover{border-color:var(--ok);color:#15803d}
+.pense-check-btn.checked{background:var(--ok-soft);border-color:#86efac;color:#15803d}
+
+/* ─── DOWNLOADS ─── */
+.dl-inline{display:flex;flex-wrap:wrap;gap:.38rem;margin:.65rem 0}
+.dl-card-sm{display:inline-flex;align-items:center;gap:.3rem;padding:.32rem .72rem;background:var(--card);border:1.5px solid var(--border);border-radius:10px;text-decoration:none;color:var(--text);font-family:var(--heading);font-size:.76rem;font-weight:700;transition:all 150ms}
+.dl-card-sm:hover{border-color:var(--lc);color:var(--lc);transform:translateY(-1px)}
+.nota-entrega{background:var(--warn-bg);border:1.5px solid var(--warn-border);border-radius:10px;padding:.6rem .9rem;margin-top:.85rem;font-size:.83rem;color:var(--warn-text);font-family:var(--heading);font-weight:600}
+
+/* ─── TABLE ─── */
+.tbl{width:100%;border-collapse:collapse;font-size:.84rem}
+.tbl th{text-align:left;padding:.35rem .52rem;font-family:var(--heading);border-bottom:1.5px solid var(--lb)}
+.tbl td{padding:.32rem .52rem}
+.tbl tr:hover td{background:var(--ls)}
+
+/* ─── ENTREGA ─── */
+.score-panel{background:linear-gradient(135deg,var(--l1-soft),var(--l4-soft));border:2px solid var(--l1-border);border-radius:var(--radius);padding:1.3rem;margin-bottom:1.75rem}
+.score-panel h3{font-family:var(--heading);font-size:1.1rem;font-weight:800;margin-bottom:.75rem;color:var(--text)}
+.xp-full-bg{height:13px;background:var(--border);border-radius:999px;overflow:hidden;margin-bottom:.4rem}
+.xp-full-fill{height:100%;border-radius:999px;width:0%;background:linear-gradient(90deg,var(--l1),var(--l2),var(--ok));transition:width 900ms cubic-bezier(.34,1.56,.64,1)}
+.score-detail{font-family:var(--heading);font-size:.79rem;font-weight:700;color:var(--muted)}
+.entrega-box{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:1.5rem}
+.entrega-box h2{font-family:var(--heading);font-size:1.35rem;font-weight:800;margin-bottom:.9rem;color:var(--text)}
+.steps{list-style:none;padding:0;counter-reset:step}
+.steps li{counter-increment:step;display:flex;align-items:flex-start;gap:1rem;margin-bottom:.9rem;font-size:.93rem}
+.steps li::before{content:counter(step);font-family:var(--heading);font-weight:800;font-size:.82rem;background:var(--l1);color:#fff;width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.05rem}
+.steps code{font-family:var(--mono);font-size:.83em;background:rgba(139,92,246,.1);color:var(--l1);padding:.08rem .36rem;border-radius:4px}
+.entrega-btns{display:flex;flex-wrap:wrap;gap:.65rem;margin-top:1.3rem}
+.entrega-btn{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--heading);font-size:.87rem;font-weight:700;padding:.6rem 1.3rem;border-radius:999px;text-decoration:none;transition:all 180ms;cursor:pointer;border:none}
+.btn-primary{background:var(--l1);color:#fff;box-shadow:0 4px 14px rgba(139,92,246,.4)}
+.btn-primary:hover{background:#7c3aed;transform:translateY(-1px)}
+.btn-secondary{background:var(--card);color:var(--text);border:1.5px solid var(--border)}
+.btn-secondary:hover{border-color:var(--l4);color:var(--l4)}
+.btn-classroom{background:linear-gradient(135deg,#1a73e8,#0f5fc0);color:#fff;box-shadow:0 4px 14px rgba(26,115,232,.35)}
+.btn-classroom:hover{opacity:.9;transform:translateY(-1px)}
+
+/* ─── FOOTER ─── */
+footer{border-top:1px solid var(--border);padding:1.1rem 1.5rem;text-align:center;font-family:var(--heading);font-size:.79rem;color:var(--muted)}
+footer a{color:var(--l1);text-decoration:none}
+footer a:hover{text-decoration:underline}
+
+/* ─── CONFETTI ─── */
+#confetti-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;display:none}
+
+/* ─── FILE CARD (details expansível) ─── */
+.file-card{border:1.5px solid var(--border);border-radius:12px;overflow:hidden;margin:.38rem 0;background:var(--card)}
+.file-card summary{display:flex;align-items:center;gap:.5rem;padding:.45rem .75rem;cursor:pointer;list-style:none;user-select:none;flex-wrap:wrap;gap:.38rem}
+.file-card summary::-webkit-details-marker{display:none}
+.file-card summary:hover{background:var(--ls,var(--l1-soft))}
+.file-card[open] summary{background:var(--ls,var(--l1-soft));border-bottom:1px solid var(--border)}
+.file-card-name{font-family:var(--heading);font-size:.8rem;font-weight:700;flex:1;color:var(--text)}
+.file-card-toggle{font-family:var(--heading);font-size:.67rem;font-weight:700;color:var(--muted);padding:.15rem .45rem;border:1px solid var(--border);border-radius:6px;background:none}
+.file-card[open] .file-card-toggle::before{content:'▲ Recolher'}
+.file-card:not([open]) .file-card-toggle::before{content:'▼ Ver código'}
+.file-card-actions{display:flex;gap:.3rem;flex-shrink:0}
+.btn-copy-file,.btn-dl-file{font-family:var(--heading);font-size:.67rem;font-weight:700;padding:.15rem .52rem;border-radius:6px;cursor:pointer;transition:all 150ms;white-space:nowrap}
+.btn-copy-file{background:var(--l2-soft);border:1px solid var(--l2-border);color:var(--l2)}
+.btn-copy-file:hover{background:var(--l2-border)}
+.btn-dl-file{background:var(--l1-soft);border:1px solid var(--l1-border);color:var(--l1)}
+.btn-dl-file:hover{background:var(--l1-border)}
+.file-card pre{background:#13111e;color:#e2deff;padding:1rem 1.2rem;margin:0;overflow-x:auto;font-family:var(--mono);font-size:.8rem;line-height:1.65;tab-size:4;border-radius:0}
+.file-cards-wrap{display:flex;flex-direction:column;gap:.25rem;margin:.7rem 0 1rem}
+
+/* ─── STEP CARD ─── */
+.block{
+  background:var(--card);
+  border:1.5px solid var(--border);
+  border-left:4px solid var(--lc,var(--l1));
+  border-radius:var(--radius);
+  padding:1.25rem 1.5rem;
+  margin-bottom:0;
+}
+.block-label{margin-bottom:.75rem}
+
+/* ─── STEP DIVIDER ─── */
+.step-divider{border:none;border-top:1.5px solid var(--border);position:relative;margin:1.5rem 0}
+.step-divider::after{content:attr(data-label);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg);padding:0 .75rem;font-family:var(--heading);font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--lc,var(--muted));white-space:nowrap}
+
+/* ─── CONCEITO EXPANSÍVEL ─── */
+.explica-mais{margin-top:.6rem}
+.explica-mais>summary{font-family:var(--heading);font-size:.74rem;font-weight:700;color:var(--l2);cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:.3rem;padding:.22rem .6rem;border:1px solid var(--l2-border);border-radius:6px;background:var(--l2-soft);transition:all 150ms}
+.explica-mais>summary::-webkit-details-marker{display:none}
+.explica-mais>summary:hover{background:var(--l2-border)}
+.explica-mais[open]>summary{background:var(--l2-border)}
+.explica-mais .extra{margin-top:.6rem;border-left:3px solid var(--l2-border);padding-left:.8rem}
+
+/* ─── DOCX HERO BTN ─── */
+.docx-hero-btn{display:inline-flex;align-items:center;gap:.45rem;font-family:var(--heading);font-size:.82rem;font-weight:700;padding:.5rem 1.2rem;border-radius:999px;background:var(--l1);color:#fff;text-decoration:none;cursor:pointer;border:none;box-shadow:0 3px 12px rgba(139,92,246,.35);transition:all 180ms;margin-top:.85rem}
+.docx-hero-btn:hover{background:#7c3aed;transform:translateY(-1px)}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:640px){
+  .tab-btn{min-width:68px;padding:.32rem .5rem .46rem}
+  .tab-num{font-size:.9rem}
+  .tab-name{font-size:.56rem}
+  .medals-row{display:none}
+  .lab-banner{flex-direction:column}
+  .entrega-btns{flex-direction:column}
+}
+@media(max-width:400px){
+  .tab-btn{min-width:58px}
+  .tab-emoji{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ HERO ══ -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="dragon" title="Toque no dragão!">🐉</div>
+    <div class="hero-eyebrow">POO · IFRN-PF · 2º Ano</div>
+    <h1>Forja de Heróis</h1>
+    <p class="hero-sub">Construa um sistema de RPG em Python em 4 labs — módulos, sobrecarga, herança e polimorfismo.</p>
+    <button class="docx-hero-btn js-download" data-href="template-entrega.docx" data-name="template-entrega.docx">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      📄 Baixar template de entrega (.docx)
+    </button>
+  </div>
+</header>
+
+<!-- ══ QUEST TABS + HERO STATUS ══ -->
+<div class="quest-tabs-wrap" id="tabs-wrap">
+  <nav class="quest-tabs" role="tablist" aria-label="Laboratórios da Forja de Heróis">
+    <button class="tab-btn" role="tab" id="tab-1" data-tab="1"
+            aria-selected="true" aria-controls="panel-1"
+            onclick="switchTab(1)">
+      <span class="tab-done-badge" aria-hidden="true">✓</span>
+      <span class="tab-num">①</span>
+      <span class="tab-emoji">🏘️</span>
+      <span class="tab-name">Lab 1 · Vila</span>
+    </button>
+    <button class="tab-btn" role="tab" id="tab-2" data-tab="2"
+            aria-selected="false" aria-controls="panel-2"
+            onclick="switchTab(2)">
+      <span class="tab-done-badge" aria-hidden="true">✓</span>
+      <span class="tab-num">②</span>
+      <span class="tab-emoji">🛒</span>
+      <span class="tab-name">Lab 2 · Mercado</span>
+    </button>
+    <button class="tab-btn" role="tab" id="tab-3" data-tab="3"
+            aria-selected="false" aria-controls="panel-3"
+            onclick="switchTab(3)">
+      <span class="tab-done-badge" aria-hidden="true">✓</span>
+      <span class="tab-num">③</span>
+      <span class="tab-emoji">🏰</span>
+      <span class="tab-name">Lab 3 · Guilda</span>
+    </button>
+    <button class="tab-btn" role="tab" id="tab-4" data-tab="4"
+            aria-selected="false" aria-controls="panel-4"
+            onclick="switchTab(4)">
+      <span class="tab-done-badge" aria-hidden="true">✓</span>
+      <span class="tab-num">④</span>
+      <span class="tab-emoji">⚔️</span>
+      <span class="tab-name">Lab 4 · Arena</span>
+    </button>
+    <button class="tab-btn" role="tab" id="tab-5" data-tab="5"
+            aria-selected="false" aria-controls="panel-5"
+            onclick="switchTab(5)">
+      <span class="tab-done-badge" aria-hidden="true">✓</span>
+      <span class="tab-num">⑤</span>
+      <span class="tab-emoji">🐉</span>
+      <span class="tab-name">Desafio</span>
+    </button>
+    <button class="tab-btn" role="tab" id="tab-6" data-tab="6"
+            aria-selected="false" aria-controls="panel-6"
+            onclick="switchTab(6)">
+      <span class="tab-done-badge" aria-hidden="true">✓</span>
+      <span class="tab-num">⑥</span>
+      <span class="tab-emoji">📤</span>
+      <span class="tab-name">Entrega</span>
+    </button>
+  </nav>
+  <div class="hero-status-bar">
+    <span class="hero-avatar" id="hero-avatar" data-level="Novato" title="Seu nível atual" aria-label="Avatar do herói">🧒</span>
+    <span class="hero-level-txt" id="hero-level">Novato</span>
+    <div class="xp-bar-bg" aria-hidden="true"><div class="xp-bar-fill" id="xp-fill"></div></div>
+    <span class="xp-text" id="xp-text" aria-live="polite">0 de 40 XP</span>
+    <div class="medals-row" aria-label="Medalhas conquistadas">
+      <span class="medal" id="medal-1" title="📜 Pergaminho da Sabedoria — Lab 1" aria-label="Lab 1 não concluído">📜</span>
+      <span class="medal" id="medal-2" title="💎 Cristal da Sobrecarga — Lab 2" aria-label="Lab 2 não concluído">💎</span>
+      <span class="medal" id="medal-3" title="🏰 Escudo da Herança — Lab 3" aria-label="Lab 3 não concluído">🏰</span>
+      <span class="medal" id="medal-4" title="⚔️ Lâmina do Polimorfismo — Arena" aria-label="Arena não concluída">⚔️</span>
+      <span class="medal" id="medal-5" title="👑 Coroa do Mestre — Boss Final" aria-label="Boss não derrotado">👑</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<main>
+
+<!-- ══ PANEL 1 — Lab 1 · Vila ══ -->
+<div role="tabpanel" id="panel-1" aria-labelledby="tab-1" class="panel-l1">
+
+  <div class="scene-banner" data-bg="🏘️">
+    <span class="scene-art">🌲 🏘️ 🌲<br>⚔️</span>
+    <div class="scene-title">A jornada começa na Vila dos Módulos</div>
+    <div class="scene-sub">Organize seus feitiços em arquivos separados e documente cada um deles.</div>
+  </div>
+
+  <div class="lab-banner">
+    <div class="lab-banner-left">
+      <h2>⚔️ Lab 1 — Módulos &amp; Docstrings</h2>
+      <div class="lab-meta">
+        <span class="lab-meta-item">⏱ ~35 min</span>
+        <span class="lab-meta-item">👥 Dupla</span>
+        <span class="lab-meta-item">🐍 Python 3.10+</span>
+      </div>
+      <p class="lab-objective"><strong>Objetivo:</strong> organizar classes em arquivos separados (módulos) e documentá-las com docstrings no formato PEP 257.</p>
+    </div>
+    <span class="time-badge">⏱ ~35 min</span>
+  </div>
+
+  <!-- Step 1: Briefing -->
+  <div class="block" id="l1-briefing">
+    <div class="block-label">🎯 Briefing</div>
+    <div class="briefing-box">
+      <p>Você vai criar o <strong>esqueleto do miniprojeto RPG</strong>: um módulo de dados (<code>dado.py</code>), a classe <code>Personagem</code> e um ponto de entrada (<code>main.py</code>). O código deste lab será reutilizado nos labs seguintes — se quebrar aqui, quebra em tudo!</p>
+      <p>Trabalhe <strong>na ordem dos TODOs</strong> — cada tarefa depende da anterior.</p>
+      <div class="build-chips">
+        <span class="build-chip">📄 dado.py</span>
+        <span class="build-chip">🧙 personagem.py</span>
+        <span class="build-chip">▶️ main.py</span>
+      </div>
+    </div>
+    <button class="next-step-btn" onclick="nextStep('l1-conceito')" aria-label="Ir para Conceito">💡 Próxima etapa: Conceito →</button>
+  </div>
+
+  <!-- Step 2: Conceito -->
+  <div class="block content" id="l1-conceito">
+    <div class="block-label">💡 Conceito</div>
+    <div class="concept-box">
+      <div class="box-label">📦 Módulos</div>
+      <p>Cada arquivo <code>.py</code> é um módulo. Você escolhe o que importar:</p>
+      <ul>
+        <li><code>import modulo</code> — traz o módulo inteiro; acessa com <code>modulo.Classe()</code></li>
+        <li><code>from modulo import Classe</code> — traz só a classe; acessa direto</li>
+        <li><code>from modulo import Classe as C</code> — apelido para evitar conflito de nomes</li>
+      </ul>
+    </div>
+    <div class="warn-box">
+      <div class="box-label">⚠ Evite isso</div>
+      <p><code>from database import *</code> traz <strong>tudo</strong> para o namespace e pode sobrescrever nomes que você já tinha. Difícil rastrear de onde cada nome veio.</p>
+    </div>
+    <div class="concept-box">
+      <div class="box-label">📝 Docstrings (PEP 257)</div>
+      <p>Uma <strong>docstring</strong> é uma string logo abaixo de <code>def</code> ou <code>class</code>. Ela fica acessível em <code>__doc__</code> e aparece no <code>help()</code>. Use <code>Args:</code> e <code>Returns:</code> para documentar parâmetros.</p>
+    </div>
+    <div class="world-box">
+      <div class="box-label">🌍 No mundo real</div>
+      <p>Execute: <code>python -c "import rich; help(rich)"</code> — você verá as docstrings dos desenvolvedores da biblioteca. É exatamente isso que você vai produzir.</p>
+    </div>
+    <button class="next-step-btn" onclick="nextStep('l1-exemplo')">▶ Próxima etapa: Exemplo →</button>
+  </div>
+
+  <!-- Step 3: Exemplo -->
+  <div class="block content" id="l1-exemplo">
+    <div class="block-label">▶ Exemplo</div>
+    <h3>Importando módulos</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        <span>database.py &amp; produtos.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      </div>
+      <pre><span class="cmt"># arquivo: database.py</span>
+<span class="kw">class</span> <span class="cl">Database</span>:
+    <span class="kw">def</span> <span class="fn">conectar</span>(<span class="kw">self</span>):
+        <span class="fn">print</span>(<span class="str">"Conectado!"</span>)
+
+<span class="cmt"># arquivo: produtos.py</span>
+<span class="kw">import</span> database                  <span class="cmt"># opção A: módulo inteiro</span>
+db = database.<span class="cl">Database</span>()
+
+<span class="kw">from</span> database <span class="kw">import</span> <span class="cl">Database</span>    <span class="cmt"># opção B: só a classe</span>
+db = <span class="cl">Database</span>()</pre>
+    </div>
+    <h3>Docstring no formato PEP 257</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        <span>personagem.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      </div>
+      <pre><span class="kw">class</span> <span class="cl">Personagem</span>:
+    <span class="str">"""Representa um herói no mundo de Forja de Heróis."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, nome: <span class="fn">str</span>):
+        <span class="str">"""Inicializa o personagem com o nome fornecido.
+
+        Args:
+            nome: Nome do herói.
+        """</span>
+        <span class="kw">self</span>.nome = nome
+
+<span class="cmt"># Testando no terminal:</span>
+<span class="fn">print</span>(<span class="cl">Personagem</span>.__doc__)
+<span class="fn">help</span>(<span class="cl">Personagem</span>.__init__)</pre>
+    </div>
+    <button class="next-step-btn" onclick="nextStep('l1-maos')">🔨 Próxima etapa: Mãos à obra →</button>
+  </div>
+
+  <!-- Step 4: Mãos à obra -->
+  <div class="block content" id="l1-maos">
+    <div class="block-label">🔨 Mãos à obra</div>
+    <p>Baixe (ou copie) os arquivos abaixo e abra no editor. Complete os TODOs <strong>na ordem</strong>:</p>
+    <div class="file-cards-wrap">
+      <details class="file-card">
+        <summary>
+          <span class="file-card-name">🎲 dado.py</span>
+          <span class="file-card-toggle"></span>
+          <span class="file-card-actions">
+            <button class="btn-copy-file" onclick="copyFileCard(event,this)">Copiar</button>
+            <button class="btn-dl-file js-download" data-href="scaffold/lab1-modulos-docstrings/dado.py" data-name="dado.py" onclick="event.stopPropagation()">Baixar</button>
+          </span>
+        </summary>
+        <pre>"""
+Módulo de utilitários para rolagem de dados.
+
+Este módulo é importado por outros módulos do projeto Forja de Heróis.
+"""
+
+import random
+
+
+def rolar_dado(lados: int = 6) -> int:
+    """Rola um dado com o número de lados especificado.
+
+    Args:
+        lados: Número de lados do dado. Padrão: 6.
+
+    Returns:
+        Resultado inteiro entre 1 e lados (inclusive).
+    """
+    return random.randint(1, lados)
+
+
+def rolar_atributo() -> int:
+    """Rola 4d6 e descarta o menor resultado (método padrão D&amp;D 5e).
+
+    Returns:
+        Soma dos 3 maiores resultados de 4 rolagens de d6.
+    """
+    # TODO 1-A: implemente esta função.
+    # Passo a passo:
+    #   1. Crie uma lista com 4 chamadas a rolar_dado(6)
+    #   2. Remova o menor valor (dica: min() e list.remove())
+    #   3. Retorne a soma dos 3 restantes
+    pass  # apague este 'pass' quando implementar
+
+
+def rolar_todos_atributos() -> dict:
+    """Rola os 6 atributos de um personagem.
+
+    Returns:
+        Dicionário com chaves FOR, DES, CON, SAB, INT, CAR.
+    """
+    # TODO 1-B: use rolar_atributo() para preencher os 6 atributos.
+    # Retorne um dict com as chaves: "FOR", "DES", "CON", "SAB", "INT", "CAR"
+    pass  # apague este 'pass' quando implementar</pre>
+      </details>
+      <details class="file-card">
+        <summary>
+          <span class="file-card-name">🧙 personagem.py</span>
+          <span class="file-card-toggle"></span>
+          <span class="file-card-actions">
+            <button class="btn-copy-file" onclick="copyFileCard(event,this)">Copiar</button>
+            <button class="btn-dl-file js-download" data-href="scaffold/lab1-modulos-docstrings/personagem.py" data-name="personagem.py" onclick="event.stopPropagation()">Baixar</button>
+          </span>
+        </summary>
+        <pre>"""Módulo que define a classe Personagem para o projeto Forja de Heróis."""
+
+# TODO 1-C: importe rolar_todos_atributos do módulo dado
+# Sintaxe: from dado import rolar_todos_atributos
+
+
+class Personagem:
+    """Representa um herói com 6 atributos numéricos (estilo D&amp;D 5e)."""
+
+    def __init__(self, nome: str, rolar: bool = True):
+        """Inicializa o personagem; se rolar=True gera atributos aleatórios."""
+        self.nome = nome
+
+        if rolar:
+            # TODO 1-D: chame rolar_todos_atributos() e atribua cada valor.
+            # Dica:
+            #   atributos = rolar_todos_atributos()
+            #   self.forca = atributos["FOR"]  ... e assim por diante
+            pass  # apague este 'pass' quando implementar
+        else:
+            self.forca = 0
+            self.destreza = 0
+            self.constituicao = 0
+            self.sabedoria = 0
+            self.inteligencia = 0
+            self.carisma = 0
+
+    def nivel_total(self) -> int:
+        """Retorna a soma dos 6 atributos."""
+        return (
+            self.forca + self.destreza + self.constituicao
+            + self.sabedoria + self.inteligencia + self.carisma
+        )
+
+    def exibir_ficha(self) -> None:
+        """Imprime a ficha no terminal.
+
+        Exemplo de saída esperada:
+            === Arador ===
+            FOR: 15  DES: 12  CON: 14
+            SAB:  9  INT: 10  CAR: 13
+            Nível total: 73
+        """
+        # TODO 1-E: implemente usando print(). Não use rich aqui — isso é Lab 2.
+        pass  # apague este 'pass' quando implementar</pre>
+      </details>
+      <details class="file-card">
+        <summary>
+          <span class="file-card-name">▶️ main.py</span>
+          <span class="file-card-toggle"></span>
+          <span class="file-card-actions">
+            <button class="btn-copy-file" onclick="copyFileCard(event,this)">Copiar</button>
+            <button class="btn-dl-file js-download" data-href="scaffold/lab1-modulos-docstrings/main.py" data-name="main.py" onclick="event.stopPropagation()">Baixar</button>
+          </span>
+        </summary>
+        <pre>"""Ponto de entrada do Lab 1 — Forja de Heróis."""
+
+from personagem import Personagem
+
+
+def main():
+    """Cria dois personagens e compara seus níveis."""
+    # TODO 1-F: crie dois personagens com nomes da sua escolha,
+    # exiba a ficha de cada um e mostre quem tem o maior nivel_total().
+    # Exemplo:
+    #   heroi1 = Personagem("Arador")
+    #   heroi1.exibir_ficha()
+    pass
+
+
+if __name__ == "__main__":
+    main()</pre>
+      </details>
+    </div>
+    <ul class="todo-list">
+      <li class="todo-item"><span class="todo-tag">1-A</span><span class="todo-text">Em <code>dado.py</code>: implemente <code>rolar_atributo()</code> — 4d6, descarta o menor, soma os 3 restantes. <details class="dica-details"><summary>💡 Dica</summary><div class="dica-body">Use <code>[rolar_dado(6) for _ in range(4)]</code> para criar a lista. Depois, <code>min()</code> e <code>list.remove()</code> removem o menor.</div></details></span></li>
+      <li class="todo-item"><span class="todo-tag">1-B</span><span class="todo-text">Em <code>dado.py</code>: implemente <code>rolar_todos_atributos()</code> — retorna dict com FOR, DES, CON, SAB, INT, CAR.</span></li>
+      <li class="todo-item"><span class="todo-tag">1-C</span><span class="todo-text">Em <code>personagem.py</code>: adicione o import de <code>rolar_todos_atributos</code> do módulo <code>dado</code>. <details class="dica-details"><summary>💡 Dica</summary><div class="dica-body"><code>from dado import rolar_todos_atributos</code> — importa só a função, acesse diretamente.</div></details></span></li>
+      <li class="todo-item"><span class="todo-tag">1-D</span><span class="todo-text">Em <code>personagem.py</code>: implemente <code>__init__</code> — chame <code>rolar_todos_atributos()</code> e atribua os 6 valores.</span></li>
+      <li class="todo-item"><span class="todo-tag">1-E</span><span class="todo-text">Em <code>personagem.py</code>: implemente <code>exibir_ficha()</code> usando <code>print()</code>. Mostre nome e os 6 atributos.</span></li>
+      <li class="todo-item"><span class="todo-tag">1-F</span><span class="todo-text">Em <code>main.py</code>: crie dois personagens, exiba as fichas e imprima quem tem o maior <code>nivel_total()</code>.</span></li>
+    </ul>
+    <h3>✅ Marque ao concluir</h3>
+    <ul class="checklist">
+      <li onclick="toggleCheck(this,'l1c0')" data-key="l1c0"><span class="check-box"><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><code>python main.py</code> roda sem erros e exibe as fichas</li>
+      <li onclick="toggleCheck(this,'l1c1')" data-key="l1c1"><span class="check-box"><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Dois personagens com atributos diferentes (aleatoriedade funciona)</li>
+      <li onclick="toggleCheck(this,'l1c2')" data-key="l1c2"><span class="check-box"><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><code>nivel_total()</code> retorna a soma correta dos 6 atributos</li>
+      <li onclick="toggleCheck(this,'l1c3')" data-key="l1c3"><span class="check-box"><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Classes e métodos têm docstrings PEP 257</li>
+    </ul>
+    <div class="nota-entrega">⏳ Ainda não entregue — a entrega única acontece somente após o Lab 4 + Boss.</div>
+    <button class="next-step-btn" onclick="nextStep('l1-pense')">🤔 Próxima etapa: Pense →</button>
+  </div>
+
+  <!-- Step 5: Pense -->
+  <div class="block content" id="l1-pense">
+    <div class="block-label">🤔 Pense &amp; Anote</div>
+    <p style="margin-bottom:1rem;font-size:.92rem">Anote as respostas no arquivo <code>respostas-sobrenome1-sobrenome2.docx</code> — você vai entregá-lo após o Lab 4.</p>
+    <div class="question-card">
+      <div class="q-num">Questão 1</div>
+      <p>Você tem <code>animal.py</code> (com a classe <code>Animal</code>) e <code>zoologico.py</code> (que usa <code>Animal</code>). Escreva a linha de import para importar <strong>só</strong> a classe <code>Animal</code>. Qual a diferença se usasse <code>import animal</code>?</p>
+      <div class="q-btns"><button class="q-copy-btn" onclick="copyQuestion(this)">Copiar pergunta</button><button class="pense-check-btn" onclick="togglePense(this,'l1p0')" data-key="l1p0">✏️ Já anotei no .docx</button></div>
+    </div>
+    <div class="question-card">
+      <div class="q-num">Questão 2</div>
+      <p>Observe: <code>from dado import rolar_atributo as rolar</code>. Para que serve o <code>as rolar</code>? Em que situação isso seria útil?</p>
+      <div class="q-btns"><button class="q-copy-btn" onclick="copyQuestion(this)">Copiar pergunta</button><button class="pense-check-btn" onclick="togglePense(this,'l1p1')" data-key="l1p1">✏️ Já anotei no .docx</button></div>
+    </div>
+    <div class="question-card">
+      <div class="q-num">Questão 3</div>
+      <p>Qual é a diferença prática entre um comentário <code># ...</code> e uma docstring <code>"""..."""</code>? Em que situação cada um deve ser usado?</p>
+      <div class="q-btns"><button class="q-copy-btn" onclick="copyQuestion(this)">Copiar pergunta</button><button class="pense-check-btn" onclick="togglePense(this,'l1p2')" data-key="l1p2">✏️ Já anotei no .docx</button></div>
+    </div>
+    <div class="question-card">
+      <div class="q-num">Questão 4</div>
+      <p>Você usou <code>from dado import rolar_todos_atributos</code> em <code>personagem.py</code>. O que aconteceria se usasse <code>import dado</code> no lugar? Reescreva a linha dentro de <code>__init__</code> para funcionar com <code>import dado</code>.</p>
+      <div class="q-btns"><button class="q-copy-btn" onclick="copyQuestion(this)">Copiar pergunta</button><button class="pense-check-btn" onclick="togglePense(this,'l1p3')" data-key="l1p3">✏️ Já anotei no .docx</button></div>
+    </div>
+
+    <button class="next-step-btn goto-next-lab" onclick="switchTab(2)" aria-label="Ir para Lab 2">
+      🏅 Tudo certo? Ir para Lab 2 — Mercado 🛒 →
+    </button>
+  </div>
+
+  <!-- Lab complete banner -->
+  <div class="lab-complete-banner" id="lab1-complete-banner">
+    <span class="banner-emoji">📜</span>
+    <h3>Lab 1 concluído!</h3>
+    <p>Você ganhou o <strong>Pergaminho da Sabedoria</strong>. Módulos e docstrings dominados!</p>
+  </div>
+
+</div><!-- /panel-1 -->
+
+<!-- ══ PANEL 2 — Lab 2 · Mercado ══ -->
+<div role="tabpanel" id="panel-2" aria-labelledby="tab-2" class="panel-l2" hidden>
+
+  <div class="scene-banner" data-bg="🛒">
+    <span class="scene-art">💎 ⚗️ 💰<br>🛒</span>
+    <div class="scene-title">Bem-vindo ao Mercado da Magia</div>
+    <div class="scene-sub">Aqui heróis mostram sua verdadeira identidade. Você vai ensinar o Python a comparar e exibir heróis!</div>
+  </div>
+
+  <div class="lab-banner">
+    <div class="lab-banner-left">
+      <h2>🛒 Lab 2 — Sobrecarga &amp; <code style="font-size:.8em">rich</code></h2>
+      <div class="lab-meta">
+        <span class="lab-meta-item">⏱ ~35 min</span>
+        <span class="lab-meta-item">👥 Dupla</span>
+        <span class="lab-meta-item">📦 pip install rich</span>
+      </div>
+      <p class="lab-objective"><strong>Objetivo:</strong> fazer o Python entender <code>print(heroi)</code>, <code>heroi1 &lt; heroi2</code> e <code>heroi1 == heroi2</code> usando métodos dunder, e exibir fichas coloridas com <code>rich</code>.</p>
+    </div>
+    <span class="time-badge">⏱ ~35 min</span>
+  </div>
+
+  <!-- Step 1: Briefing -->
+  <div class="block content" id="l2-briefing">
+    <div class="block-label">🎯 Briefing</div>
+    <div class="briefing-box">
+      <p><code>Personagem</code> do Lab 1 já existe. Agora você vai ensinar o Python a <strong>comparar</strong> heróis com operadores (<code>&lt;</code>, <code>==</code>) e exibir fichas coloridas no terminal.</p>
+      <div class="build-chips">
+        <span class="build-chip">🧙 personagem.py</span>
+        <span class="build-chip">▶️ main.py</span>
+      </div>
+    </div>
+    <button class="next-step-btn" onclick="nextStep('l2-conceito')">💡 Próxima etapa: Conceito →</button>
+  </div>
+
+  <!-- Step 2: Conceito -->
+  <div class="block content" id="l2-conceito">
+    <div class="block-label">💡 Conceito</div>
+    <div class="concept-box">
+      <div class="box-label">🔧 Métodos dunder (especiais)</div>
+      <p>Python usa métodos com dois underscores (<code>__nome__</code>) para implementar operadores. Quando você escreve <code>a + b</code>, o Python chama <code>a.__add__(b)</code>.</p>
+      <table class="tbl" style="margin-top:.5rem">
+        <tr><th>Operação</th><th>Método</th><th>Exemplo</th></tr>
+        <tr><td><code>print(obj)</code></td><td><code>__str__</code></td><td><code>print(heroi)</code></td></tr>
+        <tr><td><code>repr(obj)</code></td><td><code>__repr__</code></td><td><code>repr(heroi)</code> no REPL</td></tr>
+        <tr><td><code>a == b</code></td><td><code>__eq__</code></td><td><code>heroi1 == heroi2</code></td></tr>
+        <tr><td><code>a &lt; b</code></td><td><code>__lt__</code></td><td><code>heroi1 &lt; heroi2</code></td></tr>
+      </table>
+    </div>
+    <div class="warn-box">
+      <div class="box-label">⚠ Erro comum</div>
+      <p>Esquecer o <code>return</code> em <code>__str__</code>: se usar <code>print()</code> dentro do método em vez de <code>return</code>, o Python retorna <code>None</code> e você vê <code>"None"</code> na tela.</p>
+    </div>
+    <div class="concept-box">
+      <div class="box-label">🎨 Biblioteca rich</div>
+      <p>Instale <strong>uma única vez</strong>: <code>pip install rich</code>. Depois importe <code>Console</code> e <code>Table</code> para criar saídas coloridas e tabeladas no terminal.</p>
+    </div>
+    <div class="world-box">
+      <div class="box-label">🌍 No mundo real</div>
+      <p>Abra <code>reference/Aula4/code/data/Data.py</code>. Localize o método <code>__add__</code>. Ele usa <code>isinstance</code> antes de somar — por quê? Você vai implementar algo parecido.</p>
+    </div>
+    <button class="next-step-btn" onclick="nextStep('l2-exemplo')">▶ Próxima etapa: Exemplo →</button>
+  </div>
+
+  <!-- Step 3: Exemplo -->
+  <div class="block content" id="l2-exemplo">
+    <div class="block-label">▶ Exemplo</div>
+    <h3>Métodos dunder em Ponto</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        <span>ponto.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      </div>
+      <pre><span class="kw">class</span> <span class="cl">Ponto</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, x, y):
+        <span class="kw">self</span>.x = x; <span class="kw">self</span>.y = y
+
+    <span class="kw">def</span> <span class="fn">__str__</span>(<span class="kw">self</span>):
+        <span class="kw">return</span> <span class="fn">f</span><span class="str">"Ponto({self.x}, {self.y})"</span>     <span class="cmt"># legível</span>
+
+    <span class="kw">def</span> <span class="fn">__repr__</span>(<span class="kw">self</span>):
+        <span class="kw">return</span> <span class="fn">f</span><span class="str">"Ponto(x={self.x}, y={self.y})"</span>  <span class="cmt"># técnico</span>
+
+    <span class="kw">def</span> <span class="fn">__add__</span>(<span class="kw">self</span>, outro):
+        <span class="kw">return</span> <span class="cl">Ponto</span>(<span class="kw">self</span>.x + outro.x, <span class="kw">self</span>.y + outro.y)
+
+p1, p2 = <span class="cl">Ponto</span>(<span class="num">1</span>,<span class="num">2</span>), <span class="cl">Ponto</span>(<span class="num">3</span>,<span class="num">4</span>)
+<span class="fn">print</span>(p1)         <span class="cmt"># → "Ponto(1, 2)"</span>
+<span class="fn">print</span>(p1 + p2)    <span class="cmt"># → "Ponto(4, 6)"</span></pre>
+    </div>
+    <h3>Tabela colorida com rich</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        <span>rich_demo.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      </div>
+      <pre><span class="kw">from</span> rich.console <span class="kw">import</span> <span class="cl">Console</span>
+<span class="kw">from</span> rich.table <span class="kw">import</span> <span class="cl">Table</span>
+
+console = <span class="cl">Console</span>()
+tabela = <span class="cl">Table</span>(title=<span class="str">"Ficha do Herói"</span>)
+tabela.add_column(<span class="str">"Atributo"</span>)
+tabela.add_column(<span class="str">"Valor"</span>, justify=<span class="str">"right"</span>)
+tabela.add_row(<span class="str">"Força"</span>, <span class="str">"15"</span>)
+console.<span class="fn">print</span>(tabela)</pre>
+    </div>
+    <button class="next-step-btn" onclick="nextStep('l2-maos')">🔨 Próxima etapa: Mãos à obra →</button>
+  </div>
+
+  <!-- Step 4: Mãos à obra -->
+  <div class="block content" id="l2-maos">
+    <div class="block-label">🔨 Mãos à obra</div>
+    <p>👉 <strong>Cole sua implementação do Lab 1</strong> nos blocos marcados de cada arquivo antes de começar os novos TODOs.</p>
+    <div class="warn-box" style="margin-bottom:.85rem">
+      <div class="box-label">⚠ Instale primeiro</div>
+      <p><code>pip install rich</code></p>
+    </div>
+    <div class="file-cards-wrap">
+      <details class="file-card">
+        <summary>
+          <span class="file-card-name">🧙 personagem.py</span>
+          <span class="file-card-toggle"></span>
+          <span class="file-card-actions">
+            <button class="btn-copy-file" onclick="copyFileCard(event,this)">Copiar</button>
+            <button class="btn-dl-file js-download" data-href="scaffold/lab2-sobrecarga-rich/personagem.py" data-name="personagem.py" onclick="event.stopPropagation()">Baixar</button>
+          </span>
+        </summary>
+        <pre>"""Módulo Personagem — Lab 2: Sobrecarga de operadores + rich."""
+
+# 👉 Cole aqui o import do Lab 1 (from dado import rolar_todos_atributos)
+
+
+class Personagem:
+    """Representa um herói genérico no mundo de Forja de Heróis."""
+
+    def __init__(self, nome: str, rolar: bool = True):
+        # 👉 TODO 2-A (Lab 1 revisitado): cole aqui o corpo do __init__
+        pass
+
+    def nivel_total(self) -> int:
+        """Retorna a soma dos 6 atributos."""
+        # 👉 Cole do Lab 1 (ou reescreva — é 1 linha de soma)
+        pass
+
+    # TODO 2-B: implemente __str__
+    # Deve retornar uma string legível, ex: "Arador (nível total: 73)"
+    def __str__(self) -> str:
+        pass  # apague e implemente
+
+    # __repr__ fornecido como exemplo:
+    def __repr__(self) -> str:
+        return f"Personagem('{self.nome}', rolar=False)"
+
+    # TODO 2-C: implemente __eq__
+    # Dois personagens são iguais se tiverem o mesmo nivel_total().
+    def __eq__(self, other) -> bool:
+        pass  # apague e implemente
+
+    # __lt__ fornecido — permite sorted() automaticamente:
+    def __lt__(self, other) -> bool:
+        return self.nivel_total() &lt; other.nivel_total()
+
+    # exibir_ficha_rich já está implementada no scaffold — apenas chame!
+    def exibir_ficha_rich(self) -> None:
+        from rich.console import Console
+        from rich.table import Table
+        console = Console()
+        tabela = Table(title=f"Ficha de {self.nome}")
+        tabela.add_column("Atributo"); tabela.add_column("Valor", justify="right")
+        for attr in ["forca","destreza","constituicao","sabedoria","inteligencia","carisma"]:
+            tabela.add_row(attr.capitalize(), str(getattr(self, attr, 0)))
+        console.print(tabela)</pre>
+      </details>
+      <details class="file-card">
+        <summary>
+          <span class="file-card-name">▶️ main.py</span>
+          <span class="file-card-toggle"></span>
+          <span class="file-card-actions">
+            <button class="btn-copy-file" onclick="copyFileCard(event,this)">Copiar</button>
+            <button class="btn-dl-file js-download" data-href="scaffold/lab2-sobrecarga-rich/main.py" data-name="main.py" onclick="event.stopPropagation()">Baixar</button>
+          </span>
+        </summary>
+        <pre>"""Ponto de entrada do Lab 2."""
+
+from personagem import Personagem
+
+
+def main():
+    heroi = Personagem("Arador")
+
+    # TODO 2-D: teste __str__ e __eq__
+    # heroi2 = Personagem("Elara")
+    # print(heroi)           # chama __str__
+    # print(heroi == heroi2) # chama __eq__
+
+    # TODO 2-E: chame exibir_ficha_rich() no herói
+    # heroi.exibir_ficha_rich()
+    pass
+
+
+if __name__ == "__main__":
+    main()</pre>
+      </details>
+    </div>
+    <ul class="todo-list">
+      <li class="todo-item"><span class="todo-tag">2-A</span><span class="todo-text">Em <code>personagem.py</code>: cole o <code>__init__</code> do Lab 1 e implemente <code>nivel_total()</code> (ambos marcados com 👉).</span></li>
+      <li class="todo-item"><span class="todo-tag">2-B</span><span class="todo-text">Em <code>personagem.py</code>: implemente <code>__str__</code> — retorne string legível. <details class="dica-details"><summary>💡 Dica</summary><div class="dica-body">Use <code>return</code>, não <code>print</code>. Ex: <code>return f"{self.nome} (nível: {self.nivel_total()})"</code></div></details></span></li>
+      <li class="todo-item"><span class="todo-tag">2-C</span><span class="todo-text">Em <code>personagem.py</code>: implemente <code>__eq__</code> comparando <code>nivel_total()</code>.</span></li>
+      <li class="todo-item"><span class="todo-tag">✓ Pronto</span><span class="todo-text"><code>exibir_ficha_rich()</code> já está implementada no scaffold — só chame!</span></li>
+      <li class="todo-item"><span class="todo-tag">2-D</span><span class="todo-text">Em <code>main.py</code>: crie dois heróis, teste <code>print(heroi)</code> (<code>__str__</code>) e <code>heroi1 == heroi2</code> (<code>__eq__</code>).</span></li>
+      <li class="todo-item"><span class="todo-tag">2-E</span><span class="todo-text">Em <code>main.py</code>: chame <code>heroi.exibir_ficha_rich()</code> e veja a tabela colorida.</span></li>
+    </ul>
+    <h3>✅ Marque ao concluir</h3>
+    <ul class="checklist">
+      <li onclick="toggleCheck(this,'l2c0')" data-key="l2c0"><span class="check-box"><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><code>print(heroi)</code> exibe string legível (não <code>None</code>)</li>
+      <li onclick="toggleCheck(this,'l2c1')" data-key="l2c1"><span class="check-box"><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><code>heroi1 == heroi2</code> retorna True/False comparando <code>nivel_total()</code></li>
+      <li onclick="toggleCheck(this,'l2c2')" data-key="l2c2"><span class="check-box"><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><code>heroi.exibir_ficha_rich()</code> mostra tabela colorida com rich</li>
+      <li onclick="toggleCheck(this,'l2c3')" data-key="l2c3"><span class="check-box"><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><code>python main.py</code> roda sem erros</li>
+    </ul>
+    <p class="nota-entrega">🎁 <strong>__radd__ e Item</strong> ficam para o Lab 5 — Desafio (em casa).</p>
+    <button class="next-step-btn" onclick="nextStep('l2-pense')">🤔 Próxima etapa: Pense →</button>
+  </div>
+
+  <!-- Step 5: Pense -->
+  <div class="block content" id="l2-pense">
+    <div class="block-label">🤔 Pense &amp; Anote</div>
+    <p style="margin-bottom:1rem;font-size:.92rem">Anote no <code>.docx</code> de entrega.</p>
+    <div class="question-card">
+      <div class="q-num">Questão 5</div>
+      <p>Qual é a diferença entre <code>__str__</code> e <code>__repr__</code>? Dê um exemplo de situação em que cada um seria chamado automaticamente pelo Python.</p>
+      <div class="q-btns"><button class="q-copy-btn" onclick="copyQuestion(this)">Copiar pergunta</button><button class="pense-check-btn" onclick="togglePense(this,'l2p0')" data-key="l2p0">✏️ Já anotei no .docx</button></div>
+    </div>
+    <div class="question-card">
+      <div class="q-num">Questão 6</div>
+      <p>Você implementou <code>__eq__</code> comparando <code>nivel_total()</code>. Isso significa que dois personagens com atributos completamente diferentes podem ser "iguais". Isso é um problema? Em que situação isso seria inaceitável em um sistema real?</p>
+      <div class="q-btns"><button class="q-copy-btn" onclick="copyQuestion(this)">Copiar pergunta</button><button class="pense-check-btn" onclick="togglePense(this,'l2p1')" data-key="l2p1">✏️ Já anotei no .docx</button></div>
+    </div>
+    <div class="question-card">
+      <div class="q-num">Questão 7</div>
+      <p>Você decide usar uma biblioteca de terceiros no seu projeto. Que cuidados deve tomar? Como o arquivo <code>requirements.txt</code> resolve o problema de colaboração em equipe?</p>
+      <div class="q-btns"><button class="q-copy-btn" onclick="copyQuestion(this)">Copiar pergunta</button><button class="pense-check-btn" onclick="togglePense(this,'l2p2')" data-key="l2p2">✏️ Já anotei no .docx</button></div>
+    </div>
+    <div class="question-card">
+      <div class="q-num">Questão 8</div>
+      <p>Abra <code>reference/Aula4/code/data/Data.py</code>. Localize o método <code>__add__</code>. Explique: (a) o que acontece quando você escreve <code>data1 + data2</code>? (b) O que acontece com <code>data1 + 5</code>? (c) Por que o método tem <code>if isinstance(other, Data)</code>?</p>
+      <div class="q-btns"><button class="q-copy-btn" onclick="copyQuestion(this)">Copiar pergunta</button><button class="pense-check-btn" onclick="togglePense(this,'l2p3')" data-key="l2p3">✏️ Já anotei no .docx</button></div>
+    </div>
+    <button class="next-step-btn goto-next-lab" onclick="switchTab(3)">🏅 Tudo certo? Ir para Lab 3 — Guilda 🏰 →</button>
+  </div>
+
+  <div class="lab-complete-banner" id="lab2-complete-banner">
+    <span class="banner-emoji">💎</span>
+    <h3>Lab 2 concluído!</h3>
+    <p>Você ganhou o <strong>Cristal da Sobrecarga</strong>. Os operadores são seus aliados!</p>
+  </div>
+
+</div><!-- /panel-2 -->
+
+<!-- ══ PANEL 3 — Lab 3 · Guilda ══ -->
+<div role="tabpanel" id="panel-3" aria-labelledby="tab-3" class="panel-l3" hidden>
+
+  <div class="scene-banner" data-bg="🏰">
+    <span class="scene-art">🧙 🏰 🧝<br>🧬</span>
+    <div class="scene-title">A Guilda dos Heróis abre suas portas</div>
+    <div class="scene-sub">Guerreiros e Magos compartilham a mesma essência — mas cada um tem sua própria identidade.</div>
+  </div>
+
+  <div class="lab-banner">
+    <div class="lab-banner-left">
+      <h2>🏰 Lab 3 — Herança</h2>
+      <div class="lab-meta">
+        <span class="lab-meta-item">⏱ ~35 min</span>
+        <span class="lab-meta-item">👥 Dupla</span>
+        <span class="lab-meta-item">🧬 super() + subclasses</span>
+      </div>
+      <p class="lab-objective"><strong>Objetivo:</strong> criar subclasses Guerreiro e Mago que herdam de Personagem com bônus raciais próprios.</p>
+    </div>
+    <span class="time-badge">⏱ ~35 min</span>
+  </div>
+
+  <!-- Step 1: Briefing -->
+  <div class="block content" id="l3-briefing">
+    <div class="block-label">🎯 Briefing</div>
+    <div class="briefing-box">
+      <p><code>Personagem</code> do Lab 2 já funciona bem. Agora você vai criar <strong>raças</strong> que herdam todos os atributos e métodos de <code>Personagem</code>, mas adicionam bônus raciais próprios.</p>
+      <div class="build-chips">
+        <span class="build-chip">⚔️ racas.py</span>
+        <span class="build-chip">▶️ main.py</span>
+      </div>
+    </div>
+    <button class="next-step-btn" onclick="nextStep('l3-conceito')">💡 Próxima etapa: Conceito →</button>
+  </div>
+
+  <!-- Step 2: Conceito -->
+  <div class="block content" id="l3-conceito">
+    <div class="block-label">💡 Conceito</div>
+    <div class="concept-box">
+      <div class="box-label">🧬 Herança</div>
+      <p>Uma subclasse recebe automaticamente todos os atributos e métodos da superclasse. <code>Cachorro</code> herda de <code>Animal</code> — ele pode <code>respirar()</code> sem você reimplementar.</p>
+      <p><strong>Terminologia:</strong> <code>Animal</code> = superclasse · <code>Cachorro</code> = subclasse · <code>rex.respirar()</code> = método herdado.</p>
+    </div>
+    <div class="concept-box">
+      <div class="box-label">🔗 super()</div>
+      <p>Quando a subclasse precisa de seu próprio <code>__init__</code> mas quer aproveitar o do pai, use <code>super().__init__(...)</code>. Sem isso, os atributos do pai <strong>não são inicializados</strong>.</p>
+    </div>
+    <div class="warn-box">
+      <div class="box-label">⚠ Erro comum — duplicação</div>
+      <p>Reescrever <code>self.nome = nome</code> dentro da subclasse. Use <code>super().__init__(...)</code> e evite duplicação e bugs de manutenção.</p>
+    </div>
+    <div class="concept-box">
+      <div class="box-label">📌 Atributo de classe vs instância</div>
+      <p><code>bonus_racial = {}</code> dentro da classe (fora de métodos) é <strong>compartilhado</strong> por todos os objetos. <code>self.nome = nome</code> é <strong>individual</strong>. Cuidado com mutação de atributos de classe!</p>
+    </div>
+    <div class="world-box">
+      <div class="box-label">🌍 No mundo real</div>
+      <p><code>unittest.TestCase</code> herda de <code>object</code> mas adiciona <code>assertEqual</code>, <code>assertRaises</code> etc. <code>pathlib.Path</code> herda de <code>PurePath</code> adicionando operações de sistema de arquivos.</p>
+    </div>
+    <button class="next-step-btn" onclick="nextStep('l3-exemplo')">▶ Próxima etapa: Exemplo →</button>
+  </div>
+
+  <!-- Step 3: Exemplo -->
+  <div class="block content" id="l3-exemplo">
+    <div class="block-label">▶ Exemplo</div>
+    <h3>Herança básica com super()</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        <span>contato.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      </div>
+      <pre><span class="kw">class</span> <span class="cl">Contato</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, nome, email):
+        <span class="kw">self</span>.nome = nome
+        <span class="kw">self</span>.email = email
+
+<span class="kw">class</span> <span class="cl">Amigo</span>(<span class="cl">Contato</span>):            <span class="cmt"># Amigo herda de Contato</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, nome, email, telefone):
+        <span class="fn">super</span>().__init__(nome, email)   <span class="cmt"># executa __init__ do pai</span>
+        <span class="kw">self</span>.telefone = telefone         <span class="cmt"># adiciona o que é próprio</span></pre>
+    </div>
+    <details class="explica-mais">
+      <summary>🎁 Bônus — Inventario(list) — herança de built-in</summary>
+      <div class="extra">
+        <p>Você pode herdar de tipos built-in do Python, como <code>list</code>. A classe filha ganha <code>append</code>, <code>sort</code>, <code>len</code> de graça e adiciona seus próprios métodos:</p>
+        <div class="code-wrap">
+          <div class="code-header">
+            <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+            <span>inventario.py</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <pre><span class="kw">class</span> <span class="cl">Inventario</span>(<span class="fn">list</span>):     <span class="cmt"># herda de list!</span>
+    <span class="kw">def</span> <span class="fn">buscar</span>(<span class="kw">self</span>, nome):
+        <span class="kw">return</span> [c <span class="kw">for</span> c <span class="kw">in</span> <span class="kw">self</span> <span class="kw">if</span> nome <span class="kw">in</span> c.nome]
+
+<span class="cmt"># Inventario tem TUDO de list: append, sort, len...</span>
+inv = <span class="cl">Inventario</span>()
+inv.append(heroi1)       <span class="cmt"># método herdado</span>
+inv.buscar(<span class="str">"Arador"</span>)    <span class="cmt"># método próprio</span></pre>
+        </div>
+        <p>Este conteúdo está no <strong>Lab 5 — Desafio</strong> para quem quiser praticar em casa.</p>
+      </div>
+    </details>
+    <button class="next-step-btn" onclick="nextStep('l3-maos')">🔨 Próxima etapa: Mãos à obra →</button>
+  </div>
+
+  <!-- Step 4: Mãos à obra -->
+  <div class="block content" id="l3-maos">
+    <div class="block-label">🔨 Mãos à obra</div>
+    <p>👉 <strong>Cole suas implementações dos Labs 1 e 2</strong> em <code>personagem.py</code> antes de começar. Arquivos de raças e inventário são os novos TODOs.</p>
+    <div class="file-cards-wrap">
+      <details class="file-card">
+        <summary>
+          <span class="file-card-name">🧙 personagem.py — cole seus Labs 1+2 aqui</span>
+          <span class="file-card-toggle"></span>
+          <span class="file-card-actions">
+            <button class="btn-copy-file" onclick="copyFileCard(event,this)">Copiar</button>
+            <button class="btn-dl-file js-download" data-href="scaffold/lab3-heranca/personagem.py" data-name="personagem.py" onclick="event.stopPropagation()">Baixar</button>
+          </span>
+        </summary>
+        <pre>"""Módulo Personagem — versão base para o Lab 3.
+
+👉 Cole aqui sua implementação completa dos Labs 1 e 2.
+"""
+
+# 👉 Cole o import do dado
+# 👉 Cole os imports do rich
+
+
+class Personagem:
+    def __init__(self, nome: str, rolar: bool = True):
+        # 👉 Cole do Lab 1
+        pass
+
+    def nivel_total(self) -> int:
+        # 👉 Cole do Lab 1
+        pass
+
+    def __str__(self) -> str:
+        # 👉 Cole do Lab 2
+        pass
+
+    def __repr__(self) -> str:
+        return f"Personagem('{self.nome}', rolar=False)"
+
+    def __eq__(self, other) -> bool:
+        # 👉 Cole do Lab 2
+        pass
+
+    def __lt__(self, other) -> bool:
+        return self.nivel_total() &lt; other.nivel_total()
+
+    def exibir_ficha_rich(self) -> None:
+        # 👉 Cole do Lab 2 (bônus) ou deixe com pass
+        pass</pre>
+      </details>
+      <details class="file-card">
+        <summary>
+          <span class="file-card-name">⚔️ racas.py</span>
+          <span class="file-card-toggle"></span>
+          <span class="file-card-actions">
+            <button class="btn-copy-file" onclick="copyFileCard(event,this)">Copiar</button>
+            <button class="btn-dl-file js-download" data-href="scaffold/lab3-heranca/racas.py" data-name="racas.py" onclick="event.stopPropagation()">Baixar</button>
+          </span>
+        </summary>
+        <pre>"""Módulo de raças — subclasses de Personagem com bônus raciais."""
+
+from personagem import Personagem
+
+
+# TODO 3-A: Guerreiro(Personagem)
+# bonus_racial = {"forca": 2, "constituicao": 1}
+# __init__: super().__init__(nome, rolar) + aplicar bonus_racial
+class Guerreiro(Personagem):
+    bonus_racial = {"forca": 2, "constituicao": 1}
+
+    def __init__(self, nome: str, rolar: bool = True):
+        pass  # apague e implemente
+
+
+# TODO 3-B: Mago(Personagem)
+# bonus_racial = {"inteligencia": 2, "sabedoria": 1}
+class Mago(Personagem):
+    bonus_racial = {"inteligencia": 2, "sabedoria": 1}
+
+    def __init__(self, nome: str, rolar: bool = True):
+        pass  # apague e implemente</pre>
+      </details>
+      <details class="file-card">
+        <summary>
+          <span class="file-card-name">▶️ main.py</span>
+          <span class="file-card-toggle"></span>
+          <span class="file-card-actions">
+            <button class="btn-copy-file" onclick="copyFileCard(event,this)">Copiar</button>
+            <button class="btn-dl-file js-download" data-href="scaffold/lab3-heranca/main.py" data-name="main.py" onclick="event.stopPropagation()">Baixar</button>
+          </span>
+        </summary>
+        <pre>"""Ponto de entrada do Lab 3 — Herança."""
+
+from racas import Guerreiro, Mago
+
+
+def main():
+    # TODO 3-C: crie um herói de cada raça, exiba as fichas
+    # e observe que exibir_ficha_rich() funciona sem reimplementar.
+    #
+    # guerreiro = Guerreiro("Arador")
+    # mago = Mago("Elara")
+    # guerreiro.exibir_ficha_rich()
+    # mago.exibir_ficha_rich()
+    pass
+
+
+if __name__ == "__main__":
+    main()</pre>
+      </details>
+    </div>
+    <ul class="todo-list">
+      <li class="todo-item"><span class="todo-tag">3-A</span><span class="todo-text">Em <code>racas.py</code>: implemente <code>Guerreiro(Personagem)</code> com <code>super().__init__</code> + aplicação do <code>bonus_racial</code>. <details class="dica-details"><summary>💡 Dica</summary><div class="dica-body">Use <code>setattr(self, atrib, getattr(self, atrib) + valor)</code> para aplicar cada bônus sem copiar código.</div></details></span></li>
+      <li class="todo-item"><span class="todo-tag">3-B</span><span class="todo-text">Em <code>racas.py</code>: implemente <code>Mago(Personagem)</code> com bônus em INT e SAB.</span></li>
+      <li class="todo-item"><span class="todo-tag">3-C</span><span class="todo-text">Em <code>main.py</code>: instancie Guerreiro e Mago, exiba fichas e confirme que <code>exibir_ficha_rich()</code> herdado funciona sem reimplementação.</span></li>
+    </ul>
+    <h3>✅ Marque ao concluir</h3>
+    <ul class="checklist">
+      <li onclick="toggleCheck(this,'l3c0')" data-key="l3c0"><span class="check-box"><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><code>Guerreiro("X").forca</code> é maior que o de um <code>Personagem</code> sem bônus</li>
+      <li onclick="toggleCheck(this,'l3c1')" data-key="l3c1"><span class="check-box"><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><code>guerreiro.exibir_ficha_rich()</code> funciona sem reimplementação</li>
+      <li onclick="toggleCheck(this,'l3c2')" data-key="l3c2"><span class="check-box"><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><code>python main.py</code> roda sem erros com 2 heróis</li>
+      <li onclick="toggleCheck(this,'l3c3')" data-key="l3c3"><span class="check-box"><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><code>Mago("X").inteligencia</code> é maior que o de um <code>Personagem</code> sem bônus</li>
+    </ul>
+    <p class="nota-entrega">🎁 <strong>Arqueiro &amp; Inventário</strong> ficam para o Lab 5 — Desafio (em casa).</p>
+    <button class="next-step-btn" onclick="nextStep('l3-pense')">🤔 Próxima etapa: Pense →</button>
+  </div>
+
+  <!-- Step 5: Pense -->
+  <div class="block content" id="l3-pense">
+    <div class="block-label">🤔 Pense &amp; Anote</div>
+    <p style="margin-bottom:1rem;font-size:.92rem">Anote no <code>.docx</code> de entrega.</p>
+    <div class="question-card">
+      <div class="q-num">Questão 9</div>
+      <p>Abra <code>reference/Aula4/code/heranca/Funcionario.py</code>. Identifique: (a) qual é a superclasse e qual é a subclasse? (b) Qual método foi sobrescrito em <code>Gerente</code>? (c) O que <code>super().get_bonificacao()</code> faz?</p>
+      <div class="q-btns"><button class="q-copy-btn" onclick="copyQuestion(this)">Copiar pergunta</button><button class="pense-check-btn" onclick="togglePense(this,'l3p0')" data-key="l3p0">✏️ Já anotei no .docx</button></div>
+    </div>
+    <div class="question-card">
+      <div class="q-num">Questão 10</div>
+      <p><code>rex.respirar()</code> funciona mesmo sem <code>respirar()</code> em <code>Cachorro</code>. Mas se você chamar <code>rex.latir()</code> em um objeto do tipo <code>Animal</code>, dá erro. Por quê?</p>
+      <div class="q-btns"><button class="q-copy-btn" onclick="copyQuestion(this)">Copiar pergunta</button><button class="pense-check-btn" onclick="togglePense(this,'l3p1')" data-key="l3p1">✏️ Já anotei no .docx</button></div>
+    </div>
+    <div class="question-card">
+      <div class="q-num">Questão 11</div>
+      <p>Em <code>racas.py</code>, cada raça tem <code>bonus_racial = {...}</code> como atributo de classe. O que acontece se você fizer <code>guerreiro1.bonus_racial["forca"] = 99</code>? Isso afeta <code>guerreiro2.bonus_racial["forca"]</code>? Teste e explique. (Dica: atribuição direta e mutação se comportam de forma diferente.)</p>
+      <div class="q-btns"><button class="q-copy-btn" onclick="copyQuestion(this)">Copiar pergunta</button><button class="pense-check-btn" onclick="togglePense(this,'l3p2')" data-key="l3p2">✏️ Já anotei no .docx</button></div>
+    </div>
+    <button class="next-step-btn goto-next-lab" onclick="switchTab(4)">🏅 Tudo certo? Ir para Lab 4 — Arena ⚔️ →</button>
+  </div>
+
+  <div class="lab-complete-banner" id="lab3-complete-banner">
+    <span class="banner-emoji">🏰</span>
+    <h3>Lab 3 concluído!</h3>
+    <p>Você ganhou o <strong>Escudo da Herança</strong>. Guerreiros e Magos prontos para batalha!</p>
+  </div>
+
+</div><!-- /panel-3 -->
+
+<!-- ══ PANEL 4 — Lab 4 · Arena + Boss ══ -->
+<div role="tabpanel" id="panel-4" aria-labelledby="tab-4" class="panel-l4" hidden>
+
+  <div class="scene-banner" data-bg="⚔️">
+    <span class="scene-art">⚔️ 🏟️ 🗡️<br>🎭</span>
+    <div class="scene-title">A Arena de Batalha te aguarda</div>
+    <div class="scene-sub">Cada herói luta do seu jeito — e você vai fazer isso sem precisar saber quem é quem.</div>
+  </div>
+
+  <div class="lab-banner">
+    <div class="lab-banner-left">
+      <h2>⚔️ Lab 4 — Polimorfismo &amp; Arena</h2>
+      <div class="lab-meta">
+        <span class="lab-meta-item">⏱ ~35 min</span>
+        <span class="lab-meta-item">👥 Dupla</span>
+        <span class="lab-meta-item">🏆 Projeto integrador</span>
+      </div>
+      <p class="lab-objective"><strong>Objetivo:</strong> fazer cada raça atacar de forma diferente e criar uma <code>Arena</code> que usa todos sem precisar saber qual é qual — isso é <strong>polimorfismo</strong>. Em seguida, enfrente o Boss final integrando tudo.</p>
+    </div>
+    <span class="time-badge">⏱ ~35 min</span>
+  </div>
+
+  <!-- Step 1: Briefing -->
+  <div class="block content" id="l4-briefing">
+    <div class="block-label">🎯 Briefing</div>
+    <div class="briefing-box">
+      <p>Guerreiro e Mago existem e herdam de <code>Personagem</code>. Agora cada um vai <strong>atacar de forma diferente</strong> — e a <code>Arena</code> vai coordenar tudo <strong>sem saber o tipo</strong> de cada herói. O Boss também entra na batalha!</p>
+      <p>Ao concluir a Arena, você enfrentará o <strong>🐲 Boss Final</strong> — um desafio integrador que requer módulos, sobrecarga, herança e polimorfismo funcionando juntos.</p>
+      <div class="build-chips">
+        <span class="build-chip">🧙 personagem.py</span>
+        <span class="build-chip">⚔️ racas.py</span>
+        <span class="build-chip">🏟️ arena.py</span>
+        <span class="build-chip">▶️ main.py</span>
+      </div>
+    </div>
+    <button class="next-step-btn" onclick="nextStep('l4-conceito')">💡 Próxima etapa: Conceito →</button>
+  </div>
+
+  <!-- Step 2: Conceito -->
+  <div class="block content" id="l4-conceito">
+    <div class="block-label">💡 Conceito</div>
+    <div class="concept-box">
+      <div class="box-label">🎭 Polimorfismo</div>
+      <p><strong>Mesma chamada, comportamentos diferentes</strong> dependendo do tipo real do objeto. O laço <code>for audio in arquivos: audio.play()</code> funciona para MP3, WAV, OGG — Python decide qual <code>play()</code> chamar.</p>
+      <p>Sem polimorfismo: <code>if type(audio) == MP3: ... elif type(audio) == WAV: ...</code> — teria que atualizar toda vez que adicionasse um novo tipo.</p>
+    </div>
+    <div class="concept-box">
+      <div class="box-label">🚫 Método "abstrato" simulado</div>
+      <p>Levantando <code>NotImplementedError</code> na superclasse, você <strong>força</strong> as subclasses a implementar o método. Tentar chamar em um objeto base gera erro intencional e claro.</p>
+    </div>
+    <div class="warn-box">
+      <div class="box-label">⚠ Erro esperado (intencional!)</div>
+      <p>Se a subclasse não sobrescreve <code>atacar()</code> e a superclasse levanta <code>NotImplementedError</code>, chamar <code>p.atacar(alvo)</code> vai falhar. Isso é <em>correto</em> — você <strong>deve</strong> implementar nas subclasses.</p>
+    </div>
+    <div class="world-box">
+      <div class="box-label">🌍 No mundo real</div>
+      <p>O módulo <code>abc</code> (Abstract Base Classes) da biblioteca padrão fornece uma forma formal de métodos abstratos via <code>@abstractmethod</code>. O padrão <code>NotImplementedError</code> é igualmente válido e amplamente usado.</p>
+    </div>
+    <button class="next-step-btn" onclick="nextStep('l4-exemplo')">▶ Próxima etapa: Exemplo →</button>
+  </div>
+
+  <!-- Step 3: Exemplo -->
+  <div class="block content" id="l4-exemplo">
+    <div class="block-label">▶ Exemplo</div>
+    <h3>Polimorfismo em ação</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        <span>audio_file.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      </div>
+      <pre><span class="kw">class</span> <span class="cl">AudioFile</span>:
+    <span class="kw">def</span> <span class="fn">play</span>(<span class="kw">self</span>):
+        <span class="kw">raise</span> <span class="cl">NotImplementedError</span>(<span class="str">"Subclasses devem implementar play()"</span>)
+
+<span class="kw">class</span> <span class="cl">MP3File</span>(<span class="cl">AudioFile</span>):
+    <span class="kw">def</span> <span class="fn">play</span>(<span class="kw">self</span>): <span class="fn">print</span>(<span class="str">"Tocando como MP3"</span>)
+
+<span class="kw">class</span> <span class="cl">WavFile</span>(<span class="cl">AudioFile</span>):
+    <span class="kw">def</span> <span class="fn">play</span>(<span class="kw">self</span>): <span class="fn">print</span>(<span class="str">"Tocando como WAV"</span>)
+
+<span class="cmt"># A beleza do polimorfismo:</span>
+arquivos = [<span class="cl">MP3File</span>(), <span class="cl">WavFile</span>()]
+<span class="kw">for</span> audio <span class="kw">in</span> arquivos:
+    audio.<span class="fn">play</span>()    <span class="cmt"># Python decide — sem if/else!</span></pre>
+    </div>
+    <h3>Arena usando polimorfismo</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+        <span>arena.py (esboço)</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      </div>
+      <pre><span class="kw">class</span> <span class="cl">Arena</span>:
+    <span class="kw">def</span> <span class="fn">batalhar</span>(<span class="kw">self</span>, combatentes):
+        <span class="kw">for</span> i, atacante <span class="kw">in</span> <span class="fn">enumerate</span>(combatentes):
+            alvo = combatentes[(i + <span class="num">1</span>) % <span class="fn">len</span>(combatentes)]
+            atacante.<span class="fn">atacar</span>(alvo)   <span class="cmt"># Arena NÃO sabe o tipo!</span>
+            <span class="cmt"># Guerreiro, Mago, Boss — não importa.</span></pre>
+    </div>
+    <button class="next-step-btn" onclick="nextStep('l4-maos')">🔨 Próxima etapa: Mãos à obra →</button>
+  </div>
+
+  <!-- Step 4: Mãos à obra -->
+  <div class="block content" id="l4-maos">
+    <div class="block-label">🔨 Mãos à obra</div>
+    <p>👉 <strong>Cole suas implementações dos Labs anteriores</strong> em <code>personagem.py</code>. A <code>arena.py</code> já está pronta — você só precisa implementar os <code>atacar()</code> nas raças.</p>
+    <div class="file-cards-wrap">
+      <details class="file-card">
+        <summary>
+          <span class="file-card-name">🧙 personagem.py — cole Labs 1–3 + novos métodos</span>
+          <span class="file-card-toggle"></span>
+          <span class="file-card-actions">
+            <button class="btn-copy-file" onclick="copyFileCard(event,this)">Copiar</button>
+            <button class="btn-dl-file js-download" data-href="scaffold/lab4-polimorfismo/personagem.py" data-name="personagem.py" onclick="event.stopPropagation()">Baixar</button>
+          </span>
+        </summary>
+        <pre>"""Módulo Personagem — Lab 4: adiciona atacar() e pontos_de_vida."""
+
+# 👉 Cole seus imports (dado, rich) aqui
+
+
+class Personagem:
+    def __init__(self, nome: str, rolar: bool = True):
+        # 👉 Cole do Lab 1 e adicione: self.pontos_de_vida = 100
+        self.pontos_de_vida = 100
+        pass
+
+    def nivel_total(self) -> int:
+        # 👉 Cole do Lab 1
+        pass
+
+    # Métodos novos — já fornecidos:
+    def esta_vivo(self) -> bool:
+        return self.pontos_de_vida > 0
+
+    def receber_dano(self, dano: int) -> None:
+        self.pontos_de_vida = max(0, self.pontos_de_vida - dano)
+
+    def atacar(self, alvo: "Personagem") -> int:
+        raise NotImplementedError(
+            f"{type(self).__name__} deve implementar atacar()."
+        )
+
+    def __str__(self) -> str:
+        return f"{self.nome} [{type(self).__name__}] PV:{self.pontos_de_vida}"
+
+    def __repr__(self) -> str:
+        return f"Personagem('{self.nome}', rolar=False)"
+
+    def __eq__(self, other) -> bool:
+        # 👉 Cole do Lab 2
+        pass
+
+    def __lt__(self, other) -> bool:
+        return self.nivel_total() &lt; other.nivel_total()
+
+    def exibir_ficha_rich(self) -> None:
+        # 👉 Cole do Lab 2 (bônus) ou deixe com pass
+        pass</pre>
+      </details>
+      <details class="file-card">
+        <summary>
+          <span class="file-card-name">⚔️ racas.py — TODOs 4-A e 4-B aqui</span>
+          <span class="file-card-toggle"></span>
+          <span class="file-card-actions">
+            <button class="btn-copy-file" onclick="copyFileCard(event,this)">Copiar</button>
+            <button class="btn-dl-file js-download" data-href="scaffold/lab4-polimorfismo/racas.py" data-name="racas.py" onclick="event.stopPropagation()">Baixar</button>
+          </span>
+        </summary>
+        <pre>"""Raças — Lab 4: cada subclasse implementa atacar() de forma diferente."""
+
+from personagem import Personagem
+from dado import rolar_dado
+
+
+class Guerreiro(Personagem):
+    bonus_racial = {"forca": 2, "constituicao": 1}
+
+    def __init__(self, nome, rolar=True):
+        # 👉 Cole do Lab 3
+        pass
+
+    # TODO 4-A: implemente atacar() para Guerreiro
+    # dano = rolar_dado(8) + (self.forca - 10) // 2
+    # chame alvo.receber_dano(dano); print mensagem; return dano
+    def atacar(self, alvo: Personagem) -> int:
+        pass
+
+
+class Mago(Personagem):
+    bonus_racial = {"inteligencia": 2, "sabedoria": 1}
+
+    def __init__(self, nome, rolar=True):
+        # 👉 Cole do Lab 3
+        pass
+
+    # TODO 4-B: implemente atacar() para Mago
+    # dano = rolar_dado(6) + rolar_dado(6) + (self.inteligencia - 10) // 2
+    def atacar(self, alvo: Personagem) -> int:
+        pass</pre>
+      </details>
+      <div class="world-box">
+        <div class="box-label">🎁 Arena já implementada</div>
+        <p>O arquivo <code>arena.py</code> vem pronto. Leia o código e observe: a Arena chama <code>atacante.atacar(alvo)</code> sem saber qual raça é — isso é <strong>polimorfismo</strong>.</p>
+      </div>
+      <details class="file-card">
+        <summary>
+          <span class="file-card-name">🏟️ arena.py — já pronta, só rode!</span>
+          <span class="file-card-toggle"></span>
+          <span class="file-card-actions">
+            <button class="btn-copy-file" onclick="copyFileCard(event,this)">Copiar</button>
+            <button class="btn-dl-file js-download" data-href="scaffold/lab4-polimorfismo/arena.py" data-name="arena.py" onclick="event.stopPropagation()">Baixar</button>
+          </span>
+        </summary>
+        <pre>"""Arena — orquestra batalhas polimorficamente (arquivo já pronto)."""
+
+import random
+from personagem import Personagem
+from rich.console import Console
+from rich.table import Table
+
+
+class Arena:
+    def __init__(self, personagens: list):
+        self.personagens = personagens
+        self.historico = []
+
+    def batalhar(self, rodadas: int = 3) -> None:
+        console = Console()
+        for rodada in range(1, rodadas + 1):
+            console.rule(f"[bold yellow]Rodada {rodada}[/bold yellow]")
+            for atacante in self.personagens:
+                if not atacante.esta_vivo():
+                    continue
+                vivos = [p for p in self.personagens
+                         if p.esta_vivo() and p is not atacante]
+                if not vivos:
+                    break
+                alvo = random.choice(vivos)
+                dano = atacante.atacar(alvo)   # ← polimorfismo aqui!
+                self.historico.append(
+                    f"R{rodada}: {atacante.nome} → {alvo.nome} ({dano})")
+            vivos_nomes = [p.nome for p in self.personagens if p.esta_vivo()]
+            console.print(f"  Vivos: {', '.join(vivos_nomes) or 'nenhum'}")
+
+    def relatorio_rich(self) -> None:
+        console = Console()
+        t = Table(title="Resultado Final")
+        t.add_column("Personagem"); t.add_column("Raça")
+        t.add_column("PV", justify="right"); t.add_column("Status")
+        for p in self.personagens:
+            status = "[green]Vivo[/green]" if p.esta_vivo() else "[red]Derrotado[/red]"
+            t.add_row(p.nome, type(p).__name__, str(p.pontos_de_vida), status)
+        console.print(t)</pre>
+      </details>
+      <details class="file-card">
+        <summary>
+          <span class="file-card-name">▶️ main.py</span>
+          <span class="file-card-toggle"></span>
+          <span class="file-card-actions">
+            <button class="btn-copy-file" onclick="copyFileCard(event,this)">Copiar</button>
+            <button class="btn-dl-file js-download" data-href="scaffold/lab4-polimorfismo/main.py" data-name="main.py" onclick="event.stopPropagation()">Baixar</button>
+          </span>
+        </summary>
+        <pre>"""Ponto de entrada do Lab 4 — Polimorfismo + Arena + Boss."""
+
+from racas import Guerreiro, Mago
+from arena import Arena
+from boss import Boss
+from rich.console import Console
+
+console = Console()
+
+
+def main():
+    console.rule("[bold red]⚔  FORJA DE HERÓIS — ARENA  ⚔[/bold red]")
+
+    # Crie os combatentes e inicie a batalha.
+    # guerreiro = Guerreiro("Arador")
+    # mago = Mago("Elara")
+    # boss = Boss("Ancião Sombrio")
+    # arena = Arena([guerreiro, mago, boss])
+    # arena.batalhar(rodadas=5)
+    # arena.relatorio_rich()
+    pass
+
+
+if __name__ == "__main__":
+    main()</pre>
+      </details>
+    </div>
+    <ul class="todo-list">
+      <li class="todo-item"><span class="todo-tag">4-A</span><span class="todo-text">Em <code>racas.py</code>: implemente <code>Guerreiro.atacar()</code> — dano = <code>rolar_dado(8) + (self.forca-10)//2</code>. Chame <code>alvo.receber_dano()</code>, imprima mensagem, retorne o dano. <details class="dica-details"><summary>💡 Dica</summary><div class="dica-body">Padrão: calcule dano, chame <code>alvo.receber_dano(dano)</code>, imprima uma linha descritiva, retorne o valor.</div></details></span></li>
+      <li class="todo-item"><span class="todo-tag">4-B</span><span class="todo-text">Em <code>racas.py</code>: implemente <code>Mago.atacar()</code> — dano = <code>rolar_dado(6) + rolar_dado(6) + (self.inteligencia-10)//2</code>.</span></li>
+      <li class="todo-item"><span class="todo-tag">4-C</span><span class="todo-text">Em <code>boss.py</code>: implemente <code>Boss.receber_dano(dano)</code> — <code>dano_real = max(0, dano - self.escudo)</code> antes de subtrair PV. <details class="dica-details"><summary>💡 Dica</summary><div class="dica-body"><code>self.pontos_de_vida = max(0, self.pontos_de_vida - dano_real)</code> — isso sobrescreve o método herdado de Personagem.</div></details></span></li>
+    </ul>
+    <h3>✅ Marque ao concluir</h3>
+    <ul class="checklist">
+      <li onclick="toggleCheck(this,'l4c0')" data-key="l4c0"><span class="check-box"><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Guerreiro e Mago atacam de formas diferentes (polimorfismo)</li>
+      <li onclick="toggleCheck(this,'l4c1')" data-key="l4c1"><span class="check-box"><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><code>Boss.receber_dano()</code> reduz dano pelo escudo antes de subtrair PV</li>
+      <li onclick="toggleCheck(this,'l4c2')" data-key="l4c2"><span class="check-box"><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Arena gera relatório final com rich (<code>arena.relatorio_rich()</code>)</li>
+      <li onclick="toggleCheck(this,'l4c3')" data-key="l4c3"><span class="check-box"><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><code>python main.py</code> roda batalha completa sem erros</li>
+    </ul>
+    <button class="next-step-btn" onclick="nextStep('l4-pense')">🤔 Próxima etapa: Pense →</button>
+  </div>
+
+  <!-- Step 5: Pense -->
+  <div class="block content" id="l4-pense">
+    <div class="block-label">🤔 Pense &amp; Anote</div>
+    <p style="margin-bottom:1rem;font-size:.92rem">Última rodada de reflexão da Arena — anote no <code>.docx</code>.</p>
+    <div class="question-card">
+      <div class="q-num">Questão 12</div>
+      <p>Abra <code>reference/Aula4/code/polimorfismo/AudioFile.py</code>. (a) Onde está o polimorfismo? (b) O que acontece se você criar <code>MP3File("musica.ogg")</code>? Por quê? (c) Se você criar uma quarta classe <code>FlacFile</code>, o que precisa implementar?</p>
+      <div class="q-btns"><button class="q-copy-btn" onclick="copyQuestion(this)">Copiar pergunta</button><button class="pense-check-btn" onclick="togglePense(this,'l4p0')" data-key="l4p0">✏️ Já anotei no .docx</button></div>
+    </div>
+    <div class="question-card">
+      <div class="q-num">Questão 13</div>
+      <p>Na classe <code>Arena</code>, o método <code>batalhar()</code> chama <code>atacante.atacar(alvo)</code>. A <code>Arena</code> sabe se o <code>atacante</code> é Guerreiro, Mago ou Boss? Qual é a vantagem de <strong>não</strong> precisar saber?</p>
+      <div class="q-btns"><button class="q-copy-btn" onclick="copyQuestion(this)">Copiar pergunta</button><button class="pense-check-btn" onclick="togglePense(this,'l4p1')" data-key="l4p1">✏️ Já anotei no .docx</button></div>
+    </div>
+    <div class="question-card">
+      <div class="q-num">Questão 14 — Síntese da Arena</div>
+      <p>Olhando para o projeto completo dos 4 labs: (a) Liste todos os conceitos de POO usados, apontando <strong>onde exatamente</strong> no código cada um aparece (arquivo + classe/método). (b) Se você fosse ensinar herança para alguém que nunca programou, que analogia do mundo real usaria? (Não vale usar a do caderno.)</p>
+      <div class="q-btns"><button class="q-copy-btn" onclick="copyQuestion(this)">Copiar pergunta</button><button class="pense-check-btn" onclick="togglePense(this,'l4p2')" data-key="l4p2">✏️ Já anotei no .docx</button></div>
+    </div>
+    <button class="next-step-btn" onclick="nextStep('l4-boss-exemplo')" style="background:var(--boss)">🐲 Próxima etapa: Boss Final →</button>
+  </div>
+
+  <!-- Boss: scaffold para TODO 4-C -->
+  <div class="block content" id="l4-boss-exemplo" style="--lc:var(--boss);--ls:var(--boss-soft);--lb:var(--boss-border)">
+    <div class="block-label" style="color:var(--boss)">🐲 Boss Final — scaffold</div>
+    <p>Baixe <code>boss.py</code> — <code>__init__</code>, <code>__str__</code> e <code>atacar()</code> já estão implementados. Seu TODO é <strong>4-C: receber_dano</strong>.</p>
+    <div class="file-cards-wrap">
+      <details class="file-card">
+        <summary>
+          <span class="file-card-name">🐲 boss.py — implemente receber_dano (TODO 4-C)</span>
+          <span class="file-card-toggle"></span>
+          <span class="file-card-actions">
+            <button class="btn-copy-file" onclick="copyFileCard(event,this)">Copiar</button>
+            <button class="btn-dl-file js-download" data-href="scaffold/lab4-polimorfismo/boss.py" data-name="boss.py" onclick="event.stopPropagation()">Baixar</button>
+          </span>
+        </summary>
+        <pre>"""Boss — Antagonista final. Herda de Personagem e usa todos os conceitos."""
+
+from personagem import Personagem
+from dado import rolar_dado
+
+
+class Boss(Personagem):
+    pontos_de_vida_max = 200
+
+    def __init__(self, nome: str):
+        super().__init__(nome, rolar=False)
+        self.forca = 18; self.destreza = 14; self.constituicao = 16
+        self.sabedoria = 12; self.inteligencia = 10; self.carisma = 8
+        self.pontos_de_vida = self.pontos_de_vida_max
+        self.escudo = 10
+
+    def __str__(self) -> str:
+        return f"🐲 {self.nome} (PV: {self.pontos_de_vida} | Escudo: {self.escudo})"
+
+    # TODO 4-C: implemente receber_dano
+    # dano_real = max(0, dano - self.escudo)
+    # self.pontos_de_vida = max(0, self.pontos_de_vida - dano_real)
+    def receber_dano(self, dano: int) -> None:
+        pass  # apague e implemente
+
+    def atacar(self, alvo: Personagem) -> int:
+        modificador = (self.forca - 10) // 2
+        dano = rolar_dado(10) + rolar_dado(10) + modificador
+        alvo.receber_dano(dano)
+        print(f"🐲 {self.nome} conjura FÚRIA SOMBRIA em {alvo.nome}: {dano}!")
+        return dano</pre>
+      </details>
+    </div>
+    <button class="next-step-btn" onclick="nextStep('l4-boss-pense')" style="background:var(--boss)">🤔 Próxima etapa: Reflexão final →</button>
+  </div>
+
+  <!-- Boss Pense -->
+  <div class="block content" id="l4-boss-pense" style="--lc:var(--boss);--ls:var(--boss-soft);--lb:var(--boss-border)">
+    <div class="block-label" style="color:var(--boss)">🤔 Pense &amp; Anote — Boss</div>
+    <p style="margin-bottom:1rem;font-size:.92rem">Últimas questões — anote no <code>.docx</code>. Estas valem pela integração dos 4 labs.</p>
+    <div class="question-card" style="border-left-color:var(--boss)">
+      <div class="q-num" style="color:var(--boss)">Questão 15</div>
+      <p><code>boss.py</code> importa <code>rolar_dado</code> de <code>dado.py</code> (Lab 1). O que acontece se o seu <code>dado.py</code> tiver um erro (por exemplo, <code>rolar_dado</code> retornando sempre 0)? Como a <strong>modularização</strong> ajuda a identificar e isolar esse problema?</p>
+      <div class="q-btns"><button class="q-copy-btn" onclick="copyQuestion(this)">Copiar pergunta</button><button class="pense-check-btn" onclick="togglePense(this,'l4bp0')" data-key="l4bp0">✏️ Já anotei no .docx</button></div>
+    </div>
+    <div class="question-card" style="border-left-color:var(--boss)">
+      <div class="q-num" style="color:var(--boss)">Questão 16 — Síntese final</div>
+      <p>O Boss usa os 4 conceitos de POO juntos. Para cada um, cite: (a) qual arquivo e método implementa o conceito no Boss, (b) o que aconteceria se você <em>não</em> tivesse usado aquele conceito (o que quebraria ou ficaria pior no código?).</p>
+      <div class="q-btns"><button class="q-copy-btn" onclick="copyQuestion(this)">Copiar pergunta</button><button class="pense-check-btn" onclick="togglePense(this,'l4bp1')" data-key="l4bp1">✏️ Já anotei no .docx</button></div>
+    </div>
+    <button class="next-step-btn goto-next-lab" onclick="switchTab(6)" style="background:linear-gradient(135deg,var(--boss),var(--l4))">
+      👑 Boss derrotado? Ir para Entrega Final 📤 →
+    </button>
+  </div>
+
+  <div class="lab-complete-banner" id="lab4-complete-banner">
+    <span class="banner-emoji">👑</span>
+    <h3>Forja de Heróis concluída!</h3>
+    <p>Você ganhou a <strong>Lâmina ⚔️</strong> e a <strong>Coroa 👑</strong>. O Ancião Sombrio foi derrotado!</p>
+  </div>
+
+</div><!-- /panel-4 -->
+
+<!-- ══ PANEL 5 — Lab 5 · Desafio (em casa) ══ -->
+<div id="panel-5" role="tabpanel" aria-labelledby="tab-5" hidden class="panel-boss">
+  <div class="scene-banner" data-bg="🐉">
+    <span class="scene-art">🐉 ⚔️ 🏹</span>
+    <div class="scene-title">Lab 5 — Desafio (em casa)</div>
+    <div class="scene-sub">Conteúdo extra para os que querem virar Mestre da Forja!</div>
+  </div>
+
+  <div class="lab-banner">
+    <div class="lab-banner-left">
+      <h2>🐉 Lab 5 — Desafio</h2>
+      <div class="lab-meta">
+        <span class="lab-meta-item">🏠 Em casa</span>
+        <span class="lab-meta-item">⭐ Opcional</span>
+        <span class="lab-meta-item">🔓 Sem entrega</span>
+      </div>
+      <p class="lab-objective"><strong>Objetivo:</strong> implementar os conteúdos que ficaram de fora dos labs em sala: <code>__radd__</code> com Item, Arqueiro com crítico, Inventario(list) e atacar() do Boss.</p>
+    </div>
+    <span class="time-badge" style="background:var(--boss)">🏠 Em casa</span>
+  </div>
+
+  <div class="block content">
+    <div class="block-label">🎁 O que está aqui</div>
+    <p>Baixe os scaffolds abaixo e implemente os desafios na ordem que quiser. Não há prazo, não há entrega separada.</p>
+    <ul class="todo-list">
+      <li class="todo-item"><span class="todo-tag" style="background:var(--boss-soft);color:var(--boss);border-color:var(--boss-border)">A</span><span class="todo-text">Em <code>item.py</code>: implemente <code>__radd__</code> — <code>heroi + item</code> retorna novo Personagem com bônus aplicados. <details class="dica-details"><summary>💡 Dica</summary><div class="dica-body">Crie um novo Personagem, copie os 6 atributos com <code>getattr</code>/<code>setattr</code>, aplique <code>self.bonus</code>, retorne o novo objeto.</div></details></span></li>
+      <li class="todo-item"><span class="todo-tag" style="background:var(--boss-soft);color:var(--boss);border-color:var(--boss-border)">B</span><span class="todo-text">Em <code>racas.py</code>: implemente <code>Arqueiro</code> com <code>atacar()</code> e acerto crítico (role d20; se ≥ 18, dano dobrado).</span></li>
+      <li class="todo-item"><span class="todo-tag" style="background:var(--boss-soft);color:var(--boss);border-color:var(--boss-border)">C</span><span class="todo-text">Em <code>inventario.py</code>: implemente <code>Inventario(list).buscar(nome)</code> — case-insensitive.</span></li>
+      <li class="todo-item"><span class="todo-tag" style="background:var(--boss-soft);color:var(--boss);border-color:var(--boss-border)">D</span><span class="todo-text">Em <code>boss_editavel.py</code>: implemente <code>Boss.atacar()</code> com suas próprias regras!</span></li>
+    </ul>
+
+    <div class="file-cards-wrap">
+      <details class="file-card">
+        <summary>
+          <span class="file-card-name">📦 item.py</span>
+          <span class="file-card-toggle"></span>
+          <span class="file-card-actions">
+            <button class="btn-dl-file js-download" data-href="scaffold/lab5-desafio/item.py" data-name="item.py" onclick="event.stopPropagation()">Baixar</button>
+          </span>
+        </summary>
+        <pre>class Item:
+    def __init__(self, nome, bonus):
+        self.nome = nome
+        self.bonus = bonus
+
+    def __radd__(self, other):
+        pass  # DESAFIO A: implemente</pre>
+      </details>
+      <details class="file-card">
+        <summary>
+          <span class="file-card-name">🏹 racas.py (com Arqueiro)</span>
+          <span class="file-card-toggle"></span>
+          <span class="file-card-actions">
+            <button class="btn-dl-file js-download" data-href="scaffold/lab5-desafio/racas.py" data-name="racas.py" onclick="event.stopPropagation()">Baixar</button>
+          </span>
+        </summary>
+        <pre>class Arqueiro(Personagem):
+    bonus_racial = {"destreza": 2, "sabedoria": 1}
+
+    def __init__(self, nome, rolar=True):
+        pass  # cole do Lab 3
+
+    def atacar(self, alvo):
+        pass  # DESAFIO B: implemente com crítico</pre>
+      </details>
+      <details class="file-card">
+        <summary>
+          <span class="file-card-name">🎒 inventario.py</span>
+          <span class="file-card-toggle"></span>
+          <span class="file-card-actions">
+            <button class="btn-dl-file js-download" data-href="scaffold/lab5-desafio/inventario.py" data-name="inventario.py" onclick="event.stopPropagation()">Baixar</button>
+          </span>
+        </summary>
+        <pre>class Inventario(list):
+    def buscar(self, nome):
+        pass  # DESAFIO C: implemente</pre>
+      </details>
+      <details class="file-card">
+        <summary>
+          <span class="file-card-name">🐲 boss_editavel.py</span>
+          <span class="file-card-toggle"></span>
+          <span class="file-card-actions">
+            <button class="btn-dl-file js-download" data-href="scaffold/lab5-desafio/boss_editavel.py" data-name="boss_editavel.py" onclick="event.stopPropagation()">Baixar</button>
+          </span>
+        </summary>
+        <pre>class Boss(Personagem):
+    def receber_dano(self, dano):
+        pass  # cole do Lab 4
+
+    def atacar(self, alvo):
+        pass  # DESAFIO D: suas regras!</pre>
+      </details>
+    </div>
+  </div>
+</div><!-- /panel-5 -->
+
+<!-- ══ PANEL 6 — Entrega ══ -->
+<div role="tabpanel" id="panel-6" aria-labelledby="tab-6" hidden>
+
+  <div class="score-panel">
+    <h3>🏆 Seu progresso na Forja de Heróis</h3>
+    <div class="xp-full-bg"><div class="xp-full-fill" id="xp-full-fill"></div></div>
+    <div class="score-detail" id="score-detail">0 de 40 itens concluídos (0%)</div>
+  </div>
+
+  <div class="entrega-box">
+    <h2>📤 Entrega única — após Boss Final</h2>
+    <ol class="steps">
+      <li>Reúna sua <strong>dupla</strong> (uma entrega por dupla, com os nomes de ambos).</li>
+      <li>Baixe o template, preencha as respostas das questões <strong>Q1–Q16</strong> e salve como <code>respostas-sobrenome1-sobrenome2.docx</code>.</li>
+      <li>Organize os códigos nas pastas: <code>codigo/lab1/</code>, <code>codigo/lab2/</code>, <code>codigo/lab3/</code>, <code>codigo/lab4/</code>.</li>
+      <li>Compacte tudo em <code>sobrenome1-sobrenome2-estudo-dirigido.zip</code>:<br>
+        <pre style="margin-top:.5rem;font-size:.8rem">sobrenome1-sobrenome2-estudo-dirigido.zip
+├── respostas-sobrenome1-sobrenome2.docx
+└── codigo/
+    ├── lab1/   ← dado.py, personagem.py, main.py
+    ├── lab2/   ← personagem.py, main.py
+    ├── lab3/   ← racas.py, main.py
+    └── lab4/   ← personagem.py, racas.py, arena.py, boss.py, main.py</pre>
+      </li>
+      <li>Envie o <code>.zip</code> na tarefa do Google Classroom da turma.</li>
+    </ol>
+    <div class="entrega-btns">
+      <button class="entrega-btn btn-primary js-download" data-href="template-entrega.docx" data-name="template-entrega.docx">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Baixar template .docx
+      </button>
+      <a class="entrega-btn btn-classroom" href="#" aria-label="Acessar tarefa no Google Classroom">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Abrir Classroom
+      </a>
+    </div>
+  </div>
+
+</div><!-- /panel-6 -->
+
+</main>
+
+<footer>
+  <span>IFRN-PF · Programação Orientada a Objetos · Forja de Heróis</span>
+  &nbsp;·&nbsp;<a href="../../index.html">← Voltar à disciplina</a>
+  &nbsp;·&nbsp;<a href="guia-do-professor.md" target="_blank">Guia do professor</a>
+</footer>
+
+<canvas id="confetti-canvas" aria-hidden="true"></canvas>
+
+<script>
+/* ── DATA ── */
+const CHECKS = {
+  1:{checklist:['l1c0','l1c1','l1c2','l1c3'],pense:['l1p0','l1p1','l1p2','l1p3']},
+  2:{checklist:['l2c0','l2c1','l2c2','l2c3'],pense:['l2p0','l2p1','l2p2','l2p3']},
+  3:{checklist:['l3c0','l3c1','l3c2','l3c3'],pense:['l3p0','l3p1','l3p2']},
+  4:{checklist:['l4c0','l4c1','l4c2','l4c3'],pense:['l4p0','l4p1','l4p2','l4bp0','l4bp1']},
+};
+// Lab 4: Arena (l4c0-l4c3) + Questões Arena + Boss
+const ARENA_KEYS = ['l4c0','l4c1','l4c2','l4c3','l4p0','l4p1','l4p2'];
+const BOSS_KEYS  = ['l4bp0','l4bp1'];
+// Lab 5 (Desafio) não conta para XP obrigatório
+const TOTAL_ITEMS = Object.values(CHECKS).reduce((t,g)=>t+g.checklist.length+g.pense.length,0);
+const AVATARS = [
+  {pct:0,  emoji:'🧒', label:'Novato'},
+  {pct:25, emoji:'🧙', label:'Aprendiz'},
+  {pct:50, emoji:'🧙‍♂️', label:'Iniciado'},
+  {pct:75, emoji:'⚔️', label:'Aventureiro'},
+  {pct:100,emoji:'👑', label:'Mestre Forjado'},
+];
+const wasLabDone = {1:false,2:false,3:false,4:false,boss:false};
+
+/* ── HELPERS ── */
+function allKeys(){return Object.values(CHECKS).flatMap(g=>[...g.checklist,...g.pense])}
+function labKeys(lab){const g=CHECKS[lab];return[...g.checklist,...g.pense]}
+function isChecked(key){try{return localStorage.getItem('fh_'+key)==='1'}catch(e){return false}}
+function setChecked(key,val){try{localStorage.setItem('fh_'+key,val?'1':'0')}catch(e){}}
+function saveTab(n){try{localStorage.setItem('fh_tab',n)}catch(e){}}
+function loadTab(){try{return parseInt(localStorage.getItem('fh_tab'))||1}catch(e){return 1}}
+
+/* ── TABS ── */
+function switchTab(n){
+  document.querySelectorAll('[role="tabpanel"]').forEach(p=>p.hidden=true);
+  document.querySelectorAll('.tab-btn').forEach(b=>{
+    b.setAttribute('aria-selected','false');
+  });
+  const panel = document.getElementById('panel-'+n);
+  if(panel) panel.hidden = false;
+  const tab = document.getElementById('tab-'+n);
+  if(tab){tab.setAttribute('aria-selected','true');}
+  saveTab(n);
+  // scroll tabs into view
+  if(tab) tab.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ── NEXT STEP ── */
+function nextStep(targetId){
+  const el = document.getElementById(targetId);
+  if(!el) return;
+  const tabsH = document.getElementById('tabs-wrap');
+  const offset = tabsH ? tabsH.offsetHeight + 16 : 90;
+  const top = el.getBoundingClientRect().top + window.scrollY - offset;
+  window.scrollTo({top, behavior:'smooth'});
+  // briefly highlight target
+  el.style.transition='box-shadow 300ms';
+  el.style.boxShadow='0 0 0 3px var(--l1)';
+  setTimeout(()=>el.style.boxShadow='',1200);
+}
+
+/* ── TOGGLE CHECK / PENSE ── */
+function toggleCheck(li,key){
+  li.classList.toggle('checked');
+  setChecked(key,li.classList.contains('checked'));
+  updateProgress();
+}
+function togglePense(btn,key){
+  btn.classList.toggle('checked');
+  const ok=btn.classList.contains('checked');
+  btn.innerHTML=ok?'✅ Anotado!':'✏️ Já anotei no .docx';
+  setChecked(key,ok);updateProgress();
+}
+
+/* ── PROGRESS ── */
+function updateProgress(){
+  const all=allKeys();
+  const done=all.filter(isChecked).length;
+  const pct=all.length?(done/all.length*100):0;
+
+  // top XP bar
+  const fill=document.getElementById('xp-fill');
+  if(fill)fill.style.width=pct+'%';
+  const txt=document.getElementById('xp-text');
+  if(txt)txt.textContent=`${done} de ${TOTAL_ITEMS} XP`;
+
+  // entrega XP bar
+  const ff=document.getElementById('xp-full-fill');
+  if(ff)ff.style.width=pct+'%';
+  const det=document.getElementById('score-detail');
+  if(det)det.textContent=`${done} de ${TOTAL_ITEMS} itens concluídos (${Math.round(pct)}%)`;
+
+  // avatar
+  let av=AVATARS[0];
+  for(const a of AVATARS){if(pct>=a.pct)av=a;}
+  const avEl=document.getElementById('hero-avatar');
+  if(avEl){avEl.textContent=av.emoji;avEl.setAttribute('data-level',av.label);}
+  const lvEl=document.getElementById('hero-level');
+  if(lvEl)lvEl.textContent=av.label;
+
+  // per-lab done/medal/tab
+  updateLabStatus(1,'medal-1','lab1-complete-banner');
+  updateLabStatus(2,'medal-2','lab2-complete-banner');
+  updateLabStatus(3,'medal-3','lab3-complete-banner');
+
+  const arenaDone = ARENA_KEYS.every(isChecked);
+  const bossDone  = BOSS_KEYS.every(isChecked);
+  const lab4Done  = labKeys(4).every(isChecked);
+
+  // medal 4 = arena, medal 5 = boss
+  setMedal('medal-4', arenaDone);
+  setMedal('medal-5', bossDone);
+  setTabDone(4, lab4Done);
+
+  // lab4 banner
+  const b4=document.getElementById('lab4-complete-banner');
+  if(b4)b4.classList.toggle('ready',lab4Done);
+
+  // confetti triggers
+  for(let lab=1;lab<=3;lab++){
+    const labDone=labKeys(lab).every(isChecked);
+    if(labDone&&!wasLabDone[lab]){wasLabDone[lab]=true;fireConfetti();}
+    else if(!labDone){wasLabDone[lab]=false;}
+  }
+  if(arenaDone&&!wasLabDone[4]){wasLabDone[4]=true;fireConfetti();}
+  else if(!arenaDone){wasLabDone[4]=false;}
+  if(bossDone&&!wasLabDone.boss){wasLabDone.boss=true;fireConfetti();fireConfetti();}
+  else if(!bossDone){wasLabDone.boss=false;}
+}
+
+function updateLabStatus(lab, medalId, bannerId){
+  const done = labKeys(lab).every(isChecked);
+  setMedal(medalId, done);
+  setTabDone(lab, done);
+  const banner = document.getElementById(bannerId);
+  if(banner) banner.classList.toggle('ready', done);
+  if(done && !wasLabDone[lab]){wasLabDone[lab]=true; fireConfetti();}
+  else if(!done){wasLabDone[lab]=false;}
+}
+
+function setMedal(id, unlocked){
+  const el=document.getElementById(id);
+  if(!el)return;
+  const was=el.classList.contains('unlocked');
+  el.classList.toggle('unlocked',unlocked);
+  if(unlocked&&!was){el.style.transform='scale(1.3)';setTimeout(()=>el.style.transform='',600);}
+}
+function setTabDone(n, done){
+  const tab=document.getElementById('tab-'+n);
+  if(tab) tab.classList.toggle('tab-done', done);
+}
+
+/* ── CONFETTI ── */
+function fireConfetti(){
+  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  const canvas=document.getElementById('confetti-canvas');if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  canvas.width=innerWidth;canvas.height=innerHeight;canvas.style.display='block';
+  const cols=['#8b5cf6','#06b6d4','#f97316','#ec4899','#22c55e','#fbbf24'];
+  const pts=Array.from({length:110},()=>({
+    x:Math.random()*innerWidth,y:-20-Math.random()*80,
+    vx:(Math.random()-.5)*4,vy:Math.random()*3+3,
+    r:Math.random()*Math.PI*2,rv:(Math.random()-.5)*.18,
+    c:cols[Math.random()*6|0],w:Math.random()*11+5,h:Math.random()*5+3
+  }));
+  let f=0;
+  (function tick(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.vy+=.1;p.r+=p.rv;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);
+      ctx.fillStyle=p.c;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();
+    });
+    if(++f<200&&pts.some(p=>p.y<canvas.height+40))requestAnimationFrame(tick);
+    else canvas.style.display='none';
+  })();
+}
+
+/* ── COPY ── */
+function copyCode(btn){
+  const pre=btn.closest('.code-wrap').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(()=>{
+    const orig=btn.textContent;btn.textContent='Copiado!';
+    setTimeout(()=>btn.textContent=orig,1800);
+  }).catch(()=>{});
+}
+function copyQuestion(btn){
+  const text=btn.closest('.question-card').querySelector('p').innerText;
+  navigator.clipboard.writeText(text).then(()=>{
+    const orig=btn.textContent;btn.textContent='Copiado!';
+    setTimeout(()=>btn.textContent=orig,1800);
+  }).catch(()=>{});
+}
+
+/* ── KEYBOARD NAV FOR TABS ── */
+document.addEventListener('keydown',e=>{
+  if(e.target.closest('[role="tablist"]')){
+    const tabs=[...document.querySelectorAll('.tab-btn')];
+    const cur=tabs.findIndex(t=>t.getAttribute('aria-selected')==='true');
+    if(e.key==='ArrowRight'&&cur<tabs.length-1){tabs[cur+1].click();tabs[cur+1].focus();}
+    if(e.key==='ArrowLeft'&&cur>0){tabs[cur-1].click();tabs[cur-1].focus();}
+  }
+});
+
+/* ── RESTORE STATE ── */
+function restoreState(){
+  // restore checks
+  for(let lab=1;lab<=4;lab++) wasLabDone[lab]=labKeys(lab).every(isChecked);
+  wasLabDone.boss=BOSS_KEYS.every(isChecked);
+  document.querySelectorAll('.checklist li[data-key]').forEach(li=>{
+    if(isChecked(li.dataset.key))li.classList.add('checked');
+  });
+  document.querySelectorAll('.pense-check-btn[data-key]').forEach(btn=>{
+    if(isChecked(btn.dataset.key)){btn.classList.add('checked');btn.innerHTML='✅ Anotado!';}
+  });
+  updateProgress();
+  // restore tab
+  switchTab(loadTab());
+}
+
+restoreState();
+
+/* ── FORCE DOWNLOAD (contorna text/plain do GitHub Pages) ── */
+function forceDownload(href, name) {
+  fetch(href)
+    .then(r => r.blob())
+    .then(blob => {
+      const url = URL.createObjectURL(new Blob([blob], {type:'application/octet-stream'}));
+      const a = document.createElement('a');
+      a.href = url; a.download = name;
+      document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 500);
+    })
+    .catch(() => { window.location.href = href; }); // fallback
+}
+
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.js-download');
+  if (!btn) return;
+  e.preventDefault();
+  forceDownload(btn.dataset.href, btn.dataset.name);
+});
+
+/* ── COPY FILE CARD CONTENT ── */
+function copyFileCard(e, btn) {
+  e.preventDefault();
+  e.stopPropagation();
+  const pre = btn.closest('details').querySelector('pre');
+  if (!pre) return;
+  navigator.clipboard.writeText(pre.textContent).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copiado!';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+</script>
+</body>
+</html>
