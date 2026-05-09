@@ -2082,7 +2082,7 @@ document.addEventListener('click', e => {
   if (!btn) return;
   e.preventDefault();
   forceDownload(btn.dataset.href, btn.dataset.name);
-});
+}, true); // capture phase: runs before inline stopPropagation on details buttons
 
 /* ── COPY FILE CARD CONTENT ── */
 function copyFileCard(e, btn) {
