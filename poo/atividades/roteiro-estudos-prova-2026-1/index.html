@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roteiro de Estudos — Prova Final POO · IFRN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS (design system do site) ─── */
+:root {
+  --bg:#fef9f3; --card:#ffffff; --text:#1a1230; --muted:#5a5370; --border:#e8e0f5;
+  --boss:#7c3aed; --boss-soft:#ede9fe; --boss-border:#c4b5fd;
+  --ok:#22c55e; --ok-soft:#dcfce7;
+  --bad:#ef4444; --bad-soft:#fee2e2;
+  --warn-bg:#fffbeb; --warn-border:#fcd34d; --warn-text:#92400e;
+  --treino:#f97316; --treino-soft:#fff3e9;
+  --radius:16px; --shadow:0 4px 20px rgba(0,0,0,.08);
+  --heading:'Baloo 2',sans-serif; --body:'Comic Neue',cursive;
+  --mono:'Fira Code','Courier New',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--heading);font-weight:400;background:var(--bg);color:var(--text);line-height:1.6;letter-spacing:.01em}
+
+/* ─── HERO modo treino ─── */
+.hero{
+  padding:clamp(2.2rem,5vw,4rem) clamp(1.25rem,5vw,3rem) clamp(2rem,4vw,3rem);
+  background:
+    radial-gradient(ellipse 900px 500px at 85% -20%,var(--boss-soft),transparent 60%),
+    radial-gradient(ellipse 600px 420px at 8% 115%,var(--treino-soft),transparent 60%),
+    var(--bg);
+  border-bottom:1px solid var(--border); text-align:center; position:relative; overflow:hidden;
+}
+.tape{
+  position:absolute; top:24px; right:-64px; transform:rotate(35deg);
+  background:repeating-linear-gradient(45deg,var(--treino) 0 14px,#1a1230 14px 28px);
+  color:#fff; font-family:var(--heading); font-weight:800; letter-spacing:.18em;
+  padding:6px 70px; font-size:.8rem; opacity:.92; pointer-events:none;
+}
+.tape span{background:var(--treino);padding:2px 10px;border-radius:6px}
+.hero .kicker{font-family:var(--heading);font-weight:700;color:var(--boss);letter-spacing:.12em;text-transform:uppercase;font-size:.85rem}
+.hero h1{font-family:var(--heading);font-weight:800;font-size:clamp(1.9rem,5vw,3.2rem);line-height:1.12;margin:.4rem 0 .6rem}
+.hero h1 em{font-style:normal;color:var(--boss)}
+.hero .sub{color:var(--muted);max-width:640px;margin:0 auto}
+.countdown{
+  display:inline-flex;gap:.9rem;margin-top:1.4rem;background:var(--card);
+  border:2px solid var(--boss-border);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:.8rem 1.4rem;font-family:var(--heading);align-items:center;flex-wrap:wrap;justify-content:center
+}
+.countdown .n{font-size:1.7rem;font-weight:800;color:var(--boss)}
+.countdown .lbl{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+
+/* ─── LAYOUT ─── */
+main{max-width:880px;margin:0 auto;padding:0 clamp(1rem,4vw,2rem) 4rem}
+section{margin-top:clamp(2.2rem,5vw,3.2rem)}
+h2.sec{
+  font-family:var(--heading);font-weight:800;letter-spacing:.01em;font-size:clamp(1.3rem,3vw,1.7rem);
+  display:flex;align-items:center;gap:.55rem;margin-bottom:1rem
+}
+h2.sec .chip{font-size:1.25rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.3rem 1.4rem}
+
+/* sobre a prova */
+table.fato{width:100%;border-collapse:collapse}
+table.fato td{padding:.55rem .4rem;border-bottom:1px dashed var(--border);vertical-align:top}
+table.fato td:first-child{font-family:var(--heading);font-weight:700;white-space:nowrap;width:34%;color:var(--boss)}
+.habilidades{display:grid;gap:.7rem;margin-top:1rem}
+.hab{display:flex;gap:.7rem;align-items:flex-start;background:var(--boss-soft);border:1px solid var(--boss-border);border-radius:12px;padding:.7rem .9rem}
+.hab b{font-family:var(--heading)}
+.aviso{background:var(--warn-bg);border:1px solid var(--warn-border);color:var(--warn-text);border-radius:12px;padding:.7rem .9rem;margin-top:1rem;font-weight:700}
+
+/* estratégia */
+ol.estrategia{list-style:none;counter-reset:e;display:grid;gap:.8rem}
+ol.estrategia li{counter-increment:e;display:flex;gap:.9rem;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:1rem 1.1rem}
+ol.estrategia li::before{
+  content:counter(e);flex:0 0 auto;width:2rem;height:2rem;border-radius:50%;
+  background:var(--treino);color:#fff;font-family:var(--heading);font-weight:800;
+  display:flex;align-items:center;justify-content:center
+}
+
+/* tópicos */
+details.topico{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:.8rem;overflow:hidden}
+details.topico summary{
+  cursor:pointer;list-style:none;display:flex;align-items:center;gap:.7rem;
+  font-family:var(--heading);font-weight:700;font-size:1.05rem;padding:1rem 1.2rem
+}
+details.topico summary::-webkit-details-marker{display:none}
+details.topico summary .seta{margin-left:auto;transition:transform .25s;color:var(--muted)}
+details.topico[open] summary .seta{transform:rotate(90deg)}
+details.topico .body{padding:0 1.2rem 1.1rem}
+details.topico ul{padding-left:1.2rem;display:grid;gap:.35rem}
+.sabe{
+  margin-top:.8rem;background:var(--ok-soft);border:1px solid #bbf7d0;border-radius:12px;
+  padding:.65rem .85rem;display:flex;gap:.6rem;align-items:flex-start;cursor:pointer
+}
+.sabe input{margin-top:.3rem;accent-color:var(--ok);width:1.05rem;height:1.05rem;flex:0 0 auto}
+.sabe b{font-family:var(--heading)}
+.progresso{position:sticky;bottom:12px;margin-top:1rem;background:var(--card);border:2px solid var(--boss-border);border-radius:999px;box-shadow:var(--shadow);padding:.5rem .9rem;display:flex;gap:.7rem;align-items:center;font-family:var(--heading);font-weight:700}
+.barra{flex:1;height:10px;background:var(--boss-soft);border-radius:999px;overflow:hidden}
+.barra i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--boss),var(--ok));border-radius:999px;transition:width .4s}
+
+/* quiz */
+.q{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.2rem 1.3rem;margin-bottom:1rem}
+.q .tag{font-family:var(--heading);font-weight:800;color:var(--treino);letter-spacing:.06em}
+.q pre{background:#241f35;color:#eae6f7;border-radius:12px;padding:.9rem 1rem;font-family:var(--mono);font-size:.86rem;line-height:1.5;overflow-x:auto;margin:.7rem 0}
+.q code{font-family:var(--mono);background:var(--boss-soft);padding:.06em .35em;border-radius:6px;font-size:.92em}
+.q pre code{background:none;padding:0}
+.alts{display:grid;gap:.45rem;margin-top:.7rem}
+.alts button{
+  text-align:left;font-family:var(--heading);font-weight:400;font-size:.97rem;background:var(--bg);
+  border:2px solid var(--border);border-radius:12px;padding:.55rem .8rem;cursor:pointer;
+  transition:transform .12s, border-color .12s
+}
+.alts button:hover{transform:translateX(4px);border-color:var(--boss-border)}
+.alts button b{font-family:var(--heading);color:var(--boss);margin-right:.35rem}
+.q.done .alts button{cursor:default;opacity:.65;transform:none}
+.q.done .alts button.certa{opacity:1;border-color:var(--ok);background:var(--ok-soft)}
+.q.done .alts button.errada-marcada{opacity:1;border-color:var(--bad);background:var(--bad-soft)}
+.explica{display:none;margin-top:.8rem;border-radius:12px;padding:.75rem .9rem;font-size:.95rem}
+.q.done .explica{display:block}
+.q.acertou .explica{background:var(--ok-soft);border:1px solid #bbf7d0}
+.q.errou .explica{background:var(--bad-soft);border:1px solid #fecaca}
+.placar{font-family:var(--heading);font-weight:800;text-align:center;font-size:1.15rem;background:var(--boss-soft);border:2px dashed var(--boss-border);border-radius:var(--radius);padding:.9rem;margin-top:1.2rem}
+
+/* materiais + footer */
+ul.materiais{list-style:none;display:grid;gap:.6rem}
+ul.materiais li{display:flex;gap:.6rem;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.7rem .9rem;box-shadow:var(--shadow)}
+footer{border-top:1px solid var(--border);margin-top:3rem;padding:1.6rem;text-align:center;color:var(--muted);font-size:.9rem}
+footer a{color:var(--boss);font-weight:700;text-decoration:none}
+.voltar{display:inline-block;margin-top:.6rem;font-family:var(--heading);font-weight:700;color:var(--boss);text-decoration:none}
+
+@media (max-width:560px){ .tape{display:none} }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="tape"><span>MODO TREINO</span></div>
+  <p class="kicker">POO · Info2M · IFRN Parnamirim</p>
+  <h1>Roteiro de Estudos<br><em>Prova Final · 03/07</em></h1>
+  <p class="sub">Tudo o que cai, como estudar e um simulado interativo para você chegar pronto(a). Decorar não basta — a prova pede <strong>aplicar</strong>.</p>
+  <div class="countdown" id="countdown" aria-live="polite">
+    <div><div class="n" id="cd-dias">–</div><div class="lbl">dias</div></div>
+    <div><div class="n">·</div></div>
+    <div><div class="n" id="cd-data">03/07</div><div class="lbl">sexta · 100 min</div></div>
+  </div>
+</header>
+
+<main>
+
+<section id="sobre">
+  <h2 class="sec"><span class="chip">📋</span> Sobre a prova</h2>
+  <div class="card">
+    <table class="fato">
+      <tr><td>Data</td><td>sexta-feira, <strong>03/07/2026</strong></td></tr>
+      <tr><td>Duração</td><td>100 minutos</td></tr>
+      <tr><td>Formato</td><td>30 questões de múltipla escolha (A–E), com folha de respostas própria</td></tr>
+      <tr><td>Conteúdo</td><td>todo o semestre — Aulas 1 a 6</td></tr>
+      <tr><td>Peso</td><td><strong>50% da nota do bimestre</strong></td></tr>
+      <tr><td>Material</td><td>caneta azul ou preta · prova individual e sem consulta</td></tr>
+    </table>
+    <div class="habilidades">
+      <div class="hab">🐍 <span><b>Ler código Python</b> e prever o que acontece (saída, erro, comportamento)</span></div>
+      <div class="hab">📐 <span><b>Ler diagramas UML</b> (notação, relacionamentos, multiplicidade) e ligar diagrama ↔ código</span></div>
+      <div class="hab">🔎 <span><b>Identificar conceitos de POO</b> aplicados (ou violados) em situações concretas</span></div>
+    </div>
+    <div class="aviso">⚠️ Decorar definição não basta: as questões pedem para APLICAR o conceito.</div>
+  </div>
+</section>
+
+<section id="estrategia">
+  <h2 class="sec"><span class="chip">🎯</span> Como estudar</h2>
+  <ol class="estrategia">
+    <li><span><strong>Refaça a revisão das aulas 5-6.</strong> A prova segue o mesmo estilo da atividade da gincana — quem domina aquela atividade está com ~60% do caminho andado.</span></li>
+    <li><span><strong>Execute código de verdade.</strong> Digite os exemplos no computador, PREVEJA a saída antes de rodar e confira. Errou? Descubra por quê. Esse ciclo vale mais que reler slides.</span></li>
+    <li><span><strong>Desenhe o UML do seu projeto final.</strong> Use o diagrama do seu grupo para treinar visibilidade, relacionamentos e multiplicidade.</span></li>
+    <li><span><strong>Estude em grupo, responda sozinho.</strong> Explicar um conceito para o colega é o melhor teste de que você sabe.</span></li>
+  </ol>
+</section>
+
+<section id="topicos">
+  <h2 class="sec"><span class="chip">📚</span> O que cai, aula por aula</h2>
+
+  <details class="topico" open>
+    <summary>🧱 Aula 1 — Conceitos básicos <span class="seta">▶</span></summary>
+    <div class="body">
+      <ul>
+        <li>Classe × objeto/instância · atributo × método · construtor <code>__init__</code> · o papel do <code>self</code></li>
+        <li>Atributo de <strong>classe</strong> (compartilhado) × atributo de <strong>instância</strong> (de cada objeto)</li>
+      </ul>
+      <label class="sabe"><input type="checkbox" data-sabe="a1"><span><b>Você sabe...</b> dizer quantos objetos existem num trecho de código e o que cada um guarda?</span></label>
+    </div>
+  </details>
+
+  <details class="topico">
+    <summary>🔒 Aula 2 — Encapsulamento <span class="seta">▶</span></summary>
+    <div class="body">
+      <ul>
+        <li>Visibilidade: público, <code>_protegido</code> (convenção), <code>__privado</code> (name mangling → <code>_Classe__attr</code>)</li>
+        <li><code>@property</code> e setter com validação — por que é melhor que atributo público</li>
+      </ul>
+      <label class="sabe"><input type="checkbox" data-sabe="a2"><span><b>Você sabe...</b> prever o que acontece ao acessar <code>obj.__attr</code> de fora? E o que um setter com <code>if</code> faz com valor inválido?</span></label>
+    </div>
+  </details>
+
+  <details class="topico">
+    <summary>🧩 Aula 3 — Módulos, docstrings e sobrecarga <span class="seta">▶</span></summary>
+    <div class="body">
+      <ul>
+        <li><code>from modulo import Nome</code> × <code>import modulo</code> · docstrings (<code>"""..."""</code>, <code>help()</code>, <code>__doc__</code>)</li>
+        <li>Métodos especiais: <code>__str__</code> (o que o print mostra), <code>__eq__</code> (sem ele, <code>==</code> compara identidade!), <code>__add__</code>, <code>__lt__</code></li>
+      </ul>
+      <label class="sabe"><input type="checkbox" data-sabe="a3"><span><b>Você sabe...</b> o que <code>print(objeto)</code> mostra com e sem <code>__str__</code>? E o que <code>p1 == p2</code> retorna sem <code>__eq__</code>?</span></label>
+    </div>
+  </details>
+
+  <details class="topico">
+    <summary>🧬 Aula 4 — Herança e polimorfismo <span class="seta">▶</span></summary>
+    <div class="body">
+      <ul>
+        <li><code>class Filha(Mae)</code> · <code>super().__init__(...)</code> · sobrescrita de métodos</li>
+        <li>Polimorfismo: o mesmo <code>bicho.falar()</code> com comportamentos diferentes no loop</li>
+        <li>Herança é <strong>"é um"</strong> · composição é <strong>"tem um"</strong> — Motor NÃO herda de Carro!</li>
+      </ul>
+      <label class="sabe"><input type="checkbox" data-sabe="a4"><span><b>Você sabe...</b> seguir uma cadeia de <code>super()</code> em 3 níveis e montar a string final?</span></label>
+    </div>
+  </details>
+
+  <details class="topico">
+    <summary>🦆 Aula 5 — POO avançada <span class="seta">▶</span></summary>
+    <div class="body">
+      <ul>
+        <li><strong>Duck typing</strong>: importa o comportamento, não a linhagem — erro só aparece na chamada</li>
+        <li><strong>ABC</strong>: contrato explícito; instanciar com <code>@abstractmethod</code> pendente → <code>TypeError</code> na hora</li>
+        <li>Interfaces · <strong>mixins</strong> · MRO: <code>D(B, C)</code> procura em D → B → C → A</li>
+      </ul>
+      <label class="sabe"><input type="checkbox" data-sabe="a5"><span><b>Você sabe...</b> explicar ABC × duck typing em termos de QUANDO o erro aparece?</span></label>
+    </div>
+  </details>
+
+  <details class="topico">
+    <summary>📐 Aulas 6 e 6-2 — UML <span class="seta">▶</span></summary>
+    <div class="body">
+      <ul>
+        <li>Classe em 3 compartimentos (nome, atributos, métodos) · visibilidade <code>+</code> <code>−</code> <code>#</code></li>
+        <li><strong>Os 5 relacionamentos</strong>: herança (triângulo vazado, linha contínua) · realização (triângulo vazado, tracejada) · dependência (seta aberta tracejada) · associação (linha contínua) · agregação (losango vazio) × composição (losango preenchido)</li>
+        <li>Multiplicidade: <code>1</code>, <code>0..1</code>, <code>0..*</code>, <code>1..*</code></li>
+        <li>Diagrama ↔ código: cria a parte dentro do todo = composição · recebe pronta = agregação · usa só como parâmetro = dependência</li>
+      </ul>
+      <label class="sabe"><input type="checkbox" data-sabe="a6"><span><b>Você sabe...</b> olhar um código e dizer qual losango usar? E ler <code>1..*</code> numa associação?</span></label>
+    </div>
+  </details>
+
+  <div class="progresso" aria-live="polite">
+    <span>Autodiagnóstico</span>
+    <div class="barra"><i id="barra-fill"></i></div>
+    <span id="barra-num">0/6</span>
+  </div>
+</section>
+
+<section id="simulado">
+  <h2 class="sec"><span class="chip">🏋️</span> Simulado de treino</h2>
+  <p style="color:var(--muted);margin-bottom:1rem">Clique na alternativa para responder — o gabarito comentado aparece na hora. Questões inéditas, no mesmo estilo da prova.</p>
+  <div id="quiz"></div>
+  <div class="placar" id="placar">Responda as 10 questões para ver seu placar 🎯</div>
+</section>
+
+<section id="materiais">
+  <h2 class="sec"><span class="chip">📎</span> Materiais de apoio</h2>
+  <ul class="materiais">
+    <li>📝 <span><strong>Atividade de revisão das aulas 5-6</strong> (entregue em 19/06) — refazer é o melhor treino.</span></li>
+    <li>⚔️ <span><strong><a href="../estudo-dirigido-aulas-3-4/index.html" style="color:var(--boss)">Estudo dirigido "Forja de Heróis"</a></strong> (aulas 3-4) — módulos, sobrecarga, herança e polimorfismo na prática.</span></li>
+    <li>📑 <span><strong>Slides das Aulas 1–6</strong> e códigos de exemplo trabalhados em sala.</span></li>
+    <li>📐 <span><strong>O UML do projeto final do seu grupo</strong> — treine a notação nele.</span></li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  Bons estudos! 💪 Dúvidas: <a href="mailto:demetrios.coutinho@ifrn.edu.br">demetrios.coutinho@ifrn.edu.br</a><br>
+  <a class="voltar" href="../../index.html">← Voltar para a página da disciplina</a>
+</footer>
+
+<script>
+/* ─── contagem regressiva ─── */
+(function(){
+  const prova = new Date(2026, 6, 3, 7, 0, 0); // 03/07/2026
+  const dias = Math.max(0, Math.ceil((prova - new Date()) / 86400000));
+  document.getElementById('cd-dias').textContent = dias;
+})();
+
+/* ─── autodiagnóstico com progresso (localStorage) ─── */
+(function(){
+  const boxes = [...document.querySelectorAll('[data-sabe]')];
+  const KEY = 'roteiro-poo-sabe';
+  const saved = JSON.parse(localStorage.getItem(KEY) || '{}');
+  const fill = document.getElementById('barra-fill');
+  const num = document.getElementById('barra-num');
+  function render(){
+    const ok = boxes.filter(b => b.checked).length;
+    fill.style.width = (ok / boxes.length * 100) + '%';
+    num.textContent = ok + '/' + boxes.length;
+  }
+  boxes.forEach(b => {
+    b.checked = !!saved[b.dataset.sabe];
+    b.addEventListener('change', () => {
+      saved[b.dataset.sabe] = b.checked;
+      localStorage.setItem(KEY, JSON.stringify(saved));
+      render();
+    });
+  });
+  render();
+})();
+
+/* ─── simulado ─── */
+const QUESTOES = [
+ {t:"T1", enun:"O que o código imprime?",
+  code:`class Lampada:
+    def __init__(self):
+        self.ligada = False
+
+    def alternar(self):
+        self.ligada = not self.ligada
+
+l1 = Lampada()
+l2 = Lampada()
+l1.alternar()
+print(l1.ligada, l2.ligada)`,
+  alts:["<code>True False</code>","<code>True True</code>","<code>False False</code>","<code>False True</code>","Erro"],
+  certa:0, exp:"<b>ligada</b> é atributo de INSTÂNCIA: cada lâmpada tem o seu. Só l1 alternou (False→True); l2 continua False."},
+ {t:"T2", enun:"Em uma classe <code>Termostato</code>, o atributo <code>self.__limite</code> é acessado de fora com <code>t.__limite</code>. O resultado é:",
+  alts:["o valor normalmente","<code>None</code>","<code>AttributeError</code>","<code>SyntaxError</code>","o valor, mas com aviso"],
+  certa:2, exp:"Dois underscores ativam o name mangling: o atributo vira <code>_Termostato__limite</code>; <code>t.__limite</code> não existe → AttributeError."},
+ {t:"T3", enun:"Sem <code>__str__</code> definido na classe, <code>print(meu_objeto)</code> mostra:",
+  alts:["os atributos em ordem","erro","string vazia","algo como <code>&lt;__main__.Classe object at 0x...&gt;</code>","o nome da classe apenas"],
+  certa:3, exp:"Sem __str__, vale o padrão herdado de <code>object</code>: nome da classe + endereço de memória."},
+ {t:"T4", enun:"O que imprime?",
+  code:`class Bebida:
+    def servir(self):
+        return "líquido"
+
+class Cafe(Bebida):
+    def servir(self):
+        s = super().servir()
+        return "café: " + s
+
+print(Cafe().servir())`,
+  alts:["<code>café: líquido</code>","<code>líquido</code>","<code>café:</code>","<code>líquido: café</code>","<code>RecursionError</code>"],
+  certa:0, exp:"Cafe.servir executa, chama o da mãe via super() (\"líquido\") e concatena: café: líquido."},
+ {t:"T5", enun:"Uma função <code>def descrever(item): print(item.resumo())</code> funciona com QUALQUER objeto que tenha o método <code>resumo()</code>, sem herança comum. Isso é:",
+  alts:["name mangling","duck typing","realização","sobrecarga de operadores","composição"],
+  certa:1, exp:"Contrato implícito pelo comportamento = duck typing (\"se tem resumo(), serve\")."},
+ {t:"T6", enun:"O que acontece?",
+  code:`from abc import ABC, abstractmethod
+
+class Sensor(ABC):
+    @abstractmethod
+    def ler(self): ...
+
+s = Sensor()`,
+  alts:["cria e <code>ler()</code> retorna None","<code>ImportError</code>","cria, erro só ao chamar <code>ler()</code>","<code>SyntaxError</code>","<code>TypeError</code> na instanciação"],
+  certa:4, exp:"ABC com método abstrato pendente bloqueia a INSTANCIAÇÃO — o erro é imediato, não na chamada."},
+ {t:"T7", enun:"Em UML, <code>#temperatura: float</code> num compartimento de atributos indica visibilidade:",
+  alts:["pública","privada","protegida","estática","abstrata"],
+  certa:2, exp:"<code>#</code> = protegido; <code>+</code> = público; <code>−</code> = privado."},
+ {t:"T8", enun:"<code>Pedido</code> cria seus <code>ItemPedido</code> internamente (<code>self.itens = [ItemPedido(p) for p in produtos]</code>) e eles não existem fora do pedido. Em UML, a relação Pedido→ItemPedido é:",
+  alts:["composição (losango preenchido)","agregação (losango vazio)","herança","dependência","realização"],
+  certa:0, exp:"O todo CRIA as partes e elas morrem com ele → composição (losango preenchido no lado do todo)."},
+ {t:"T9", enun:"Uma <code>Playlist</code> recebe no construtor objetos <code>Musica</code> que já existiam antes (e continuam existindo se a playlist for apagada). Essa relação é:",
+  alts:["composição","generalização","realização","agregação","name mangling"],
+  certa:3, exp:"As partes existem independentemente do todo → agregação (losango vazio)."},
+ {t:"T10", enun:"Qual conceito está sendo VIOLADO?",
+  code:`class Paciente:
+    def __init__(self):
+        self._idade = 0
+
+p = Paciente()
+p._idade = -42`,
+  alts:["herança","encapsulamento","polimorfismo","abstração","duck typing"],
+  certa:1, exp:"<code>_idade</code> é protegido por convenção; mexer direto de fora pula a validação (idade negativa!). Um setter/property com if evitaria isso."}
+];
+
+(function(){
+  const wrap = document.getElementById('quiz');
+  const LETRAS = ["A","B","C","D","E"];
+  let respondidas = 0, acertos = 0;
+  QUESTOES.forEach((q, qi) => {
+    const div = document.createElement('div');
+    div.className = 'q';
+    div.innerHTML = `<span class="tag">${q.t}</span> · <span>${q.enun}</span>` +
+      (q.code ? `<pre><code>${q.code.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</code></pre>` : '') +
+      `<div class="alts">` +
+      q.alts.map((a, i) => `<button type="button" data-i="${i}"><b>${LETRAS[i]})</b> ${a}</button>`).join('') +
+      `</div><div class="explica"><strong id="veredito-${qi}"></strong> ${q.exp}</div>`;
+    wrap.appendChild(div);
+    div.querySelectorAll('.alts button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (div.classList.contains('done')) return;
+        const escolha = +btn.dataset.i;
+        const ok = escolha === q.certa;
+        div.classList.add('done', ok ? 'acertou' : 'errou');
+        div.querySelectorAll('.alts button')[q.certa].classList.add('certa');
+        if (!ok) btn.classList.add('errada-marcada');
+        document.getElementById('veredito-' + qi).textContent =
+          ok ? '✅ Acertou! ' : `❌ A correta é ${LETRAS[q.certa]}. `;
+        respondidas++; if (ok) acertos++;
+        if (respondidas === QUESTOES.length) {
+          const p = document.getElementById('placar');
+          const frase = acertos >= 9 ? 'Pronto(a) para o dia 03/07! 🏆'
+                      : acertos >= 7 ? 'Quase lá — revise os tópicos que errou. 💪'
+                      : acertos >= 5 ? 'Bom começo. Refaça a revisão 5-6 e volte aqui. 📚'
+                      : 'Hora de estudar pra valer — comece pela revisão 5-6. 🚨';
+          p.textContent = `Placar: ${acertos}/10 — ${frase}`;
+        }
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>
