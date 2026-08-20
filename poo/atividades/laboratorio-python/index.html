@@ -1,0 +1,1386 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Nove desafios de programação procedural em Python inspirados em Batalha Naval, Jogo da Velha e Forca.">
+  <meta name="theme-color" content="#15132b">
+  <link rel="icon" href="data:,">
+  <title>Laboratório Python — Revisão · POO · IFRN</title>
+  <style>
+    :root {
+      --ink: #19172c;
+      --ink-soft: #5d5875;
+      --paper: #fffdf7;
+      --paper-2: #f6f2e9;
+      --line: #dcd6ca;
+      --night: #15132b;
+      --night-2: #242042;
+      --purple: #7656ff;
+      --cyan: #55d7e8;
+      --easy: #19a974;
+      --easy-soft: #dff8ed;
+      --medium: #d99200;
+      --medium-soft: #fff1c8;
+      --hard: #e35d58;
+      --hard-soft: #ffe3df;
+      --naval: #1689a7;
+      --velha: #7a55d7;
+      --forca: #d66a2c;
+      --shadow: 0 20px 55px rgba(30, 24, 65, .13);
+      --radius-lg: 28px;
+      --radius-md: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 8%, rgba(118, 86, 255, .11), transparent 27rem),
+        radial-gradient(circle at 92% 28%, rgba(85, 215, 232, .12), transparent 30rem),
+        var(--paper-2);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    button, input { font: inherit; }
+    button { color: inherit; }
+    a { color: inherit; }
+    code, pre { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+    :focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; }
+
+    .skip-link {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 100;
+      padding: 10px 14px;
+      border-radius: 10px;
+      color: white;
+      background: var(--night);
+      transform: translateY(-160%);
+    }
+    .skip-link:focus { transform: translateY(0); }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      border-bottom: 1px solid rgba(255, 255, 255, .1);
+      color: white;
+      background: rgba(21, 19, 43, .93);
+      backdrop-filter: blur(16px);
+    }
+    .nav-shell {
+      width: min(1180px, calc(100% - 32px));
+      min-height: 70px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      font-weight: 850;
+      letter-spacing: -.02em;
+      white-space: nowrap;
+    }
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 10px;
+      background: linear-gradient(145deg, var(--purple), #4a35c7);
+      box-shadow: 0 8px 22px rgba(118, 86, 255, .35);
+    }
+    .quick-nav { display: flex; gap: 6px; }
+    .quick-nav a {
+      padding: 9px 12px;
+      border-radius: 999px;
+      color: #dcd8f2;
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 700;
+    }
+    .quick-nav a:hover { color: white; background: rgba(255,255,255,.09); }
+
+    main { overflow: hidden; }
+    .shell { width: min(1180px, calc(100% - 32px)); margin-inline: auto; }
+
+    .hero {
+      position: relative;
+      padding: 88px 0 72px;
+      color: white;
+      background:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(150deg, var(--night) 0%, #211d43 55%, #152e42 100%);
+      background-size: 40px 40px, 40px 40px, auto;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 88px;
+      background: linear-gradient(to bottom, transparent, rgba(246,242,233,.12));
+      pointer-events: none;
+    }
+    .hero-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      align-items: center;
+      gap: 68px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 20px;
+      color: #b9f6ff;
+      font-size: .78rem;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { content: ""; width: 26px; height: 2px; background: var(--cyan); }
+    h1 {
+      max-width: 720px;
+      margin: 0;
+      font-size: clamp(3.2rem, 7vw, 6.6rem);
+      line-height: .92;
+      letter-spacing: -.065em;
+    }
+    h1 em { color: var(--cyan); font-style: normal; }
+    .hero-lead {
+      max-width: 640px;
+      margin: 28px 0 30px;
+      color: #d8d4e9;
+      font-size: clamp(1.05rem, 2vw, 1.25rem);
+    }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .button {
+      min-height: 46px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 11px 17px;
+      border: 1px solid transparent;
+      border-radius: 13px;
+      font-weight: 850;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+    .button:hover { transform: translateY(-2px); }
+    .button-primary { color: var(--night); background: var(--cyan); box-shadow: 0 12px 30px rgba(85,215,232,.25); }
+    .button-ghost { color: white; border-color: rgba(255,255,255,.2); background: rgba(255,255,255,.06); }
+    .hero-note { margin-top: 18px; color: #aaa5c6; font-size: .86rem; }
+
+    .lab-visual {
+      position: relative;
+      min-height: 480px;
+      display: grid;
+      place-items: center;
+    }
+    .orbit {
+      position: absolute;
+      width: 430px;
+      height: 430px;
+      border: 1px dashed rgba(255,255,255,.17);
+      border-radius: 50%;
+      animation: spin 40s linear infinite;
+    }
+    .orbit::before, .orbit::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 22px var(--cyan);
+    }
+    .orbit::before { width: 9px; height: 9px; top: 46px; left: 62px; }
+    .orbit::after { width: 6px; height: 6px; right: 15px; bottom: 120px; background: #ffcc65; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
+
+    .terminal-card {
+      position: relative;
+      z-index: 2;
+      width: min(410px, 94%);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 24px;
+      background: rgba(13, 12, 30, .8);
+      box-shadow: 0 35px 80px rgba(0,0,0,.38);
+      transform: rotate(-2deg);
+    }
+    .terminal-bar { display: flex; gap: 7px; padding: 15px; border-bottom: 1px solid rgba(255,255,255,.1); }
+    .terminal-bar span { width: 10px; height: 10px; border-radius: 50%; background: #ff6b6b; }
+    .terminal-bar span:nth-child(2) { background: #ffcb5c; }
+    .terminal-bar span:nth-child(3) { background: #5bd59b; }
+    .terminal-body { padding: 25px 26px 28px; font-family: "SFMono-Regular", Consolas, monospace; font-size: .88rem; }
+    .terminal-body p { margin: 0 0 9px; color: #a4a0bf; }
+    .terminal-body .prompt { color: var(--cyan); }
+    .terminal-body .answer { color: #fff; }
+    .terminal-body .cursor { display: inline-block; width: 8px; height: 17px; vertical-align: middle; background: #ffcf5d; animation: blink 1s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    .float-chip {
+      position: absolute;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 12px 15px;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 14px;
+      color: white;
+      background: rgba(42, 38, 76, .88);
+      box-shadow: 0 14px 34px rgba(0,0,0,.25);
+      font-size: .82rem;
+      font-weight: 850;
+      backdrop-filter: blur(8px);
+    }
+    .chip-a { top: 52px; right: 5px; transform: rotate(4deg); }
+    .chip-b { bottom: 52px; left: 0; transform: rotate(-5deg); }
+    .chip-c { bottom: 16px; right: 20px; transform: rotate(2deg); }
+
+    .intro { padding: 76px 0 36px; }
+    .section-kicker { margin: 0 0 8px; color: var(--purple); font-size: .78rem; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+    .section-title { margin: 0; font-size: clamp(2.15rem, 4vw, 3.4rem); line-height: 1.05; letter-spacing: -.045em; }
+    .section-desc { max-width: 690px; margin: 15px 0 0; color: var(--ink-soft); font-size: 1.06rem; }
+    .intro-grid { margin-top: 32px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .intro-card {
+      min-height: 180px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: rgba(255,255,255,.7);
+    }
+    .intro-card .num { color: var(--purple); font-weight: 950; font-size: 1.8rem; line-height: 1; }
+    .intro-card h3 { margin: 25px 0 6px; font-size: 1.08rem; }
+    .intro-card p { margin: 0; color: var(--ink-soft); font-size: .92rem; }
+
+    .progression { padding: 52px 0 88px; }
+    .progress-map { margin-top: 35px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: stretch; }
+    .progress-step {
+      position: relative;
+      min-height: 260px;
+      padding: 25px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--paper);
+      box-shadow: 0 12px 30px rgba(30,24,65,.06);
+    }
+    .progress-step:nth-child(2) { transform: translateY(-14px); }
+    .progress-step:nth-child(3) { transform: translateY(-28px); }
+    .level-tag { display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border-radius: 999px; font-size: .75rem; font-weight: 900; text-transform: uppercase; letter-spacing: .07em; }
+    .level-tag.easy { color: #087852; background: var(--easy-soft); }
+    .level-tag.medium { color: #8a5b00; background: var(--medium-soft); }
+    .level-tag.hard { color: #a83c38; background: var(--hard-soft); }
+    .progress-step h3 { margin: 28px 0 10px; font-size: 1.35rem; }
+    .progress-step p { margin: 0 0 18px; color: var(--ink-soft); }
+    .chip-list { display: flex; flex-wrap: wrap; gap: 7px; }
+    .concept-chip { padding: 6px 9px; border: 1px solid var(--line); border-radius: 8px; color: #4e4964; background: white; font-size: .76rem; font-weight: 750; }
+
+    .games { padding-bottom: 90px; }
+    .games-heading { margin-bottom: 34px; }
+    .game-section {
+      --game: var(--naval);
+      margin: 0 0 62px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      scroll-margin-top: 92px;
+    }
+    .game-section[data-game="velha"] { --game: var(--velha); }
+    .game-section[data-game="forca"] { --game: var(--forca); }
+    .game-head {
+      display: grid;
+      grid-template-columns: .82fr 1.18fr;
+      min-height: 440px;
+      color: white;
+      background: linear-gradient(140deg, color-mix(in srgb, var(--game), #10152c 50%), var(--game));
+    }
+    .game-copy { padding: 46px 42px; align-self: center; }
+    .game-number { margin: 0 0 28px; color: rgba(255,255,255,.65); font-size: .78rem; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+    .game-head h2 { margin: 0; font-size: clamp(2.4rem, 5vw, 4.4rem); line-height: .98; letter-spacing: -.055em; }
+    .game-head p { max-width: 560px; margin: 18px 0 0; color: rgba(255,255,255,.82); }
+    .game-art { position: relative; min-width: 0; min-height: 440px; display: grid; place-items: center; padding: 30px 36px 32px 10px; overflow: hidden; }
+    .game-art::before { content: ""; position: absolute; width: 390px; height: 390px; border: 1px dashed rgba(255,255,255,.24); border-radius: 50%; }
+
+    .demo-wrap { position: relative; z-index: 1; width: min(100%, 610px); }
+    .demo-terminal {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 18px;
+      background: #0b0d18;
+      box-shadow: 0 24px 60px rgba(0,0,0,.36);
+      transform: rotate(1deg);
+    }
+    .demo-chrome {
+      min-height: 43px;
+      display: grid;
+      grid-template-columns: 68px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 0 14px;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      color: #8f91a6;
+      background: #151827;
+      font: 700 .68rem/1 "SFMono-Regular", Consolas, monospace;
+    }
+    .demo-lights { display: flex; gap: 6px; }
+    .demo-lights span { width: 9px; height: 9px; border-radius: 50%; background: #ff6b6b; }
+    .demo-lights span:nth-child(2) { background: #ffcb5c; }
+    .demo-lights span:nth-child(3) { background: #5bd59b; }
+    .demo-file { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
+    .demo-live-indicator { display: flex; align-items: center; gap: 6px; color: #73ddaf; text-transform: uppercase; letter-spacing: .06em; }
+    .demo-live-indicator::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 10px currentColor; }
+    .demo-screen {
+      height: 318px;
+      padding: 17px 19px 25px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #3d4058 transparent;
+      color: #d9dced;
+      background:
+        linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+        #0b0d18;
+      background-size: 100% 4px;
+      font: 650 .72rem/1.42 "SFMono-Regular", Consolas, monospace;
+      scroll-behavior: smooth;
+    }
+    .demo-output { min-height: 100%; }
+    .demo-line { display: block; margin: 0 0 7px; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .demo-line.command { color: #74e1f0; }
+    .demo-line.command::before { content: "$ "; color: #6ee7a5; }
+    .demo-line.user { color: #ffdb79; }
+    .demo-line.user::before { content: "você > "; color: #f7a85f; }
+    .demo-line.info { color: #aeb2c8; }
+    .demo-line.success { color: #75e6ac; }
+    .demo-line.error { padding: 6px 8px; border-left: 2px solid #ff7a73; color: #ffaaa4; background: rgba(255,95,87,.08); }
+    .demo-line.board { padding: 8px 10px; border: 1px solid rgba(255,255,255,.08); border-radius: 8px; color: #e8eaf6; background: rgba(255,255,255,.035); line-height: 1.32; }
+    .demo-line.result { margin-top: 11px; padding: 9px 10px; border: 1px solid rgba(117,230,172,.28); border-radius: 9px; color: #87efbb; background: rgba(117,230,172,.09); font-weight: 850; }
+    .demo-line.result.loss { border-color: rgba(255,122,115,.3); color: #ffaaa4; background: rgba(255,95,87,.08); }
+    .demo-line.result.draw { border-color: rgba(255,219,121,.3); color: #ffdb79; background: rgba(255,219,121,.08); }
+    .demo-cursor { display: inline-block; width: 7px; height: 14px; margin-left: 2px; vertical-align: -2px; background: #74e1f0; animation: blink 1s steps(1) infinite; }
+    .demo-footer { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; margin-top: 11px; }
+    .demo-status { min-width: 0; }
+    .demo-status strong { display: block; overflow: hidden; color: white; font-size: .78rem; text-overflow: ellipsis; white-space: nowrap; }
+    .demo-status span { display: block; margin-top: 2px; color: rgba(255,255,255,.64); font-size: .68rem; }
+    .demo-controls { display: flex; gap: 7px; }
+    .demo-button { min-height: 35px; padding: 7px 10px; border: 1px solid rgba(255,255,255,.22); border-radius: 9px; color: white; background: rgba(13,14,28,.28); cursor: pointer; font-size: .7rem; font-weight: 850; backdrop-filter: blur(8px); }
+    .demo-button:hover { background: rgba(255,255,255,.14); }
+    .demo-button:disabled { cursor: not-allowed; opacity: .55; }
+    .sr-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    .tab-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      padding: 12px;
+      gap: 9px;
+      border-bottom: 1px solid var(--line);
+      background: #f1ede4;
+    }
+    .tab-button {
+      min-height: 56px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      background: transparent;
+      cursor: pointer;
+      font-weight: 900;
+      transition: background .2s ease, box-shadow .2s ease, transform .2s ease;
+    }
+    .tab-button:hover { background: rgba(255,255,255,.7); }
+    .tab-button[aria-selected="true"] { background: white; box-shadow: 0 8px 20px rgba(30,24,65,.09); transform: translateY(-1px); }
+    .tab-button .dot { display: inline-block; width: 9px; height: 9px; margin-right: 7px; border-radius: 50%; background: currentColor; }
+    .tab-button[data-level="easy"] { color: var(--easy); }
+    .tab-button[data-level="medium"] { color: var(--medium); }
+    .tab-button[data-level="hard"] { color: var(--hard); }
+
+    .challenge-panel { padding: 38px 42px 46px; }
+    .challenge-panel[hidden] { display: none; }
+    .challenge-top { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(240px, .8fr); gap: 25px; align-items: start; }
+    .mission-label { margin: 0 0 10px; color: var(--game); font-size: .76rem; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
+    .challenge-top h3 { margin: 0; font-size: clamp(1.7rem, 3vw, 2.45rem); line-height: 1.08; letter-spacing: -.035em; }
+    .mission-copy { margin: 14px 0 0; color: var(--ink-soft); }
+    .concept-box { padding: 20px; border: 1px solid var(--line); border-radius: 15px; background: #f8f5ee; }
+    .concept-box h4 { margin: 0 0 11px; font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; }
+    .content-grid { margin-top: 30px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .content-card { padding: 22px; border: 1px solid var(--line); border-radius: 15px; background: white; }
+    .content-card h4 { margin: 0 0 13px; font-size: 1rem; }
+    .content-card ul, .content-card ol { margin: 0; padding-left: 20px; }
+    .content-card li + li { margin-top: 8px; }
+    .io-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .io-box { padding: 14px; border-radius: 11px; background: #f6f3ed; }
+    .io-box strong { display: block; margin-bottom: 4px; color: var(--game); font-size: .74rem; text-transform: uppercase; letter-spacing: .06em; }
+    .io-box p { margin: 0; color: var(--ink-soft); font-size: .88rem; }
+
+    .code-section { margin-top: 16px; overflow: hidden; border: 1px solid #292642; border-radius: 16px; background: #17162b; }
+    .code-head { min-height: 50px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 12px 9px 18px; color: #c8c4da; border-bottom: 1px solid rgba(255,255,255,.1); }
+    .code-head h4 { margin: 0; font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; }
+    .copy-button { padding: 7px 11px; border: 1px solid rgba(255,255,255,.18); border-radius: 9px; color: white; background: rgba(255,255,255,.07); cursor: pointer; font-size: .78rem; font-weight: 800; }
+    .copy-button:hover { background: rgba(255,255,255,.14); }
+    pre { margin: 0; padding: 21px; overflow: auto; color: #f3f0ff; font-size: .83rem; line-height: 1.65; tab-size: 4; }
+    .pseudo pre { color: #dcf9ff; background: #11303a; }
+    .pseudo { border-color: #184a57; background: #11303a; }
+    .pseudo .code-head { color: #b4eaf4; }
+
+    .lower-grid { margin-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+    .hint-stack, .extras, .checklist { padding: 22px; border: 1px solid var(--line); border-radius: 15px; background: white; }
+    .hint-stack h4, .extras h4, .checklist h4 { margin: 0 0 13px; }
+    details { border-top: 1px solid var(--line); }
+    details:last-child { border-bottom: 1px solid var(--line); }
+    summary { padding: 13px 3px; cursor: pointer; font-weight: 800; }
+    details p { margin: -3px 3px 14px; color: var(--ink-soft); font-size: .9rem; }
+    .extras ul { margin: 0; padding-left: 20px; }
+    .checklist { margin-top: 16px; background: #f9f7f1; }
+    .check-item { display: grid; grid-template-columns: 22px 1fr; gap: 9px; align-items: start; padding: 9px 0; cursor: pointer; }
+    .check-item input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--game); }
+    .check-item span { color: var(--ink-soft); }
+    .check-item input:checked + span { color: #817c92; text-decoration: line-through; text-decoration-thickness: 2px; }
+
+    .footer { padding: 55px 0 68px; color: white; background: var(--night); }
+    .footer-grid { display: grid; grid-template-columns: 1fr auto; gap: 30px; align-items: end; }
+    .footer h2 { max-width: 720px; margin: 0; font-size: clamp(2rem, 4vw, 3.3rem); line-height: 1.05; letter-spacing: -.04em; }
+    .footer p { max-width: 640px; margin: 14px 0 0; color: #aaa5c6; }
+    .reset-button { color: white; border-color: rgba(255,255,255,.22); background: rgba(255,255,255,.06); }
+    .footer-small { margin-top: 38px; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.1); color: #85809c; font-size: .8rem; }
+    .footer-small + .footer-small { margin-top: 10px; padding-top: 0; border-top: none; }
+    .footer-small a { color: var(--cyan); text-decoration: none; }
+    .footer-small a:hover, .footer-small a:focus-visible { text-decoration: underline; }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 80;
+      max-width: min(360px, calc(100% - 40px));
+      padding: 13px 16px;
+      border-radius: 12px;
+      color: white;
+      background: var(--night);
+      box-shadow: 0 15px 40px rgba(0,0,0,.3);
+      transform: translateY(140%);
+      opacity: 0;
+      transition: .24s ease;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 900px) {
+      .hero-grid, .game-head { grid-template-columns: 1fr; }
+      .hero { padding-top: 70px; }
+      .lab-visual { min-height: 420px; }
+      .game-copy { padding-bottom: 12px; }
+      .game-art { min-height: 440px; padding: 12px 30px 34px; }
+      .challenge-top { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      .quick-nav a span { display: none; }
+      .intro-grid, .progress-map, .content-grid, .lower-grid { grid-template-columns: 1fr; }
+      .progress-step:nth-child(2), .progress-step:nth-child(3) { transform: none; }
+      .progress-step { min-height: auto; }
+      .game-copy, .challenge-panel { padding: 29px 22px 34px; }
+      .game-head h2 { font-size: 2.65rem; }
+      .io-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; align-items: start; }
+    }
+    @media (max-width: 480px) {
+      .shell, .nav-shell { width: min(100% - 22px, 1180px); }
+      .brand-text { font-size: .9rem; }
+      h1 { font-size: 3.25rem; }
+      .hero-actions .button { width: 100%; }
+      .lab-visual { min-height: 365px; }
+      .orbit { width: 330px; height: 330px; }
+      .chip-a { top: 10px; }
+      .chip-b { bottom: 16px; }
+      .chip-c { display: none; }
+      .terminal-body { padding: 20px; font-size: .78rem; }
+      .tab-strip { padding: 8px; gap: 5px; }
+      .tab-button { min-height: 52px; font-size: .83rem; }
+      .game-art { padding-inline: 10px; }
+      .demo-terminal { transform: none; }
+      .demo-screen { height: 300px; padding: 14px; font-size: .66rem; }
+      .demo-footer { grid-template-columns: 1fr; }
+      .demo-controls { display: grid; grid-template-columns: 1fr 1fr; }
+      .demo-button { min-height: 40px; }
+    }
+
+    @media print {
+      body { background: white; color: black; font-size: 10pt; }
+      .site-header, .hero-actions, .hero-note, .lab-visual, .tab-strip, .copy-button, .reset-button, .toast, .footer-small { display: none !important; }
+      .hero { padding: 28px 0; color: black; background: white; }
+      .hero-lead { color: #444; }
+      .hero-grid { display: block; }
+      h1 { font-size: 35pt; }
+      h1 em { color: black; }
+      .intro, .progression { padding: 25px 0; }
+      .intro-card, .progress-step, .game-section, .content-card, .concept-box, .hint-stack, .extras, .checklist { box-shadow: none; break-inside: avoid; }
+      .progress-step:nth-child(2), .progress-step:nth-child(3) { transform: none; }
+      .game-section { overflow: visible; break-before: page; }
+      .game-head { min-height: auto; display: block; color: black; background: #eee; }
+      .game-copy { padding: 22px; }
+      .game-head p, .game-number { color: #444; }
+      .game-art { display: none; }
+      .challenge-panel[hidden] { display: block; }
+      .challenge-panel { padding: 22px; border-top: 3px solid #555; }
+      pre { white-space: pre-wrap; color: black; background: #f2f2f2; }
+      .code-section, .pseudo { border-color: #aaa; background: #f2f2f2; }
+      .code-head { color: black; border-color: #aaa; }
+      .footer { padding: 25px 0; color: black; background: white; }
+      .footer p { color: #444; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="site-header">
+    <nav class="nav-shell" aria-label="Navegação principal">
+      <a class="brand" href="#inicio" aria-label="Laboratório Python — início">
+        <span class="brand-mark" aria-hidden="true">&gt;_</span>
+        <span class="brand-text">Laboratório Python</span>
+      </a>
+      <div class="quick-nav">
+        <a href="#batalha" aria-label="Batalha Naval"><span aria-hidden="true">⚓</span> <span>Batalha Naval</span></a>
+        <a href="#velha" aria-label="Jogo da Velha"><span aria-hidden="true">✕</span> <span>Jogo da Velha</span></a>
+        <a href="#forca" aria-label="Jogo da Forca"><span aria-hidden="true">🔤</span> <span>Forca</span></a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="conteudo">
+    <section class="hero" id="inicio">
+      <div class="shell hero-grid">
+        <div>
+          <p class="eyebrow">Programação procedural · Python 3.10+</p>
+          <h1>3 jogos.<br><em>9 desafios.</em></h1>
+          <p class="hero-lead">Transforme regras conhecidas em algoritmos. Comece com o essencial, evolua a lógica e termine construindo soluções procedurais robustas — sem classes e sem respostas prontas.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#desafios">Escolher missão <span aria-hidden="true">↓</span></a>
+            <a class="button button-ghost" href="#progressao">Ver trilha de evolução</a>
+          </div>
+          <p class="hero-note">Sem nota, sem ranking, sem competição. Apenas prática, experimentação e código. 🧪</p>
+        </div>
+
+        <div class="lab-visual" aria-label="Ilustração de um terminal Python cercado pelos três jogos">
+          <div class="orbit" aria-hidden="true"></div>
+          <div class="terminal-card" aria-hidden="true">
+            <div class="terminal-bar"><span></span><span></span><span></span></div>
+            <div class="terminal-body">
+              <p><span class="prompt">$</span> python desafio.py</p>
+              <p class="answer">Escolha sua missão:</p>
+              <p>[1] Batalha Naval ⚓</p>
+              <p>[2] Jogo da Velha ✕</p>
+              <p>[3] Jogo da Forca 🔤</p>
+              <p><span class="prompt">&gt;</span> <span class="cursor"></span></p>
+            </div>
+          </div>
+          <div class="float-chip chip-a" aria-hidden="true"><span>⚓</span> matrizes</div>
+          <div class="float-chip chip-b" aria-hidden="true"><span>✕</span> algoritmos</div>
+          <div class="float-chip chip-c" aria-hidden="true"><span>🔤</span> conjuntos</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="intro shell" aria-labelledby="como-funciona">
+      <p class="section-kicker">Como usar</p>
+      <h2 class="section-title" id="como-funciona">Aprenda construindo.</h2>
+      <p class="section-desc">Escolha um jogo e o nível que combina com o momento da turma. Cada missão oferece direção suficiente para começar, mas deixa as decisões importantes nas mãos de quem programa.</p>
+      <div class="intro-grid">
+        <article class="intro-card"><span class="num">01</span><h3>Leia a missão</h3><p>Entenda as regras, as entradas esperadas e o que o programa deve produzir.</p></article>
+        <article class="intro-card"><span class="num">02</span><h3>Planeje em funções</h3><p>Quebre o problema em partes pequenas, passe dados por parâmetros e use retornos.</p></article>
+        <article class="intro-card"><span class="num">03</span><h3>Teste e refine</h3><p>Experimente casos comuns, limites e entradas inválidas. Marque o checklist no seu ritmo.</p></article>
+      </div>
+    </section>
+
+    <section class="progression shell" id="progressao" aria-labelledby="titulo-progressao">
+      <p class="section-kicker">Mapa de habilidades</p>
+      <h2 class="section-title" id="titulo-progressao">A lógica sobe um degrau por vez.</h2>
+      <p class="section-desc">Os níveis não medem valor: indicam quais ferramentas serão combinadas para resolver um problema maior.</p>
+      <div class="progress-map" aria-label="Progressão de conceitos entre os níveis">
+        <article class="progress-step">
+          <span class="level-tag easy"><span aria-hidden="true">●</span> Fácil</span>
+          <h3>Fundamentos em movimento</h3>
+          <p>Domine o fluxo principal do jogo e represente seu estado de forma simples.</p>
+          <div class="chip-list"><span class="concept-chip">variáveis</span><span class="concept-chip">if / else</span><span class="concept-chip">while</span><span class="concept-chip">listas</span><span class="concept-chip">input</span></div>
+        </article>
+        <article class="progress-step">
+          <span class="level-tag medium"><span aria-hidden="true">◆</span> Médio</span>
+          <h3>Estrutura e reutilização</h3>
+          <p>Organize responsabilidades e use coleções adequadas para cada tipo de dado.</p>
+          <div class="chip-list"><span class="concept-chip">funções</span><span class="concept-chip">matrizes</span><span class="concept-chip">dicionários</span><span class="concept-chip">conjuntos</span><span class="concept-chip">random</span></div>
+        </article>
+        <article class="progress-step">
+          <span class="level-tag hard"><span aria-hidden="true">▲</span> Difícil</span>
+          <h3>Algoritmos e robustez</h3>
+          <p>Combine módulos procedurais, persistência, tratamento de falhas e testes.</p>
+          <div class="chip-list"><span class="concept-chip">recursão</span><span class="concept-chip">JSON</span><span class="concept-chip">exceções</span><span class="concept-chip">type hints</span><span class="concept-chip">testes</span></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="games shell" id="desafios" aria-labelledby="titulo-desafios">
+      <div class="games-heading">
+        <p class="section-kicker">Selecione o jogo</p>
+        <h2 class="section-title" id="titulo-desafios">Três universos, nove caminhos.</h2>
+        <p class="section-desc">Não é necessário concluir todos. A missão certa é aquela que desafia sem impedir o primeiro passo.</p>
+      </div>
+      <div id="game-container"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="shell">
+      <div class="footer-grid">
+        <div>
+          <h2>Errar também é executar uma hipótese.</h2>
+          <p>Leia o erro, isole o problema, teste uma ideia menor e tente de novo. É assim que um programa — e quem programa — evolui.</p>
+        </div>
+        <button class="button reset-button" id="reset-progress" type="button">Limpar meu checklist</button>
+      </div>
+      <p class="footer-small">Material de prática · Python procedural · Funciona offline · O progresso fica salvo somente neste navegador.</p>
+      <p class="footer-small"><a href="../../index.html">← Voltar à disciplina</a></p>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const levelsMeta = {
+      easy: { label: "Fácil", icon: "●" },
+      medium: { label: "Médio", icon: "◆" },
+      hard: { label: "Difícil", icon: "▲" }
+    };
+
+    const games = [
+      {
+        id: "batalha",
+        dataGame: "naval",
+        number: "Jogo 01 · Estratégia e coordenadas",
+        title: "Batalha Naval",
+        description: "Modele oceanos como matrizes, traduza coordenadas e controle ataques sem perder o estado da partida.",
+        demo: {
+          file: "batalha_naval.py",
+          outcome: "victory",
+          outcomeLabel: "Partida concluída · vitória",
+          steps: [
+            { type: "command", text: "python batalha_naval.py", wait: 420 },
+            { type: "info", text: "══ BATALHA NAVAL · OCEANO 4×4 ══", wait: 500 },
+            { type: "info", text: "Encontre 2 navios. Você possui 7 tentativas.", wait: 650 },
+            { type: "board", text: "    1  2  3  4\nA | ~  ~  ~  ~\nB | ~  ~  ~  ~\nC | ~  ~  ~  ~\nD | ~  ~  ~  ~", wait: 520 },
+            { type: "user", text: "B2", wait: 350 },
+            { type: "info", text: "🌊 Água! Tentativas restantes: 6", wait: 520 },
+            { type: "board", text: "    1  2  3  4\nA | ~  ~  ~  ~\nB | ~  O  ~  ~\nC | ~  ~  ~  ~\nD | ~  ~  ~  ~", wait: 480 },
+            { type: "user", text: "B2", wait: 300 },
+            { type: "error", text: "⚠ Coordenada repetida. Tentativa preservada.", wait: 760 },
+            { type: "user", text: "A4", wait: 350 },
+            { type: "success", text: "💥 Acerto! Navio 1 afundado.", wait: 520 },
+            { type: "board", text: "    1  2  3  4\nA | ~  ~  ~  X\nB | ~  O  ~  ~\nC | ~  ~  ~  ~\nD | ~  ~  ~  ~", wait: 480 },
+            { type: "user", text: "C1", wait: 350 },
+            { type: "info", text: "🌊 Água! Tentativas restantes: 4", wait: 500 },
+            { type: "board", text: "    1  2  3  4\nA | ~  ~  ~  X\nB | ~  O  ~  ~\nC | O  ~  ~  ~\nD | ~  ~  ~  ~", wait: 480 },
+            { type: "user", text: "D3", wait: 350 },
+            { type: "success", text: "💥 Acerto! Navio 2 afundado.", wait: 600 },
+            { type: "board", text: "    1  2  3  4\nA | ~  ~  ~  X\nB | ~  O  ~  ~\nC | O  ~  ~  ~\nD | ~  ~  X  ~", wait: 650 },
+            { type: "result", text: "🏆 VITÓRIA! Toda a frota foi encontrada.", wait: 450 },
+            { type: "info", text: "Resumo: 4 ataques válidos · 2 acertos · 2 na água", wait: 500 }
+          ]
+        },
+        levels: {
+          easy: {
+            title: "Radar de coordenadas",
+            mission: "Você recebeu um pequeno radar 5×5. Três embarcações ocupam uma célula cada. Descubra todas antes de esgotar suas tentativas e mostre, a cada rodada, onde já houve água ou acerto.",
+            concepts: ["listas", "laços", "condicionais", "coordenadas", "validação"],
+            requirements: [
+              "Representar o oceano como uma matriz 5×5 preenchida com ~.",
+              "Guardar três posições de navios de uma célula sem repetições.",
+              "Ler linha e coluna, convertendo valores de 1–5 para índices de 0–4.",
+              "Marcar X em acertos, O em água e rejeitar coordenadas já atacadas.",
+              "Encerrar quando todos os navios forem encontrados ou acabarem as tentativas."
+            ],
+            input: "Linha e coluna entre 1 e 5, informadas a cada rodada.",
+            output: "Radar atualizado, mensagem de acerto/água e situação final da missão.",
+            steps: ["Crie a matriz e uma lista de posições dos navios.", "Escreva uma função que mostre o radar linha por linha.", "Valide e converta a coordenada informada.", "Compare a jogada, atualize o radar e controle o laço principal."],
+            pseudo: `CRIAR radar 5x5\nDEFINIR posições dos três navios\nENQUANTO ainda houver navio E houver tentativa\n    MOSTRAR radar\n    LER linha e coluna\n    SE coordenada for inválida ou repetida\n        AVISAR e pedir outra\n    SENÃO SE coordenada contiver navio\n        MARCAR acerto\n    SENÃO\n        MARCAR água\nMOSTRAR resultado final`,
+            starter: `TAMANHO = 5\n\ndef criar_radar(tamanho):\n    # TODO: devolver uma matriz preenchida com "~"\n    pass\n\ndef mostrar_radar(radar):\n    # TODO: exibir números de linha e coluna\n    pass\n\ndef ler_coordenada(tamanho):\n    # TODO: ler, validar e devolver uma tupla (linha, coluna)\n    pass\n\ndef registrar_ataque(radar, navios, coordenada):\n    # TODO: atualizar o radar e informar se houve acerto\n    pass\n\ndef jogar():\n    radar = criar_radar(TAMANHO)\n    navios = [(0, 2), (2, 4), (4, 1)]\n    # TODO: construir o laço principal\n\nif __name__ == "__main__":\n    jogar()`,
+            hints: ["Uma matriz pode ser criada com uma compreensão: uma lista contendo outras listas independentes.", "Use uma tupla `(linha, coluna)` para representar cada posição e uma coleção separada para ataques anteriores.", "Faça a validação antes de alterar o radar. Uma jogada inválida não precisa consumir tentativa."],
+            extras: ["Permitir que o usuário escolha o tamanho do radar.", "Sortear os três navios com `random`.", "Mostrar letras A–E para as colunas."],
+            checklist: ["O radar tem exatamente 5 linhas e 5 colunas.", "Entradas fora do intervalo não encerram o programa.", "Uma coordenada não pode ser atacada duas vezes.", "Acertos e água aparecem com símbolos diferentes.", "Existe uma condição clara de vitória e de encerramento."]
+          },
+          medium: {
+            title: "Frota em formação",
+            mission: "Agora os navios ocupam várias células. Posicione uma frota aleatoriamente, na horizontal ou vertical, sem deixar que navios se cruzem ou ultrapassem o oceano.",
+            concepts: ["funções", "matrizes", "random", "tuplas", "decomposição"],
+            requirements: [
+              "Usar tabuleiro 8×8 e uma frota com comprimentos 3, 2 e 2.",
+              "Sortear posição inicial e orientação de cada navio.",
+              "Calcular todas as células antes de confirmar o posicionamento.",
+              "Recusar posições fora do tabuleiro ou sobrepostas e tentar novamente.",
+              "Manter separados o tabuleiro dos navios e o radar visível ao jogador."
+            ],
+            input: "Coordenadas como A3 ou pares linha/coluna, conforme a interface escolhida.",
+            output: "Radar sem revelar a frota, retorno de cada ataque e quantidade de navios restantes.",
+            steps: ["Defina a frota como uma lista de tamanhos.", "Crie uma função que gere as células candidatas.", "Valide limites e colisões antes de posicionar.", "Separe as funções de posicionar, atacar, exibir e verificar término."],
+            pseudo: `PARA CADA tamanho da frota\n    REPETIR\n        SORTEAR início e orientação\n        CALCULAR células candidatas\n    ATÉ células serem válidas e livres\n    REGISTRAR células do navio\n\nENQUANTO houver células de navio não atingidas\n    LER ataque válido\n    ATUALIZAR radar e frota\n    INFORMAR resultado`,
+            starter: `from random import choice, randrange\n\ndef criar_tabuleiro(tamanho, simbolo="~"):\n    # TODO\n    pass\n\ndef calcular_celulas(inicio, tamanho_navio, orientacao):\n    # TODO: devolver todas as coordenadas candidatas\n    pass\n\ndef posicao_valida(celulas, tamanho_tabuleiro, ocupadas):\n    # TODO: verificar limites e sobreposição\n    pass\n\ndef posicionar_frota(tamanho_tabuleiro, tamanhos):\n    ocupadas = set()\n    frota = []\n    # TODO: tentar posições até acomodar todos os navios\n    return frota, ocupadas\n\ndef executar_ataque(coordenada, ocupadas, atingidas):\n    # TODO\n    pass`,
+            hints: ["Calcular as células primeiro evita desfazer alterações quando a posição não serve.", "Para a horizontal, varie a coluna; para a vertical, varie a linha.", "Conjuntos tornam rápidas as perguntas “está ocupado?” e “já foi atingido?”."],
+            extras: ["Não permitir navios encostados.", "Identificar quando um navio inteiro afundou.", "Oferecer dois tamanhos de frota."],
+            checklist: ["Nenhum navio ultrapassa o limite do tabuleiro.", "Não existem células compartilhadas por dois navios.", "O jogador não vê as posições ainda não atingidas.", "Cada responsabilidade importante está em uma função.", "O jogo termina quando toda a frota é atingida."]
+          },
+          hard: {
+            title: "Duelo no oceano",
+            mission: "Construa um duelo completo contra o computador. Além de posicionar e atacar, o programa deve evitar tiros repetidos, sobreviver a entradas incorretas e permitir salvar e retomar a missão.",
+            concepts: ["módulos", "dicionários", "JSON", "exceções", "estratégia"],
+            requirements: [
+              "Usar dois tabuleiros 10×10 e uma frota configurável para cada lado.",
+              "Alternar ataques entre pessoa e computador.",
+              "Fazer o computador escolher apenas coordenadas ainda não tentadas.",
+              "Após um acerto, permitir que a estratégia priorize células vizinhas válidas.",
+              "Salvar todo o estado relevante em JSON e validar o arquivo ao carregar."
+            ],
+            input: "Comandos de coordenada, salvar, carregar ou sair.",
+            output: "Dois radares apropriados, relato dos turnos e partida restaurada fielmente.",
+            steps: ["Represente cada partida em um dicionário sem variáveis globais.", "Reaproveite funções puras para validar e calcular posições.", "Implemente a escolha do computador com uma lista de possibilidades.", "Converta tuplas para listas ao salvar e restaure o formato ao carregar.", "Separe regras, persistência e interface em módulos procedurais."],
+            pseudo: `CRIAR ou CARREGAR estado\nENQUANTO ninguém venceu\n    OBTER comando do jogador\n    SE comando for salvar\n        GRAVAR estado em JSON\n    SENÃO\n        PROCESSAR ataque do jogador\n        SE computador ainda possuir frota\n            ESCOLHER ataque não repetido\n            PRIORIZAR vizinhos de acerto anterior\n            PROCESSAR ataque do computador\nMOSTRAR vencedor`,
+            starter: `import json\nfrom pathlib import Path\nfrom random import choice\n\ndef criar_estado(tamanho=10):\n    # TODO: devolver um dicionário com tabuleiros, frotas e ataques\n    pass\n\ndef escolher_ataque_computador(tamanho, realizados, alvos_prioritarios):\n    # TODO: nunca repetir e priorizar vizinhos válidos\n    pass\n\ndef salvar_partida(estado, caminho):\n    caminho = Path(caminho)\n    # TODO: preparar dados serializáveis e gravar JSON\n\ndef carregar_partida(caminho):\n    try:\n        # TODO: ler, validar campos e devolver o estado\n        pass\n    except (OSError, json.JSONDecodeError) as erro:\n        print(f"Não foi possível carregar: {erro}")\n        return None\n\ndef jogar(estado):\n    # TODO: coordenar turnos sem concentrar todas as regras aqui\n    pass`,
+            hints: ["O estado pode ser um dicionário contendo frota, ataques e turno de cada participante.", "Após acertar `(l, c)`, os candidatos vizinhos são `(l-1,c)`, `(l+1,c)`, `(l,c-1)` e `(l,c+1)` — filtre limites e repetições.", "Ao carregar, não confie apenas no JSON válido: confira também as chaves e os tipos necessários."],
+            extras: ["Registrar um diário textual dos turnos.", "Criar testes para serialização e ataques nos cantos.", "Permitir abandonar uma partida sem perder o salvamento anterior."],
+            checklist: ["Pessoa e computador possuem estados independentes.", "O computador nunca repete uma coordenada.", "A estratégia de vizinhança respeita os limites.", "Salvar e carregar preserva o turno e os ataques.", "Arquivos inexistentes ou corrompidos são tratados sem travamento."]
+          }
+        }
+      },
+      {
+        id: "velha",
+        dataGame: "velha",
+        number: "Jogo 02 · Regras e tomada de decisão",
+        title: "Jogo da Velha",
+        description: "Converta linhas, colunas e diagonais em regras verificáveis — e depois ensine o computador a decidir.",
+        demo: {
+          file: "jogo_da_velha.py",
+          outcome: "draw",
+          outcomeLabel: "Partida concluída · empate",
+          steps: [
+            { type: "command", text: "python jogo_da_velha.py", wait: 420 },
+            { type: "info", text: "══ JOGO DA VELHA · VOCÊ É X ══", wait: 500 },
+            { type: "board", text: " 1 │ 2 │ 3\n───┼───┼───\n 4 │ 5 │ 6\n───┼───┼───\n 7 │ 8 │ 9", wait: 500 },
+            { type: "user", text: "1", wait: 300 },
+            { type: "success", text: "X registrado na posição 1.", wait: 340 },
+            { type: "info", text: "computador > posição 5", wait: 400 },
+            { type: "board", text: " X │ 2 │ 3\n───┼───┼───\n 4 │ O │ 6\n───┼───┼───\n 7 │ 8 │ 9", wait: 480 },
+            { type: "user", text: "3", wait: 280 },
+            { type: "info", text: "computador > posição 2", wait: 380 },
+            { type: "board", text: " X │ O │ X\n───┼───┼───\n 4 │ O │ 6\n───┼───┼───\n 7 │ 8 │ 9", wait: 460 },
+            { type: "user", text: "5", wait: 260 },
+            { type: "error", text: "⚠ A posição 5 já está ocupada. Seu turno continua.", wait: 700 },
+            { type: "user", text: "8", wait: 280 },
+            { type: "info", text: "computador > posição 6", wait: 380 },
+            { type: "board", text: " X │ O │ X\n───┼───┼───\n 4 │ O │ O\n───┼───┼───\n 7 │ X │ 9", wait: 460 },
+            { type: "user", text: "4", wait: 280 },
+            { type: "info", text: "computador > posição 7", wait: 380 },
+            { type: "board", text: " X │ O │ X\n───┼───┼───\n X │ O │ O\n───┼───┼───\n O │ X │ 9", wait: 500 },
+            { type: "user", text: "9", wait: 300 },
+            { type: "board", text: " X │ O │ X\n───┼───┼───\n X │ O │ O\n───┼───┼───\n O │ X │ X", wait: 650 },
+            { type: "result draw", text: "🤝 EMPATE! Não existem mais posições livres.", wait: 500 },
+            { type: "info", text: "Resultado verificado após 9 jogadas válidas.", wait: 450 }
+          ]
+        },
+        levels: {
+          easy: {
+            title: "Três em linha",
+            mission: "Dois participantes compartilham o terminal. Controle os turnos, impeça jogadas em espaços ocupados e reconheça vitória ou empate assim que acontecerem.",
+            concepts: ["listas", "índices", "laço while", "condicionais", "funções"],
+            requirements: [
+              "Representar as nove posições em uma única lista.",
+              "Exibir números de 1 a 9 nas casas ainda livres.",
+              "Alternar os símbolos X e O somente depois de uma jogada válida.",
+              "Verificar as oito combinações possíveis de vitória.",
+              "Identificar empate quando não houver casa livre."
+            ],
+            input: "Um número de 1 a 9 indicando a casa escolhida.",
+            output: "Tabuleiro atualizado e mensagem de vitória, empate ou jogada inválida.",
+            steps: ["Crie a lista do tabuleiro e uma função para exibi-la.", "Converta a escolha 1–9 em índice 0–8.", "Valide intervalo e ocupação da casa.", "Verifique vitória antes de trocar o jogador.", "Encerre quando houver vitória ou nove jogadas válidas."],
+            pseudo: `CRIAR tabuleiro vazio\nDEFINIR jogador como X\nENQUANTO não houver resultado\n    MOSTRAR tabuleiro\n    LER posição\n    SE posição for válida e livre\n        REGISTRAR símbolo\n        SE jogador venceu\n            ENCERRAR com vitória\n        SENÃO SE tabuleiro encheu\n            ENCERRAR com empate\n        SENÃO\n            TROCAR jogador\n    SENÃO\n        AVISAR sem trocar jogador`,
+            starter: `COMBINACOES = [\n    (0, 1, 2), (3, 4, 5), (6, 7, 8),\n    (0, 3, 6), (1, 4, 7), (2, 5, 8),\n    (0, 4, 8), (2, 4, 6),\n]\n\ndef mostrar_tabuleiro(tabuleiro):\n    # TODO\n    pass\n\ndef ler_jogada(tabuleiro):\n    # TODO: devolver um índice livre entre 0 e 8\n    pass\n\ndef venceu(tabuleiro, simbolo):\n    # TODO: verificar as combinações\n    pass\n\ndef jogar():\n    tabuleiro = [str(numero) for numero in range(1, 10)]\n    jogador = "X"\n    # TODO: laço da partida\n\nif __name__ == "__main__":\n    jogar()`,
+            hints: ["Para converter a escolha em índice, subtraia 1 depois de validar que a entrada é numérica.", "Guarde as combinações em uma lista de tuplas em vez de escrever oito `if` separados.", "Você pode trocar o símbolo com uma expressão condicional: o próximo é O se o atual é X."],
+            extras: ["Permitir nomes para os participantes.", "Perguntar se desejam jogar novamente.", "Destacar as posições vencedoras no resultado final."],
+            checklist: ["O tabuleiro mostra claramente as nove posições.", "Entradas inválidas não trocam o turno.", "Não é possível sobrescrever uma casa ocupada.", "As oito combinações de vitória funcionam.", "O empate é identificado sem declarar vencedor."]
+          },
+          medium: {
+            title: "Humano versus acaso",
+            mission: "Adicione um adversário controlado pelo computador. Ele ainda não é estrategista, mas deve jogar corretamente, escolher apenas casas livres e registrar um histórico legível das partidas.",
+            concepts: ["random", "funções puras", "dicionários", "histórico", "reutilização"],
+            requirements: [
+              "Manter as regras do nível fácil em funções reutilizáveis.",
+              "Sortear a jogada do computador entre as posições disponíveis.",
+              "Permitir escolher quem começa cada partida.",
+              "Oferecer nova partida sem reiniciar o programa.",
+              "Registrar resultado, número de rodadas e primeiro jogador em uma lista de dicionários."
+            ],
+            input: "Casas de 1–9, escolha de quem começa e confirmação de nova partida.",
+            output: "Tabuleiro, decisão do computador e histórico textual ao encerrar a sessão.",
+            steps: ["Extraia uma função que devolva as posições livres.", "Use `choice` somente quando houver posição disponível.", "Faça uma função de partida devolver um resumo.", "No laço da sessão, acrescente cada resumo ao histórico.", "Mostre o histórico somente quando solicitado ou ao sair."],
+            pseudo: `CRIAR histórico vazio\nREPETIR sessão\n    CRIAR novo tabuleiro\n    ESCOLHER quem inicia\n    ENQUANTO partida não terminou\n        SE turno humano\n            LER jogada válida\n        SENÃO\n            SORTEAR entre casas livres\n        REGISTRAR jogada e verificar resultado\n    ADICIONAR resumo ao histórico\nATÉ usuário decidir sair\nMOSTRAR histórico`,
+            starter: `from random import choice\n\ndef posicoes_livres(tabuleiro):\n    # TODO: devolver os índices disponíveis\n    pass\n\ndef jogada_computador(tabuleiro):\n    livres = posicoes_livres(tabuleiro)\n    # TODO: escolher uma posição livre com segurança\n    pass\n\ndef jogar_partida(quem_comeca):\n    # TODO: executar uma partida e devolver um dicionário-resumo\n    pass\n\ndef mostrar_historico(historico):\n    # TODO: apresentar os resumos sem calcular pontuação\n    pass\n\ndef iniciar_sessao():\n    historico = []\n    # TODO: controlar várias partidas\n\nif __name__ == "__main__":\n    iniciar_sessao()`,
+            hints: ["Uma casa pode ser considerada livre enquanto guardar o próprio número ou um espaço vazio, conforme sua representação.", "O retorno de `jogar_partida` pode conter `resultado`, `rodadas` e `inicio`.", "Histórico não é placar: mostre os acontecimentos sem somar pontos ou criar ranking."],
+            extras: ["Adicionar data e hora usando `datetime`.", "Criar um modo computador contra computador.", "Exportar o histórico como JSON."],
+            checklist: ["O computador escolhe apenas posições livres.", "As regras de vitória não foram duplicadas.", "Uma nova partida começa com tabuleiro limpo.", "Cada partida gera um dicionário-resumo.", "O histórico não atribui pontos nem ranking."]
+          },
+          hard: {
+            title: "Oponente invencível",
+            mission: "Implemente Minimax para que o computador avalie o futuro de cada jogada. O desafio é separar interface, regras e decisão, mantendo tudo em funções procedurais testáveis.",
+            concepts: ["recursão", "Minimax", "type hints", "cópias", "testes"],
+            requirements: [
+              "Criar uma função recursiva que avalie vitória, derrota e empate.",
+              "Simular jogadas e desfazê-las sem corromper o tabuleiro real.",
+              "Escolher a jogada com melhor avaliação para o computador.",
+              "Usar parâmetros e retornos em vez de depender de estado global.",
+              "Testar vitórias em linhas, colunas, diagonais, empate e bloqueio obrigatório."
+            ],
+            input: "Escolha de símbolo e posições do jogador humano.",
+            output: "Jogadas ótimas do computador e resultado correto para qualquer sequência válida.",
+            steps: ["Faça `avaliar` reconhecer estados terminais.", "No Minimax, percorra somente casas livres.", "Para cada opção, aplique, chame recursivamente e desfaça.", "Maximize para o computador e minimize para o humano.", "Conecte o algoritmo ao jogo somente depois de testar as regras isoladas."],
+            pseudo: `FUNÇÃO minimax(tabuleiro, turno)\n    SE estado for terminal\n        DEVOLVER avaliação\n    SE turno for computador\n        melhor = menor valor possível\n        PARA cada casa livre\n            SIMULAR jogada\n            melhor = máximo(melhor, minimax(...))\n            DESFAZER jogada\n    SENÃO\n        REPETIR escolhendo o menor valor\n    DEVOLVER melhor\n\nPARA cada jogada possível do computador\n    AVALIAR com minimax\nESCOLHER maior avaliação`,
+            starter: `from math import inf\n\ndef resultado(tabuleiro: list[str]) -> str | None:\n    # TODO: devolver "X", "O", "empate" ou None\n    pass\n\ndef posicoes_livres(tabuleiro: list[str]) -> list[int]:\n    # TODO\n    pass\n\ndef minimax(tabuleiro: list[str], turno: str, computador: str) -> int:\n    estado = resultado(tabuleiro)\n    # TODO: tratar estados terminais\n    # TODO: simular cada possibilidade e desfazer a alteração\n    pass\n\ndef melhor_jogada(tabuleiro: list[str], computador: str) -> int:\n    melhor_valor = -inf\n    melhor_posicao = -1\n    # TODO: avaliar cada posição livre\n    return melhor_posicao`,
+            hints: ["Uma avaliação simples pode ser +1 para vitória do computador, -1 para derrota e 0 para empate.", "O mesmo tabuleiro pode ser alterado e restaurado em cada ramo, desde que a restauração sempre aconteça.", "Comece testando o algoritmo em tabuleiros quase completos; a árvore será menor e mais fácil de observar."],
+            extras: ["Preferir vitórias mais rápidas usando a profundidade.", "Adicionar cache de estados já avaliados.", "Comparar quantidade de chamadas com e sem cache."],
+            checklist: ["Estados terminais interrompem a recursão.", "Toda jogada simulada é desfeita.", "O computador bloqueia uma vitória imediata.", "O computador aproveita uma vitória disponível.", "Os testes cobrem linhas, colunas, diagonais e empate."]
+          }
+        }
+      },
+      {
+        id: "forca",
+        dataGame: "forca",
+        number: "Jogo 03 · Texto e estado",
+        title: "Jogo da Forca",
+        description: "Trabalhe com caracteres, coleções e normalização para revelar palavras sem perder as regras do idioma.",
+        demo: {
+          file: "jogo_da_forca.py",
+          outcome: "loss",
+          outcomeLabel: "Partida concluída · derrota",
+          steps: [
+            { type: "command", text: "python jogo_da_forca.py", wait: 420 },
+            { type: "info", text: "Categorias: [1] Tecnologia  [2] Ciência  [3] Cultura", wait: 550 },
+            { type: "user", text: "1", wait: 300 },
+            { type: "info", text: "Categoria: Tecnologia · Palavra com 9 letras", wait: 550 },
+            { type: "board", text: "_ _ _ _ _ _ _ _ _    erros: 0/6", wait: 430 },
+            { type: "user", text: "a", wait: 260 },
+            { type: "success", text: "Boa! A letra A aparece na palavra.", wait: 420 },
+            { type: "board", text: "A _ _ _ _ _ _ _ _    erros: 0/6", wait: 380 },
+            { type: "user", text: "o", wait: 260 },
+            { type: "success", text: "Boa! A letra O aparece 2 vezes.", wait: 420 },
+            { type: "board", text: "A _ _ O _ _ _ _ O    erros: 0/6", wait: 380 },
+            { type: "user", text: "a", wait: 260 },
+            { type: "error", text: "⚠ A letra A já foi usada. Erro não contabilizado.", wait: 700 },
+            { type: "user", text: "b", wait: 240 },
+            { type: "board", text: "  ┌───┐\n  │   O\n  │\n──┴──────\nA _ _ O _ _ _ _ O    erros: 1/6", wait: 430 },
+            { type: "user", text: "g", wait: 240 },
+            { type: "success", text: "Boa! G está na palavra.", wait: 360 },
+            { type: "board", text: "A _ G O _ _ _ _ O    erros: 1/6", wait: 360 },
+            { type: "user", text: "c", wait: 240 },
+            { type: "board", text: "  ┌───┐\n  │   O\n  │   │\n──┴──────\nA _ G O _ _ _ _ O    erros: 2/6", wait: 430 },
+            { type: "user", text: "r", wait: 240 },
+            { type: "success", text: "Boa! R está na palavra.", wait: 340 },
+            { type: "board", text: "A _ G O R _ _ _ O    erros: 2/6", wait: 350 },
+            { type: "user", text: "u", wait: 220 },
+            { type: "board", text: "  ┌───┐\n  │   O\n  │  ╱│\n──┴──────\nA _ G O R _ _ _ O    erros: 3/6", wait: 390 },
+            { type: "user", text: "s", wait: 220 },
+            { type: "board", text: "  ┌───┐\n  │   O\n  │  ╱│╲\n──┴──────\nA _ G O R _ _ _ O    erros: 4/6", wait: 390 },
+            { type: "user", text: "n", wait: 220 },
+            { type: "board", text: "  ┌───┐\n  │   O\n  │  ╱│╲\n  │  ╱\n──┴──────\nA _ G O R _ _ _ O    erros: 5/6", wait: 420 },
+            { type: "user", text: "d", wait: 220 },
+            { type: "board", text: "  ┌───┐\n  │   O\n  │  ╱│╲\n  │  ╱ ╲\n──┴──────\nA _ G O R _ _ _ O    erros: 6/6", wait: 650 },
+            { type: "result loss", text: "💥 FIM DE JOGO! O limite de 6 erros foi atingido.", wait: 500 },
+            { type: "info", text: "A palavra era: ALGORITMO", wait: 550 }
+          ]
+        },
+        art: `<pre class="hangman-art" aria-hidden="true"> ┌─────┐\n │     ◯\n │    /│\\\n │    / \\\n─┴────────\n P Y T H _ N</pre>`,
+        levels: {
+          easy: {
+            title: "A palavra secreta",
+            mission: "Uma palavra fixa está escondida. Revele todas as ocorrências de cada letra correta, registre tentativas incorretas e desenhe a forca em estágios no terminal.",
+            concepts: ["strings", "listas", "laços", "pertencimento", "validação"],
+            requirements: [
+              "Começar com uma palavra definida no código.",
+              "Aceitar somente uma letra alfabética por rodada.",
+              "Mostrar `_` nas posições ainda desconhecidas.",
+              "Revelar todas as ocorrências de uma letra acertada.",
+              "Encerrar ao completar a palavra ou alcançar seis erros."
+            ],
+            input: "Uma única letra a cada rodada.",
+            output: "Palavra parcial, letras utilizadas, desenho atual e resultado final.",
+            steps: ["Defina a palavra e uma coleção de letras tentadas.", "Crie uma função para montar a exibição parcial.", "Valide tamanho, tipo de caractere e repetição.", "Conte erro somente quando a letra válida não estiver na palavra.", "Verifique vitória antes de iniciar outra rodada."],
+            pseudo: `DEFINIR palavra secreta\nCRIAR conjunto de tentativas\nDEFINIR erros como zero\nENQUANTO palavra não foi descoberta E erros < 6\n    MOSTRAR desenho e palavra parcial\n    LER uma letra\n    SE entrada inválida ou repetida\n        AVISAR\n    SENÃO\n        REGISTRAR letra\n        SE letra não pertence à palavra\n            SOMAR um erro\nMOSTRAR vitória ou palavra correta`,
+            starter: `DESENHOS = [\n    "",\n    "  O",\n    "  O\\n  |",\n    # TODO: completar os demais estágios\n]\n\ndef palavra_parcial(palavra, tentadas):\n    # TODO: devolver letras reveladas e sublinhados\n    pass\n\ndef ler_letra(tentadas):\n    # TODO: validar uma única letra ainda não utilizada\n    pass\n\ndef palavra_completa(palavra, tentadas):\n    # TODO\n    pass\n\ndef jogar():\n    palavra = "python"\n    tentadas = set()\n    erros = 0\n    # TODO: laço principal\n\nif __name__ == "__main__":\n    jogar()`,
+            hints: ["`letra.isalpha()` ajuda a validar se o caractere é alfabético.", "Percorra a palavra e escolha entre mostrar a letra ou `_` conforme ela pertença ao conjunto de tentadas.", "A vitória ocorre quando todas as letras da palavra pertencem às tentadas."],
+            extras: ["Escolher aleatoriamente entre cinco palavras internas.", "Permitir configurar o limite de erros.", "Exibir as letras tentadas em ordem alfabética."],
+            checklist: ["Somente uma letra alfabética é aceita.", "Tentativas repetidas não aumentam os erros.", "Todas as ocorrências de uma letra são reveladas.", "O desenho acompanha a quantidade de erros.", "Vitória e derrota encerram o laço corretamente."]
+          },
+          medium: {
+            title: "Arquivo de categorias",
+            mission: "Organize palavras por tema e sorteie uma nova missão. Use as coleções certas para consultar letras rapidamente e mantenha a lógica dividida em funções claras.",
+            concepts: ["dicionários", "conjuntos", "random", "normalização", "funções"],
+            requirements: [
+              "Organizar pelo menos três categorias em um dicionário.",
+              "Permitir escolher a categoria e sortear uma palavra dela.",
+              "Usar conjuntos separados para letras corretas e incorretas.",
+              "Aceitar maiúsculas e minúsculas como a mesma tentativa.",
+              "Validar categoria, letra vazia, múltiplos caracteres e repetição."
+            ],
+            input: "Nome ou número da categoria e uma letra por rodada.",
+            output: "Categoria escolhida, palavra parcial e listas separadas de acertos e erros.",
+            steps: ["Crie o dicionário de categorias e palavras.", "Faça uma função para validar e sortear a escolha.", "Normalize entradas com `strip` e `lower`.", "Atualize o conjunto correto conforme o resultado da tentativa.", "Reaproveite funções do nível fácil para exibição e término."],
+            pseudo: `CRIAR dicionário de categorias\nLER categoria até ser válida\nSORTEAR palavra da lista escolhida\nCRIAR conjuntos de acertos e erros\nENQUANTO partida estiver ativa\n    LER e NORMALIZAR letra\n    SE já estiver em um dos conjuntos\n        AVISAR\n    SENÃO SE pertencer à palavra\n        ADICIONAR aos acertos\n    SENÃO\n        ADICIONAR aos erros\n    MOSTRAR estado atualizado`,
+            starter: `from random import choice\n\nPALAVRAS = {\n    "tecnologia": ["python", "algoritmo", "terminal"],\n    "ciencia": ["atomo", "celula", "orbita"],\n    "cultura": ["cinema", "musica", "museu"],\n}\n\ndef escolher_palavra(categorias):\n    # TODO: validar a categoria e sortear a palavra\n    pass\n\ndef normalizar_letra(entrada):\n    # TODO: limpar e normalizar a entrada\n    pass\n\ndef registrar_tentativa(letra, palavra, acertos, erros):\n    # TODO: atualizar o conjunto apropriado\n    pass\n\ndef jogar():\n    palavra = escolher_palavra(PALAVRAS)\n    acertos, erros = set(), set()\n    # TODO: controlar a partida\n\nif __name__ == "__main__":\n    jogar()`,
+            hints: ["Exiba as chaves do dicionário para que o jogador saiba quais categorias existem.", "A união `acertos | erros` reúne todas as letras já utilizadas.", "Uma função que altera conjuntos recebidos deve ter essa responsabilidade explícita no nome e no contrato."],
+            extras: ["Adicionar uma descrição curta para cada categoria.", "Evitar repetir a palavra anterior na mesma sessão.", "Permitir adicionar palavras durante a execução."],
+            checklist: ["Existem pelo menos três categorias utilizáveis.", "A palavra é sorteada somente da categoria escolhida.", "Maiúsculas e minúsculas não geram tentativas diferentes.", "Acertos e erros ficam em conjuntos separados.", "Todas as entradas previstas são validadas."]
+          },
+          hard: {
+            title: "Desafio de linguagem",
+            mission: "Faça a forca lidar corretamente com frases, espaços e acentos. Carregue o banco de palavras de um arquivo, ofereça dicas e permita retomar uma partida salva sem perder informações.",
+            concepts: ["Unicode", "JSON", "arquivos", "exceções", "testes"],
+            requirements: [
+              "Aceitar palavras compostas e frases, revelando espaços e pontuação automaticamente.",
+              "Comparar letras ignorando acentos, mas exibir a grafia original.",
+              "Carregar categorias, respostas e dicas de um arquivo JSON validado.",
+              "Salvar frase, tentativas, erros e dica utilizada em outro JSON.",
+              "Testar normalização, revelação de caracteres e restauração do estado."
+            ],
+            input: "Comandos de letra, dica, salvar, continuar ou sair.",
+            output: "Frase parcial preservando a grafia, dica opcional e partida restaurada.",
+            steps: ["Crie uma função que remova marcas de acento apenas para comparação.", "Mantenha a resposta original separada da versão normalizada.", "Defina e valide o formato do banco de palavras.", "Represente a partida em um dicionário serializável.", "Separe funções de texto, regras, arquivos e interface; teste as três primeiras sem `input`."],
+            pseudo: `CARREGAR e VALIDAR banco JSON\nESCOLHER entrada com resposta e dica\nCRIAR ou RESTAURAR estado\nENQUANTO partida estiver ativa\n    MOSTRAR frase preservando espaços e pontuação\n    LER comando\n    SE for dica\n        EXIBIR dica e registrar uso\n    SENÃO SE for salvar\n        GRAVAR estado validado\n    SENÃO SE for uma letra válida\n        COMPARAR pela versão sem acentos\n        ATUALIZAR tentativas e erros\nMOSTRAR resultado`,
+            starter: `import json\nimport unicodedata\nfrom pathlib import Path\n\ndef sem_acentos(texto: str) -> str:\n    # TODO: normalizar e remover marcas combinantes\n    pass\n\ndef montar_frase_parcial(original: str, tentadas: set[str]) -> str:\n    # TODO: preservar espaços/pontuação e comparar sem acentos\n    pass\n\ndef carregar_banco(caminho: str) -> list[dict]:\n    try:\n        # TODO: abrir, interpretar e validar o conteúdo\n        pass\n    except (OSError, json.JSONDecodeError) as erro:\n        print(f"Falha ao carregar banco: {erro}")\n        return []\n\ndef salvar_estado(estado: dict, caminho: str) -> bool:\n    # TODO: gravar com segurança e informar sucesso\n    pass\n\ndef executar(estado: dict) -> dict:\n    # TODO: processar comandos e devolver o estado final\n    pass`,
+            hints: ["Use `unicodedata.normalize('NFD', texto)` e descarte caracteres cuja categoria seja `Mn` para comparar sem marcas.", "Na exibição, percorra a frase original; espaços e pontuação aparecem sempre, mas letras dependem da versão normalizada.", "Valide se cada item do banco possui textos não vazios para `resposta`, `categoria` e `dica`."],
+            extras: ["Gravar o salvamento primeiro em arquivo temporário e depois substituir o anterior.", "Criar níveis de dica que revelem categoria, tamanho ou uma letra.", "Produzir um relatório de casos de teste executados."],
+            checklist: ["Espaços e pontuação sempre aparecem na frase.", "Uma tentativa A também encontra Á, Ã e Â.", "A grafia original é preservada na exibição.", "Banco e salvamento inválidos não derrubam o programa.", "Os testes cobrem acentos, frases, pontuação e restauração."]
+          }
+        }
+      }
+    ];
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;");
+    }
+
+    function list(items, ordered = false) {
+      const tag = ordered ? "ol" : "ul";
+      return `<${tag}>${items.map(item => `<li>${item}</li>`).join("")}</${tag}>`;
+    }
+
+    function renderPanel(game, levelKey, level, index) {
+      const panelId = `${game.id}-${levelKey}-panel`;
+      const tabId = `${game.id}-${levelKey}-tab`;
+      const isSelected = levelKey === "easy";
+      const checklist = level.checklist.map((item, itemIndex) => {
+        const storageId = `${game.id}.${levelKey}.${itemIndex}`;
+        const inputId = `check-${game.id}-${levelKey}-${itemIndex}`;
+        return `<label class="check-item" for="${inputId}">
+          <input type="checkbox" id="${inputId}" data-progress-id="${storageId}">
+          <span>${item}</span>
+        </label>`;
+      }).join("");
+
+      return `<article class="challenge-panel" id="${panelId}" role="tabpanel" aria-labelledby="${tabId}" ${isSelected ? "" : "hidden"}>
+        <div class="challenge-top">
+          <div>
+            <p class="mission-label">Missão ${String(index + 1).padStart(2, "0")} · ${levelsMeta[levelKey].label}</p>
+            <h3>${level.title}</h3>
+            <p class="mission-copy">${level.mission}</p>
+          </div>
+          <aside class="concept-box" aria-label="Conceitos praticados">
+            <h4>Kit de ferramentas</h4>
+            <div class="chip-list">${level.concepts.map(concept => `<span class="concept-chip">${concept}</span>`).join("")}</div>
+          </aside>
+        </div>
+
+        <div class="content-grid">
+          <section class="content-card"><h4>🧭 Requisitos da missão</h4>${list(level.requirements)}</section>
+          <section class="content-card"><h4>🗺️ Roteiro sugerido</h4>${list(level.steps, true)}</section>
+          <section class="content-card" style="grid-column: 1 / -1">
+            <h4>⌨️ Entradas e saídas</h4>
+            <div class="io-grid">
+              <div class="io-box"><strong>Entrada</strong><p>${level.input}</p></div>
+              <div class="io-box"><strong>Saída</strong><p>${level.output}</p></div>
+            </div>
+          </section>
+        </div>
+
+        <section class="code-section pseudo">
+          <div class="code-head"><h4>Pseudocódigo · pense antes de digitar</h4><button class="copy-button" type="button" data-copy-target="pseudo-${game.id}-${levelKey}">Copiar</button></div>
+          <pre id="pseudo-${game.id}-${levelKey}"><code>${escapeHtml(level.pseudo)}</code></pre>
+        </section>
+
+        <section class="code-section">
+          <div class="code-head"><h4>Arquivo inicial · complete os TODOs</h4><button class="copy-button" type="button" data-copy-target="code-${game.id}-${levelKey}">Copiar código</button></div>
+          <pre id="code-${game.id}-${levelKey}"><code>${escapeHtml(level.starter)}</code></pre>
+        </section>
+
+        <div class="lower-grid">
+          <section class="hint-stack">
+            <h4>💡 Dicas progressivas</h4>
+            ${level.hints.map((hint, hintIndex) => `<details><summary>Dica ${hintIndex + 1}</summary><p>${hint}</p></details>`).join("")}
+          </section>
+          <section class="extras">
+            <h4>🛠️ Se quiser ir além</h4>
+            ${list(level.extras)}
+          </section>
+        </div>
+
+        <section class="checklist" aria-labelledby="check-title-${game.id}-${levelKey}">
+          <h4 id="check-title-${game.id}-${levelKey}">✅ Checklist de conclusão</h4>
+          ${checklist}
+        </section>
+      </article>`;
+    }
+
+    function renderDemoTerminal(game) {
+      const transcript = game.demo.steps.map(step => {
+        const prefix = step.type === "user" ? "Usuário: " : step.type === "command" ? "Comando: " : "Programa: ";
+        return `${prefix}${step.text}`;
+      }).join("\n");
+
+      return `<div class="demo-wrap" data-demo-id="${game.id}" data-demo-outcome="${game.demo.outcome}">
+        <div class="demo-terminal">
+          <div class="demo-chrome" aria-hidden="true">
+            <span class="demo-lights"><span></span><span></span><span></span></span>
+            <span class="demo-file">${game.demo.file}</span>
+            <span class="demo-live-indicator">demo</span>
+          </div>
+          <div class="demo-screen" aria-hidden="true">
+            <div class="demo-output"></div><span class="demo-cursor"></span>
+          </div>
+        </div>
+        <div class="demo-footer">
+          <div class="demo-status">
+            <strong>Aguardando aparecer na tela</strong>
+            <span>Etapa 0 de ${game.demo.steps.length}</span>
+          </div>
+          <div class="demo-controls">
+            <button class="demo-button" type="button" data-demo-action="pause" aria-pressed="false">Pausar</button>
+            <button class="demo-button" type="button" data-demo-action="restart">↻ Reiniciar partida</button>
+          </div>
+        </div>
+        <p class="sr-only">Demonstração completa de ${game.title}. ${escapeHtml(transcript)}</p>
+      </div>`;
+    }
+
+    function renderGames() {
+      const container = document.querySelector("#game-container");
+      let missionIndex = 0;
+      container.innerHTML = games.map(game => {
+        const tabs = Object.keys(game.levels).map(levelKey => {
+          const meta = levelsMeta[levelKey];
+          const isSelected = levelKey === "easy";
+          return `<button class="tab-button" id="${game.id}-${levelKey}-tab" type="button" role="tab" aria-selected="${isSelected}" aria-controls="${game.id}-${levelKey}-panel" tabindex="${isSelected ? "0" : "-1"}" data-level="${levelKey}"><span class="dot" aria-hidden="true"></span>${meta.label}</button>`;
+        }).join("");
+        const panels = Object.entries(game.levels).map(([levelKey, level]) => renderPanel(game, levelKey, level, missionIndex++)).join("");
+
+        return `<section class="game-section" id="${game.id}" data-game="${game.dataGame}" aria-labelledby="title-${game.id}">
+          <header class="game-head">
+            <div class="game-copy"><p class="game-number">${game.number}</p><h2 id="title-${game.id}">${game.title}</h2><p>${game.description}</p></div>
+            <div class="game-art">${renderDemoTerminal(game)}</div>
+          </header>
+          <div class="tab-strip" role="tablist" aria-label="Níveis de ${game.title}">${tabs}</div>
+          ${panels}
+        </section>`;
+      }).join("");
+    }
+
+    function setupGameDemos() {
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const sleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
+
+      document.querySelectorAll("[data-demo-id]").forEach(root => {
+        const game = games.find(item => item.id === root.dataset.demoId);
+        const demo = game.demo;
+        const screen = root.querySelector(".demo-screen");
+        const output = root.querySelector(".demo-output");
+        const cursor = root.querySelector(".demo-cursor");
+        const statusTitle = root.querySelector(".demo-status strong");
+        const statusStep = root.querySelector(".demo-status span");
+        const pauseButton = root.querySelector('[data-demo-action="pause"]');
+        const restartButton = root.querySelector('[data-demo-action="restart"]');
+        let visible = false;
+        let userPaused = false;
+        let restartRequested = false;
+        let atResult = false;
+
+        function appendLine(step, typeText = false) {
+          const line = document.createElement("span");
+          line.className = `demo-line ${step.type}`;
+          line.textContent = typeText ? "" : step.text;
+          output.appendChild(line);
+          screen.scrollTop = screen.scrollHeight;
+          return line;
+        }
+
+        function renderCompleteTranscript() {
+          output.textContent = "";
+          demo.steps.forEach(step => appendLine(step));
+          cursor.hidden = true;
+          screen.scrollTop = screen.scrollHeight;
+          root.dataset.demoState = "complete";
+          statusTitle.textContent = demo.outcomeLabel;
+          statusStep.textContent = `${demo.steps.length} etapas · animação reduzida`;
+        }
+
+        function updatePauseButton() {
+          pauseButton.textContent = userPaused ? "▶ Continuar" : "⏸ Pausar";
+          pauseButton.setAttribute("aria-pressed", String(userPaused));
+        }
+
+        function updateRunningStatus(stepNumber) {
+          root.dataset.demoState = "running";
+          statusTitle.textContent = "Partida em andamento";
+          statusStep.textContent = `Etapa ${stepNumber} de ${demo.steps.length}`;
+        }
+
+        function isActive() {
+          return visible && !userPaused;
+        }
+
+        async function controlledWait(milliseconds) {
+          let elapsed = 0;
+          while (elapsed < milliseconds) {
+            if (restartRequested) return false;
+            if (!isActive()) {
+              await sleep(70);
+              continue;
+            }
+            const slice = Math.min(50, milliseconds - elapsed);
+            await sleep(slice);
+            elapsed += slice;
+          }
+          return !restartRequested;
+        }
+
+        async function showStep(step, index) {
+          updateRunningStatus(index + 1);
+          const typed = step.type === "command" || step.type === "user";
+          const line = appendLine(step, typed);
+
+          if (typed) {
+            for (const character of step.text) {
+              if (!await controlledWait(22)) return false;
+              line.textContent += character;
+              screen.scrollTop = screen.scrollHeight;
+            }
+          }
+
+          return controlledWait(step.wait || 400);
+        }
+
+        async function playForever() {
+          while (true) {
+            restartRequested = false;
+            atResult = false;
+            output.textContent = "";
+            cursor.hidden = false;
+
+            let interrupted = false;
+            for (let index = 0; index < demo.steps.length; index += 1) {
+              if (!await showStep(demo.steps[index], index)) {
+                interrupted = true;
+                break;
+              }
+            }
+
+            if (interrupted) continue;
+            atResult = true;
+            root.dataset.demoState = "complete";
+            statusTitle.textContent = demo.outcomeLabel;
+            statusStep.textContent = `${demo.steps.length} etapas · reinício automático em instantes`;
+            if (!await controlledWait(6000)) continue;
+          }
+        }
+
+        if (reducedMotion) {
+          renderCompleteTranscript();
+          pauseButton.textContent = "Sem animação";
+          pauseButton.disabled = true;
+          restartButton.addEventListener("click", renderCompleteTranscript);
+          return;
+        }
+
+        updatePauseButton();
+        root.dataset.demoState = "waiting";
+
+        pauseButton.addEventListener("click", () => {
+          userPaused = !userPaused;
+          updatePauseButton();
+          if (userPaused) {
+            root.dataset.demoState = "paused";
+            statusTitle.textContent = "Partida pausada";
+          } else if (visible) {
+            statusTitle.textContent = atResult ? demo.outcomeLabel : "Partida em andamento";
+          }
+        });
+
+        restartButton.addEventListener("click", () => {
+          restartRequested = true;
+          userPaused = false;
+          atResult = false;
+          output.textContent = "";
+          updatePauseButton();
+          root.dataset.demoState = visible ? "running" : "waiting";
+          statusTitle.textContent = visible ? "Reiniciando partida…" : "Reinício preparado";
+          statusStep.textContent = `Etapa 0 de ${demo.steps.length}`;
+        });
+
+        const observer = new IntersectionObserver(entries => {
+          const entry = entries[0];
+          visible = entry.isIntersecting && entry.intersectionRatio >= .12;
+          if (!visible && !userPaused && !atResult) {
+            root.dataset.demoState = "waiting";
+            statusTitle.textContent = "Pausado fora da tela";
+          } else if (visible && !userPaused && !atResult) {
+            statusTitle.textContent = "Partida em andamento";
+          }
+        }, { threshold: [0, .12, .35] });
+
+        observer.observe(root);
+        playForever();
+      });
+    }
+
+    function setupTabs() {
+      document.querySelectorAll('[role="tablist"]').forEach(tabList => {
+        const tabs = [...tabList.querySelectorAll('[role="tab"]')];
+
+        function activateTab(tab, moveFocus = true) {
+          tabs.forEach(current => {
+            const selected = current === tab;
+            current.setAttribute("aria-selected", String(selected));
+            current.tabIndex = selected ? 0 : -1;
+            document.getElementById(current.getAttribute("aria-controls")).hidden = !selected;
+          });
+          if (moveFocus) tab.focus();
+        }
+
+        tabs.forEach((tab, index) => {
+          tab.addEventListener("click", () => activateTab(tab, false));
+          tab.addEventListener("keydown", event => {
+            let nextIndex = null;
+            if (event.key === "ArrowRight") nextIndex = (index + 1) % tabs.length;
+            if (event.key === "ArrowLeft") nextIndex = (index - 1 + tabs.length) % tabs.length;
+            if (event.key === "Home") nextIndex = 0;
+            if (event.key === "End") nextIndex = tabs.length - 1;
+            if (nextIndex !== null) {
+              event.preventDefault();
+              activateTab(tabs[nextIndex]);
+            }
+          });
+        });
+      });
+    }
+
+    const storageKey = "laboratorio-python-checklist-v1";
+
+    function readProgress() {
+      try { return JSON.parse(localStorage.getItem(storageKey)) || {}; }
+      catch { return {}; }
+    }
+
+    function writeProgress(progress) {
+      try { localStorage.setItem(storageKey, JSON.stringify(progress)); }
+      catch { showToast("Não foi possível salvar neste navegador."); }
+    }
+
+    function setupChecklist() {
+      const progress = readProgress();
+      document.querySelectorAll("[data-progress-id]").forEach(input => {
+        input.checked = Boolean(progress[input.dataset.progressId]);
+        input.addEventListener("change", () => {
+          const updated = readProgress();
+          if (input.checked) updated[input.dataset.progressId] = true;
+          else delete updated[input.dataset.progressId];
+          writeProgress(updated);
+        });
+      });
+
+      document.querySelector("#reset-progress").addEventListener("click", () => {
+        if (!confirm("Deseja desmarcar todos os itens do checklist neste navegador?")) return;
+        try { localStorage.removeItem(storageKey); } catch {}
+        document.querySelectorAll("[data-progress-id]").forEach(input => { input.checked = false; });
+        showToast("Checklist limpo. Um novo começo! 🧪");
+      });
+    }
+
+    let toastTimer;
+    function showToast(message) {
+      const toast = document.querySelector("#toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2400);
+    }
+
+    async function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.setAttribute("readonly", "");
+      textArea.style.position = "fixed";
+      textArea.style.opacity = "0";
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      textArea.remove();
+    }
+
+    function setupCopyButtons() {
+      document.querySelectorAll("[data-copy-target]").forEach(button => {
+        button.addEventListener("click", async () => {
+          const target = document.getElementById(button.dataset.copyTarget);
+          try {
+            await copyText(target.innerText);
+            const original = button.textContent;
+            button.textContent = "Copiado!";
+            showToast("Código copiado para a área de transferência.");
+            setTimeout(() => { button.textContent = original; }, 1600);
+          } catch {
+            showToast("Selecione o trecho e copie manualmente.");
+          }
+        });
+      });
+    }
+
+    renderGames();
+    setupGameDemos();
+    setupTabs();
+    setupChecklist();
+    setupCopyButtons();
+  </script>
+</body>
+</html>
