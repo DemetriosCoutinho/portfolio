@@ -1,0 +1,272 @@
+/* Estilo das cenas. Cada cena tem posições absolutas no palco 1920x1080 (margem de segurança de 96 x 54 px;
+   o rodapé ocupa de y=934 para baixo, então o conteúdo termina em ~930). */
+
+.scene .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.scene > *:not(.bg) { position: absolute; margin: 0; }
+
+.ico { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* rótulo do capítulo e título, comuns às cenas de conteúdo */
+.rotulo {
+  left: 96px; top: 62px; display: flex; align-items: center; gap: 16px;
+  font-size: var(--t-rotulo); font-weight: 700; line-height: 1; color: var(--folha);
+}
+.rotulo::before { content: ''; width: 44px; height: 5px; border-radius: 3px; background: var(--vermelho); }
+.titulo {
+  left: 96px; top: 108px; font-size: var(--t-titulo); font-weight: 800; line-height: 1.05;
+  letter-spacing: -0.02em; color: var(--floresta); white-space: nowrap;
+}
+
+/* cartão branco (Figma 9/14) */
+.cartao { background: var(--branco); border-radius: 32px; box-shadow: 0 14px 40px rgba(15, 64, 34, 0.10); }
+
+/* ============ 1 · abertura ============ */
+.s-abertura .edicao {
+  left: 96px; top: 138px; display: flex; align-items: center; gap: 16px;
+  font-size: 36px; font-weight: 700; color: var(--folha);
+}
+.s-abertura .edicao::before { content: ''; width: 44px; height: 5px; border-radius: 3px; background: var(--vermelho); }
+.s-abertura .logo-wrap { left: 96px; top: 222px; width: 680px; height: 260px; }
+.s-abertura .logo { display: block; width: 680px; height: auto; }
+.s-abertura .scan { position: absolute; left: 0; top: -10px; width: 5px; height: 280px; border-radius: 3px; background: var(--vermelho); }
+.s-abertura .nome {
+  left: 96px; top: 524px; width: 880px; font-size: 44px; font-weight: 600; line-height: 1.22; color: var(--tinta);
+}
+.s-abertura .frase {
+  left: 96px; top: 680px; width: 780px; font-size: var(--t-corpo); font-weight: 500; line-height: 1.3; color: var(--tinta-suave);
+}
+
+/* ============ 2 · quem somos ============ */
+.s-quem .definicao { left: 96px; top: 212px; width: 1010px; font-size: var(--t-corpo); font-weight: 500; line-height: 1.28; color: var(--tinta-suave); }
+.s-quem .anel { left: 96px; top: 372px; width: 1080px; height: 520px; }
+.s-quem .anel-svg { position: absolute; left: 360px; top: 80px; width: 360px; height: 360px; overflow: visible; }
+.s-quem .arco { fill: none; stroke-width: 44; stroke-linecap: butt; }
+.s-quem .logo-anel { position: absolute; left: 440px; top: 236px; width: 200px; height: auto; }
+.s-quem .frente {
+  position: absolute; width: 340px; height: 72px; padding: 0 20px 0 18px; display: flex; align-items: center; gap: 12px;
+  background: var(--branco); border-radius: 36px; border-left: 10px solid var(--cor);
+  font-size: var(--t-rotulo); font-weight: 700; color: var(--tinta); box-shadow: 0 8px 24px rgba(15, 64, 34, 0.10);
+}
+.s-quem .frente .ico { flex: none; font-size: 34px; color: var(--cor); }
+.s-quem .f1 { left: 740px; top: 100px; }
+.s-quem .f2 { left: 740px; top: 348px; }
+.s-quem .f3 { left: 0; top: 348px; }
+.s-quem .f4 { left: 0; top: 100px; }
+.s-quem .stats { left: 1262px; top: 118px; width: 562px; }
+.s-quem .stat { display: flex; align-items: center; gap: 22px; height: 176px; border-bottom: 3px solid var(--salvia-clara); }
+.s-quem .stat:last-child { border-bottom: 0; }
+.s-quem .stat .n { min-width: 4.2ch; font-size: 104px; font-weight: 800; line-height: 1; letter-spacing: -0.03em; color: var(--vermelho); }
+.s-quem .stat .l { font-size: 30px; font-weight: 600; line-height: 1.2; color: var(--tinta); }
+
+/* ============ 3 · talentos ============ */
+.s-talentos .fios { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+.s-talentos .fio { fill: none; stroke: var(--folha); stroke-width: 4; stroke-linecap: round; }
+.s-talentos .motor { left: 126px; top: 360px; width: 440px; height: 440px; }
+.s-talentos .engrenagem { position: absolute; inset: 0; width: 440px; height: 440px; }
+.s-talentos .motor-texto {
+  position: absolute; left: 90px; top: 165px; width: 260px; margin: 0; text-align: center;
+  font-size: 40px; font-weight: 800; line-height: 1.15; color: var(--branco);
+}
+.s-talentos .chips { position: absolute; margin: 0; padding: 0; list-style: none; width: 520px; }
+.s-talentos .col-a { left: 740px; top: 357px; }
+.s-talentos .col-b { left: 1290px; top: 357px; }
+.s-talentos .chip {
+  display: flex; align-items: center; gap: 14px; height: 92px; margin-bottom: 26px; padding: 0 16px;
+  background: var(--branco); border-radius: 46px; box-shadow: 0 8px 24px rgba(15, 64, 34, 0.10);
+  font-size: 30px; font-weight: 700; white-space: nowrap; color: var(--tinta);
+}
+.s-talentos .chip:last-child { margin-bottom: 0; }
+.s-talentos .chip .disco {
+  flex: none; display: grid; place-items: center; width: 60px; height: 60px; border-radius: 50%;
+  background: var(--floresta); color: var(--branco); font-size: 32px;
+}
+.s-talentos .chip.b .disco { background: var(--vermelho); }
+
+/* ============ divisores de capítulo (4 e 8) ============ */
+.s-divisor { background: var(--floresta-noite); }
+.s-divisor .capnum {
+  left: 96px; top: 372px; padding: 8px 28px; border-radius: 40px; background: var(--vermelho);
+  font-size: 40px; font-weight: 800; line-height: 1.2; color: var(--branco); letter-spacing: 0.02em;
+}
+.s-divisor .tit-div {
+  left: 96px; top: 470px; font-size: 128px; font-weight: 800; line-height: 1; letter-spacing: -0.025em;
+  color: var(--branco); white-space: nowrap;
+}
+.s-divisor .sub-div { left: 96px; top: 640px; font-size: 40px; font-weight: 600; color: var(--salvia-clara); }
+
+/* ============ 5 · Tela Brasil ============ */
+.s-tela .titulo, .s-pdm .titulo { font-size: 68px; line-height: 1.06; }
+.s-tela .hero {
+  left: 96px; top: 300px; width: 960px; height: 526px; border-radius: 28px; overflow: hidden;
+  box-shadow: 0 18px 48px rgba(15, 64, 34, 0.22); background: #101010;
+}
+.s-tela .hero img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.s-tela .info { left: 1112px; top: 300px; width: 712px; padding: 40px 44px 44px; }
+.s-tela .info-tit { margin: 0 0 12px; font-size: 38px; font-weight: 800; line-height: 1.15; color: var(--floresta); }
+.s-tela .info-txt { margin: 0 0 26px; font-size: 30px; font-weight: 500; line-height: 1.3; color: var(--tinta-suave); }
+.s-tela .fatos { margin: 0; padding: 26px 0 0; list-style: none; border-top: 3px solid var(--salvia-clara); }
+.s-tela .fato { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 22px; font-size: 30px; font-weight: 600; line-height: 1.25; color: var(--tinta); }
+.s-tela .fato:last-child { margin-bottom: 0; }
+.s-tela .fato .ico { flex: none; margin-top: 2px; font-size: 40px; color: var(--folha); }
+.s-tela .fato .n { font-weight: 800; color: var(--vermelho); }
+
+/* ============ 6 · Pé-de-Meia ============ */
+.s-pdm .pdm-logo { left: 96px; top: 292px; width: 190px; height: auto; }
+.s-pdm .mapa { left: 96px; top: 410px; width: 470px; height: 470px; }
+.s-pdm .mapa img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.s-pdm .numeros { left: 640px; top: 300px; width: 470px; }
+.s-pdm .numero { display: flex; flex-direction: column; justify-content: center; gap: 8px; height: 214px; margin-bottom: 26px; padding: 0 30px; }
+.s-pdm .numero .n { font-size: 72px; font-weight: 800; line-height: 1; letter-spacing: -0.03em; color: var(--vermelho); }
+.s-pdm .numero .l { font-size: 28px; font-weight: 600; line-height: 1.2; color: var(--tinta); }
+.s-pdm .faixa { left: 640px; top: 800px; width: 470px; font-size: 30px; font-weight: 700; line-height: 1.25; color: var(--folha); }
+.s-pdm .passos { left: 1160px; top: 300px; width: 664px; height: 560px; padding: 34px 40px; }
+.s-pdm .passos-tit { margin: 0 0 22px; font-size: 38px; font-weight: 800; color: var(--floresta); }
+.s-pdm .passos ol { position: relative; margin: 0; padding: 0; list-style: none; }
+.s-pdm .passos li { position: relative; z-index: 1; display: flex; align-items: center; gap: 22px; min-height: 96px; margin-bottom: 14px; font-size: 30px; font-weight: 600; line-height: 1.22; color: var(--tinta); }
+.s-pdm .passos li:last-child { margin-bottom: 0; }
+.s-pdm .bolinha { flex: none; display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: var(--vermelho); color: var(--branco); font-size: 30px; font-weight: 800; }
+/* a linha que liga as quatro bolinhas: do centro da 1ª ao centro da última */
+.s-pdm .linha-passos { position: absolute; left: 66px; top: 106px; width: 4px; height: 342px; border-radius: 2px; background: var(--salvia-clara); }
+
+/* ============ 8 · divisor de projetos privados (mesma arte, outro enquadramento) ============ */
+.s-divisor.v2 .bg { width: 125%; height: 125%; left: -25%; top: -12%; }
+
+/* ============ 9 · Pechinchou ============ */
+.s-pech .mock { left: 96px; top: 232px; width: 740px; height: auto; border-radius: 12px; }
+.s-pech .pech-logo { left: 872px; top: 420px; width: 320px; height: auto; }
+.s-pech .fotos { left: 1262px; top: 226px; width: 500px; height: 667px; border-radius: 28px; overflow: hidden; box-shadow: 0 18px 48px rgba(15, 64, 34, 0.22); }
+.s-pech .fotos img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.s-pech .fatos-h { left: 96px; top: 712px; width: 1120px; display: flex; gap: 22px; }
+.s-pech .fato-h { flex: 1; height: 190px; padding: 26px; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+.s-pech .fato-h .n { font-size: 50px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; color: var(--vermelho); white-space: nowrap; }
+.s-pech .fato-h .n .ico { font-size: 50px; }
+.s-pech .fato-h .l { font-size: 28px; font-weight: 600; line-height: 1.2; color: var(--tinta); }
+
+/* ============ 7 · PEIs (projetos públicos) ============ */
+.s-peis .titulo, .s-thal .titulo { font-size: 64px; line-height: 1.06; }
+.s-hapi .titulo { font-size: 56px; line-height: 1.06; }
+.s-peis .janela { left: 96px; top: 250px; width: 940px; height: 550px; border-radius: 26px; overflow: hidden; background: var(--branco); box-shadow: 0 18px 48px rgba(15, 64, 34, 0.20); }
+.s-peis .barra { position: absolute; left: 0; right: 0; top: 0; height: 46px; display: flex; align-items: center; gap: 10px; padding-left: 20px; background: var(--fundo-claro); }
+.s-peis .barra i { width: 14px; height: 14px; border-radius: 50%; background: var(--salvia-clara); }
+.s-peis .telas { position: absolute; left: 0; right: 0; top: 46px; bottom: 0; }
+.s-peis .telas img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 0 0; }
+.s-peis .logo-peis { left: 96px; top: 822px; width: 260px; height: auto; border-radius: 14px; }
+.s-peis .quatro { left: 1100px; top: 250px; width: 724px; display: flex; align-items: center; gap: 26px; }
+.s-peis .quatro .n { min-width: 2.3ch; font-size: 132px; font-weight: 800; line-height: 1; letter-spacing: -0.03em; color: var(--vermelho); }
+.s-peis .quatro .l { font-size: 30px; font-weight: 600; line-height: 1.22; color: var(--tinta); }
+.s-peis .spark { left: 1100px; top: 420px; width: 640px; height: 120px; overflow: visible; }
+.s-peis .nota { left: 1100px; top: 556px; font-size: 24px; font-weight: 500; color: var(--tinta-suave); }
+.s-peis .peis-fatos { left: 1100px; top: 606px; width: 724px; padding: 0; list-style: none; }
+.s-peis .peis-fatos li { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 18px; font-size: 30px; font-weight: 600; line-height: 1.25; color: var(--tinta); }
+.s-peis .peis-fatos .ico { flex: none; margin-top: 1px; font-size: 40px; color: var(--folha); }
+.s-peis .artigo { left: 1100px; top: 802px; width: 724px; display: flex; align-items: center; gap: 22px; }
+.s-peis .artigo img { flex: none; width: 108px; height: 108px; padding: 6px; border-radius: 14px; background: var(--branco); }
+.s-peis .artigo span { font-size: 28px; font-weight: 700; line-height: 1.2; color: var(--floresta); }
+
+/* ============ 10 · Thalocan: a frente internacional ============ */
+.s-thal .hero {
+  left: 96px; top: 270px; width: 820px; height: 530px; border-radius: 28px; overflow: hidden;
+  background: #0C2740; box-shadow: 0 18px 48px rgba(15, 64, 34, 0.22);
+}
+.s-thal .hero img { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* rótulos em português sobre as plaquetas do infográfico (que têm o texto em inglês, pequeno demais para a TV);
+   `rotate` e `translate` são propriedades próprias, para a entrada (transform) não desfazer o ângulo isométrico */
+.s-thal .leg {
+  position: absolute; translate: -50% -50%; rotate: -30deg; padding: 4px 20px; border-radius: 28px; white-space: nowrap;
+  background: var(--branco); border: 3px solid var(--vermelho); box-shadow: 0 6px 16px rgba(4, 20, 40, 0.35);
+  font-size: 28px; font-weight: 800; line-height: 1.15; text-align: center; color: var(--floresta);
+}
+.s-thal .leg.nuvem { padding: 8px 22px; border-color: var(--folha); }
+.s-thal .fatos-thal { left: 96px; top: 826px; width: 820px; margin: 0; padding: 0; list-style: none; }
+.s-thal .fato { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 10px; font-size: 30px; font-weight: 600; line-height: 1.25; color: var(--tinta); }
+.s-thal .fato:last-child { margin-bottom: 0; }
+.s-thal .fato .ico { flex: none; margin-top: 2px; font-size: 40px; color: var(--folha); }
+.s-thal .numeros { left: 946px; top: 270px; width: 878px; padding: 8px 36px; }
+.s-thal .stat { display: flex; align-items: center; gap: 24px; height: 84px; border-bottom: 3px solid var(--salvia-clara); }
+.s-thal .stat:last-child { border-bottom: 0; }
+.s-thal .stat .n { min-width: 200px; font-size: 60px; font-weight: 800; line-height: 1; letter-spacing: -0.03em; color: var(--vermelho); }
+.s-thal .stat .l { font-size: 30px; font-weight: 600; line-height: 1.2; color: var(--tinta); }
+.s-thal .prods { left: 946px; top: 558px; width: 878px; padding: 26px 36px; }
+.s-thal .prods h3 { margin: 0 0 12px; font-size: 36px; font-weight: 800; line-height: 1.15; color: var(--floresta); }
+.s-thal .prods ul { margin: 0; padding: 0; list-style: none; }
+.s-thal .prods li { display: flex; align-items: center; gap: 16px; height: 60px; }
+.s-thal .prods img { flex: none; width: 44px; height: 44px; object-fit: contain; }
+.s-thal .prods b { flex: none; min-width: 244px; font-size: 30px; font-weight: 800; color: var(--tinta); white-space: nowrap; }
+.s-thal .prods span { font-size: 28px; font-weight: 500; color: var(--tinta-suave); white-space: nowrap; }
+
+/* ============ 11 · HAPI ============ */
+/* linha de cima (y 196-496): foto, volume 3D do rato e números; linha do meio: arquitetura do servidor RECON; embaixo, os logos */
+.s-hapi .foto { left: 96px; top: 196px; width: 300px; height: 300px; border-radius: 28px; overflow: hidden; box-shadow: 0 18px 48px rgba(15, 64, 34, 0.22); }
+.s-hapi .foto img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 38%; }
+
+/* o volume do rato: três cortes ortogonais (coronal, sagital e axial) num cubo que oscila ±15° (o `flutuar` da coreografia).
+   A câmera fica acima (perspective-origin) para o corte axial, deitado, aparecer de cima. Sem a animação (reduced motion),
+   o cubo fica parado a -15° e o volume continua legível. */
+.s-hapi .volume {
+  left: 416px; top: 196px; width: 560px; height: 300px; border-radius: 28px; overflow: hidden;
+  background: radial-gradient(ellipse at 50% 45%, #4A6478 0%, #182634 85%);
+  box-shadow: 0 18px 48px rgba(15, 64, 34, 0.22); perspective: 900px;
+}
+.s-hapi .cubo { position: absolute; left: 50%; top: 43%; width: 0; height: 0; transform-style: preserve-3d; transform: rotateY(-15deg); }
+.s-hapi .base { position: absolute; inset: 0; transform-style: preserve-3d; transform: rotateX(-28deg) rotateY(-38deg); }
+.s-hapi .plano { position: absolute; outline: 2px solid rgba(255, 255, 255, 0.4); }
+.s-hapi .plano img { display: block; width: 100%; height: 100%; }
+.s-hapi .p-coronal { width: 134px; height: 250px; left: -67px; top: -125px; }
+.s-hapi .p-sagital { width: 151px; height: 250px; left: -75.5px; top: -125px; transform: rotateY(90deg); }
+.s-hapi .p-axial { width: 200px; height: 188px; left: -100px; top: -94px; transform: rotateX(90deg); }
+.s-hapi .legenda {
+  position: absolute; left: 16px; bottom: 14px; z-index: 2; padding: 6px 18px; border-radius: 24px;
+  background: rgba(15, 64, 34, 0.88); font-size: 28px; font-weight: 700; line-height: 1.2; color: var(--branco);
+}
+
+.s-hapi .hfatos { left: 996px; top: 196px; width: 828px; height: 300px; padding: 0 38px; display: flex; align-items: center; }
+.s-hapi .hfatos ul { width: 100%; margin: 0; padding: 0; list-style: none; }
+.s-hapi .hfatos li { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 26px; font-size: 30px; font-weight: 600; line-height: 1.25; color: var(--tinta); }
+.s-hapi .hfatos li:last-child { margin-bottom: 0; }
+.s-hapi .hfatos .ico { flex: none; margin-top: 1px; font-size: 42px; color: var(--folha); }
+.s-hapi .hfatos b { font-weight: 800; color: var(--vermelho); }
+
+/* arquitetura: quatro camadas e uma linha de fluxo por trás, que só aparece nos vãos (colunas y 566-802, fluxo no meio) */
+.s-hapi .arq-tit { left: 96px; top: 514px; font-size: 34px; font-weight: 800; line-height: 1.15; color: var(--floresta); }
+.s-hapi .arq { left: 96px; top: 566px; width: 1728px; height: 236px; }
+.s-hapi .linha-fluxo { position: absolute; left: 200px; top: 116px; width: 1328px; height: 4px; border-radius: 2px; background: var(--folha); }
+.s-hapi .pulso { position: absolute; left: 190px; top: 108px; width: 20px; height: 20px; border-radius: 50%; background: var(--vermelho); box-shadow: 0 0 0 8px rgba(167, 44, 46, 0.18); }
+.s-hapi .colunas { position: absolute; inset: 0; display: flex; gap: 44px; }
+.s-hapi .coluna { flex: 1 1 0; min-width: 0; height: 236px; padding: 24px; display: flex; flex-direction: column; gap: 12px; }
+.s-hapi .coluna h3 { margin: 0; font-size: 30px; font-weight: 800; line-height: 1.15; color: var(--floresta); }
+.s-hapi .tec {
+  display: flex; align-items: center; gap: 12px; height: 62px; padding: 0 16px; border-radius: 31px;
+  background: var(--fundo-claro); font-size: 28px; font-weight: 700; color: var(--tinta); white-space: nowrap;
+}
+.s-hapi .tec img { width: 36px; height: 36px; object-fit: contain; }
+.s-hapi .tec .ico { flex: none; font-size: 32px; color: var(--folha); }
+.s-hapi .tec .pt { flex: none; width: 16px; height: 16px; margin: 0 8px 0 4px; border-radius: 50%; background: var(--vermelho); }
+
+.s-hapi .logos-hapi { left: 96px; top: 820px; width: 1728px; height: 84px; padding: 0 44px; display: flex; align-items: center; justify-content: space-between; }
+.s-hapi .logos-hapi img { height: 48px; width: auto; max-width: 210px; object-fit: contain; }
+
+/* ============ 12 · parceiros ============ */
+.s-parc .mapa-box { left: 96px; top: 375px; width: 464px; height: 464px; }
+.s-parc .mapa-box > img { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* Pau dos Ferros (lat -6,11; lon -38,20) no viewBox do mapa do IBGE: 91,3% da largura e 29,2% da altura */
+.s-parc .pino { position: absolute; left: 91.3%; top: 29.2%; translate: -50% -100%; font-size: 60px; line-height: 0; color: var(--floresta-noite); }
+.s-parc .mapa-leg { left: 96px; top: 852px; width: 464px; font-size: 28px; font-weight: 600; text-align: center; color: var(--tinta-suave); }
+.s-parc .col-parc { top: 300px; width: 588px; }
+.s-parc .c-inst { left: 610px; }
+.s-parc .c-emp { left: 1236px; }
+.s-parc .col-parc h3 { margin: 0 0 10px; font-size: 36px; font-weight: 800; line-height: 1.15; color: var(--floresta); }
+.s-parc .sub-linha { display: block; width: 120px; height: 5px; margin-bottom: 20px; border-radius: 3px; background: var(--vermelho); }
+.s-parc .grade { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.s-parc .g-inst .cel { height: 104px; }
+.s-parc .g-emp .cel { height: 80px; }
+.s-parc .cel { position: relative; border-radius: 22px; background: var(--branco); box-shadow: 0 8px 22px rgba(15, 64, 34, 0.10); }
+/* a imagem sai do fluxo: dentro de um grid, width:100% + proporção intrínseca faz a trilha crescer (percentuais cíclicos) */
+.s-parc .cel img { position: absolute; left: 16px; top: 12px; width: calc(100% - 32px); height: calc(100% - 24px); object-fit: contain; }
+
+/* ============ 13 · encerramento ============ */
+.s-fim .fim-titulo { left: 96px; top: 270px; font-size: 84px; font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; color: var(--floresta); white-space: nowrap; }
+/* os três logos em uma linha, acima da hachura da arte (o PNG da Expotec tem fundo branco) */
+.s-fim .fim-logos { left: 96px; top: 540px; display: flex; align-items: center; gap: 40px; }
+.s-fim .fim-logos img { display: block; height: 84px; width: auto; }
+.s-fim .fim-logos img.expotec { height: 110px; }
+.s-fim .fim-logos img.nadic { height: 76px; }

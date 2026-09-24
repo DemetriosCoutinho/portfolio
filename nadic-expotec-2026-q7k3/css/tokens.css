@@ -1,0 +1,47 @@
+/* Tokens: única fonte de cores, tipografia e movimento. Nenhuma curva ou duração solta no resto do código.
+   Cores amostradas do template da 9ª Expotec (arte da capa e fundo de conteúdo). */
+
+@font-face { font-family: 'Montserrat'; font-style: normal; font-weight: 500; font-display: block;
+  src: url('../assets/fonts/montserrat-500.woff2') format('woff2'); }
+@font-face { font-family: 'Montserrat'; font-style: normal; font-weight: 600; font-display: block;
+  src: url('../assets/fonts/montserrat-600.woff2') format('woff2'); }
+@font-face { font-family: 'Montserrat'; font-style: normal; font-weight: 700; font-display: block;
+  src: url('../assets/fonts/montserrat-700.woff2') format('woff2'); }
+@font-face { font-family: 'Montserrat'; font-style: normal; font-weight: 800; font-display: block;
+  src: url('../assets/fonts/montserrat-800.woff2') format('woff2'); }
+
+:root {
+  /* cores */
+  --floresta: #1C4827;
+  --floresta-noite: #0F4022;
+  --folha: #335E39;
+  --salvia: #849176;
+  --salvia-clara: #BDC5B4;
+  --fundo: #E5EEDA;
+  --fundo-claro: #EDF4E6;
+  --branco: #FFFFFF;
+  --vermelho: #A72C2E;
+  --tinta: #17291D;
+  --tinta-suave: #3C5343;
+
+  /* movimento: entradas e saídas em ease-out; deslocamentos na tela em ease-in-out */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --dur-s: 450ms;
+  --dur-m: 700ms;
+  --dur-l: 1100ms;
+  --stagger: 70ms;
+  --pace: 450ms;
+
+  /* tipografia (escala de TV: legível a 2-3 m, mínimo 28 px) */
+  --fonte: 'Montserrat', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --t-titulo: 80px;
+  --t-subtitulo: 44px;
+  --t-corpo: 36px;
+  --t-rotulo: 28px;
+  --t-numero: 120px;
+
+  /* margem de segurança de 5% (overscan de TV) */
+  --margem-x: 96px;
+  --margem-y: 54px;
+}

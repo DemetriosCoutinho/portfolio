@@ -1,0 +1,65 @@
+/* Palco fixo 1920x1080, escalado para a tela; moldura persistente (rodapé, trilho) e camadas de transição. */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0; height: 100%; overflow: hidden; background: #000; cursor: none;
+  font-family: var(--fonte); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+
+#viewport { position: fixed; inset: 0; overflow: hidden; background: #000; }
+
+#palco {
+  position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; margin: -540px 0 0 -960px;
+  overflow: hidden; background: var(--fundo); color: var(--tinta); transform-origin: 50% 50%;
+  font-size: var(--t-corpo); line-height: 1.25;
+}
+
+/* cenas: só a(s) ativa(s) aparece(m); a que está saindo fica por cima para dissolver sobre a nova */
+.scene { position: absolute; inset: 0; visibility: hidden; z-index: 1; overflow: hidden; }
+.scene.is-active { visibility: visible; }
+.scene.is-saindo { z-index: 2; }
+
+/* ---------- rodapé: logos, trilho de capítulos, logo da Expotec ---------- */
+#rodape {
+  position: absolute; left: var(--margem-x); right: var(--margem-x); bottom: var(--margem-y); height: 92px;
+  border-radius: 46px; background: var(--branco); z-index: 5;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 40px;
+  box-shadow: 0 10px 30px rgba(15, 64, 34, 0.14);
+}
+#rodape .logos { display: flex; align-items: center; gap: 28px; }
+#rodape .logos img { display: block; height: 46px; width: auto; }
+#rodape .logos img.nadic { height: 40px; }
+#rodape img.expotec { display: block; height: 58px; width: auto; }
+
+#trilho { position: relative; display: flex; align-items: center; }
+#trilho ol { position: relative; z-index: 1; display: flex; gap: 4px; margin: 0; padding: 0; list-style: none; }
+#trilho .cap {
+  position: relative; display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 24px;
+  font-size: var(--t-rotulo); font-weight: 600; color: var(--salvia); white-space: nowrap;
+}
+#trilho .cap .num { color: var(--vermelho); font-weight: 800; }
+#trilho .cap[aria-current="step"] { color: var(--floresta); }
+/* marcador (fundo) e barra de progresso do capítulo: só transform */
+#trilho .marcador {
+  position: absolute; left: 0; top: 0; width: 100px; height: 56px; border-radius: 28px; z-index: 0;
+  background: var(--fundo); transform-origin: 0 50%;
+}
+#trilho .prog {
+  position: absolute; left: 18px; right: 18px; bottom: 3px; height: 5px; border-radius: 3px;
+  background: var(--vermelho); transform-origin: 0 50%; transform: scaleX(0);
+}
+
+/* ---------- transições ---------- */
+/* Painel de 9600 px (5x o palco): com o easing assimétrico do catálogo, um painel de 2x cobria o palco por
+   só ~77 ms; com 5x são ~224 ms (de 372 a 596 ms), e a troca de cena aos 500 ms tem folga de jitter. */
+#cortina {
+  position: absolute; left: 0; top: 0; width: 9600px; height: 1080px; z-index: 8; pointer-events: none;
+  background: var(--floresta); visibility: hidden; transform: translateX(-9600px); will-change: transform;
+}
+#cortina .fita-vermelha { position: absolute; right: 0; top: 0; bottom: 0; width: 120px; background: var(--vermelho); }
+#cortina .fio-verde { position: absolute; left: 0; top: 0; bottom: 0; width: 10px; background: var(--folha); }
+#fita-fina {
+  position: absolute; left: 0; top: 0; width: 100%; height: 6px; z-index: 7; pointer-events: none;
+  background: var(--vermelho); visibility: hidden; transform: translateX(-100%);
+}
