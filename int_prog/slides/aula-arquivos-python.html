@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leitura e escrita de arquivos em Python</title>
+<meta name="description" content="Aula de Introdução à Programação (IFRN): guardar e ler dados em arquivos de texto e CSV com Python, com duas atividades práticas.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400..800&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&amp;display=swap">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #0F141B; color: #F6F1E7;
+    font-family: 'Nunito Sans', Arial, sans-serif; }
+  body { display: flex; flex-direction: column; overflow: hidden; }
+  #area { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+  #moldura { position: relative; overflow: hidden; background: #1B2430; }
+  #palco { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;
+    transform-origin: 0 0; }
+  .slide { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; }
+  .slide * { margin: 0; }
+  .slide table { border-collapse: collapse; }
+  .slide td, .slide th { padding: 16px 24px; }
+  .slide:not(.on) { display: none !important; }
+  .slide.on { animation: entrar 220ms ease-out; }
+  @keyframes entrar { from { opacity: 0; } to { opacity: 1; } }
+  #barra { display: flex; align-items: center; gap: 12px; padding: 10px 16px;
+    background: #121923; border-top: 1px solid #34425A; font-size: 16px; }
+  #barra a, #barra button { color: #F6F1E7; background: #26313F; border: 1px solid #34425A;
+    border-radius: 10px; padding: 8px 14px; font: inherit; text-decoration: none; cursor: pointer;
+    transition: background 150ms; }
+  #barra a:hover, #barra button:hover { background: #34425A; }
+  #barra a:focus-visible, #barra button:focus-visible { outline: 3px solid #F2A33A; outline-offset: 2px; }
+  #barra button:disabled { opacity: .4; cursor: default; }
+  #contador { margin: 0 auto; font-variant-numeric: tabular-nums; color: #C9D3DF; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);
+    white-space: nowrap; }
+  @media (prefers-reduced-motion: reduce) {
+    .slide.on { animation: none; }
+    #barra a, #barra button { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div id="area"><div id="moldura"><div id="palco">
+<section id="cover" class="slide" data-n="1" role="region" aria-roledescription="slide" aria-label="Slide 1 de 16" data-transition="fade" style="background:#1B2430;color:#F6F1E7;font-family:'Nunito Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="position:absolute;right:128px;top:128px;width:320px;height:320px;color:#F2A33A"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
+<p style="font-size:32px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#F2A33A">Aula de programação</p>
+<div style="display:flex;flex-direction:column;gap:32px">
+<h1 style="font-family:'Rubik', Arial, sans-serif;font-size:120px;font-weight:700;line-height:1.1;width:1200px">Guardando e lendo dados</h1>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:400;line-height:1.15;color:#F2A33A">Arquivos e CSV em Python</h2>
+</div>
+<p style="font-size:32px;color:#C9D3DF">Atividade prática · 60 a 70 minutos · para quem já viu laços, listas e módulos</p>
+
+</section>
+<section id="ideia" class="slide" data-n="2" role="region" aria-roledescription="slide" aria-label="Slide 2 de 16" data-transition="fade" style="background:#F2A33A;color:#1B2430;font-family:'Nunito Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;justify-content:center;gap:56px">
+<p style="font-size:32px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#1B2430">A ideia central</p>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:120px;font-weight:700;line-height:1.1;color:#1B2430">Todo dispositivo guarda arquivos com nome.</h2>
+<p style="font-size:44px;line-height:1.35;color:#1B2430;width:1400px">Computador, celular, pen drive ou nuvem: para escrever ou ler, o Python só precisa do nome do arquivo. O resto é com o sistema.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#1B2430">Arquivos em Python · Fábrica de Ferramentas</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;text-align:right;font-size:24px;color:#1B2430">2</p>
+
+</section>
+<section id="memoria" class="slide" data-n="3" role="region" aria-roledescription="slide" aria-label="Slide 3 de 16" data-transition="fade" style="background:#F6F1E7;color:#1B2430;font-family:'Nunito Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;color:#1B2430">Variável ou arquivo?</h2>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#1B2430;border-radius:20px;padding:40px">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:72px;height:72px;color:#F2A33A"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;color:#F6F1E7">Variável</h3>
+<p style="font-size:32px;line-height:1.4;color:#C9D3DF">Mora na memória do programa. Quando o programa fecha, ela some.</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;color:#F6F1E7;background:#26313F;border-radius:12px;padding:12px 20px;white-space:nowrap">nome = "Ana"</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#FFFDF8;border:1px solid #E3DCCB;border-radius:20px;padding:40px">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:72px;height:72px;color:#9A5000"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;color:#1B2430">Arquivo</h3>
+<p style="font-size:32px;line-height:1.4;color:#4A5568">Mora no armazenamento do dispositivo. Continua lá depois que o programa fecha.</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;color:#1B2430;background:#EFE7D3;border-radius:12px;padding:12px 20px;white-space:nowrap">anotacoes.txt</p>
+</div>
+</div>
+<p style="font-size:44px;line-height:1.3;font-weight:700;color:#9A5000">A variável é o quadro branco. O arquivo é o caderno.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B6472">Arquivos em Python · Fábrica de Ferramentas</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;text-align:right;font-size:24px;color:#5B6472">3</p>
+
+</section>
+<section id="caminho" class="slide" data-n="4" role="region" aria-roledescription="slide" aria-label="Slide 4 de 16" data-transition="fade" style="background:#F6F1E7;color:#1B2430;font-family:'Nunito Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:24px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;color:#1B2430">O caminho dos dados</h2>
+<p style="font-size:32px;line-height:1.4;color:#4A5568">Escrever leva dados do programa para o arquivo. Ler traz os dados de volta.</p>
+<iframe title="Animação: dados indo do programa para o arquivo (escrever) e voltando (ler)" sandbox="" scrolling="no" style="position:absolute;left:128px;top:330px;width:1664px;height:520px;border:0" srcdoc="&lt;!DOCTYPE html&gt;&lt;html lang=&quot;pt-BR&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1664px;height:520px;position:relative;font-family:Arial,Helvetica,sans-serif;color:#1B2430;overflow:hidden}
+.box{position:absolute;top:40px;width:460px;height:340px;border-radius:24px;padding:28px}
+.prog{left:0;background:#1B2430;color:#F6F1E7}
+.file{right:0;background:#FFFDF8;border:3px solid #CFC6B0}
+.t{font-size:36px;font-weight:700}
+.s{font-size:26px;margin-top:10px;color:#C9D3DF}
+.file .s{color:#4A5568}
+.var{font-family:&quot;Courier New&quot;,monospace;font-size:28px;margin-top:16px;background:#26313F;border-radius:8px;padding:8px 14px;color:#F6F1E7}
+.ln{font-family:&quot;Courier New&quot;,monospace;font-size:28px;margin-top:16px;background:#EFE7D3;border-radius:8px;padding:8px 14px;color:#1B2430}
+.chip{position:absolute;top:186px;width:56px;height:56px;border-radius:12px;opacity:0}
+.c1{background:#F2A33A;animation:cyc 8s linear infinite}
+.c2{background:#2E9E90;animation:cyc 8s linear .35s infinite}
+.c3{background:#9A5000;animation:cyc 8s linear .7s infinite}
+@keyframes cyc{0%{left:500px;opacity:0}6%{left:520px;opacity:1}40%{left:1090px;opacity:1}46%{left:1110px;opacity:0}50%{left:1090px;opacity:0}56%{left:1090px;opacity:1}90%{left:520px;opacity:1}96%{left:500px;opacity:0}100%{left:500px;opacity:0}}
+.lab{position:absolute;left:480px;width:704px;text-align:center;font-weight:700;top:60px;font-size:36px}
+.w{color:#9A5000;animation:w 8s linear infinite}
+.r{color:#1F7A6F;animation:r 8s linear infinite}
+.sub{display:block;font-size:26px;font-weight:400;color:#4A5568;margin-top:6px}
+@keyframes w{0%,46%{opacity:1}50%,100%{opacity:0}}
+@keyframes r{0%,46%{opacity:0}50%,96%{opacity:1}100%{opacity:0}}
+.line{position:absolute;left:480px;width:704px;top:211px;height:6px;border-radius:3px;background:#CFC6B0}
+.foot{position:absolute;left:0;top:420px;width:1664px;font-size:28px;color:#4A5568;text-align:center}
+@media (prefers-reduced-motion: reduce){.chip{animation:none;opacity:0}.w{animation:none;opacity:1}.r{animation:none;opacity:0}}&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;box prog&quot;&gt;&lt;div class=&quot;t&quot;&gt;Programa&lt;/div&gt;&lt;div class=&quot;s&quot;&gt;variáveis na memória&lt;/div&gt;&lt;div class=&quot;var&quot;&gt;nome = &quot;Ana&quot;&lt;/div&gt;&lt;div class=&quot;var&quot;&gt;nota = 9&lt;/div&gt;&lt;/div&gt;
+&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;
+&lt;div class=&quot;lab w&quot;&gt;Escrever: write()&lt;span class=&quot;sub&quot;&gt;o programa envia dados ao arquivo&lt;/span&gt;&lt;/div&gt;
+&lt;div class=&quot;lab r&quot;&gt;Ler: read()&lt;span class=&quot;sub&quot;&gt;o arquivo devolve dados ao programa&lt;/span&gt;&lt;/div&gt;
+&lt;div class=&quot;chip c1&quot;&gt;&lt;/div&gt;&lt;div class=&quot;chip c2&quot;&gt;&lt;/div&gt;&lt;div class=&quot;chip c3&quot;&gt;&lt;/div&gt;
+&lt;div class=&quot;box file&quot;&gt;&lt;div class=&quot;t&quot;&gt;anotacoes.txt&lt;/div&gt;&lt;div class=&quot;s&quot;&gt;guardado no dispositivo&lt;/div&gt;&lt;div class=&quot;ln&quot;&gt;Ana&lt;/div&gt;&lt;div class=&quot;ln&quot;&gt;9&lt;/div&gt;&lt;/div&gt;
+&lt;div class=&quot;foot&quot;&gt;Tela, celular, pen drive ou nuvem: o caminho é sempre o mesmo.&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"></iframe>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B6472">Arquivos em Python · Fábrica de Ferramentas</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;text-align:right;font-size:24px;color:#5B6472">4</p>
+
+</section>
+<section id="escrever" class="slide" data-n="5" role="region" aria-roledescription="slide" aria-label="Slide 5 de 16" data-transition="fade" style="background:#F6F1E7;color:#1B2430;font-family:'Nunito Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:28px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9A5000">Texto · escrever</p>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;color:#1B2430">Escrevendo em um arquivo</h2>
+</div>
+<div style="display:flex;gap:48px;align-items:stretch">
+<div style="flex:1.5;display:flex;flex-direction:column;background:#1B2430;border-radius:20px;padding:40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F6F1E7;white-space:nowrap"><span style="color:#F2A33A">with</span> open(<span style="color:#7FD1C4">"anotacoes.txt"</span>, <span style="color:#7FD1C4">"w"</span>) <span style="color:#F2A33A">as</span> arq:</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F6F1E7;white-space:nowrap;padding-left:64px">arq.write(<span style="color:#7FD1C4">"Olá, arquivo!\n"</span>)</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F6F1E7;white-space:nowrap;padding-left:64px">arq.write(<span style="color:#7FD1C4">"Segunda linha\n"</span>)</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;justify-content:center">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;color:#1B2430">Três etapas</h3>
+<p style="font-size:32px;line-height:1.4;color:#4A5568"><b>1. Abrir:</b> open() cria a ponte com o arquivo.</p>
+<p style="font-size:32px;line-height:1.4;color:#4A5568"><b>2. Usar:</b> write() grava o texto.</p>
+<p style="font-size:32px;line-height:1.4;color:#4A5568"><b>3. Fechar:</b> o with fecha sozinho.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B6472">Arquivos em Python · Fábrica de Ferramentas</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;text-align:right;font-size:24px;color:#5B6472">5</p>
+
+</section>
+<section id="ler" class="slide" data-n="6" role="region" aria-roledescription="slide" aria-label="Slide 6 de 16" data-transition="fade" style="background:#F6F1E7;color:#1B2430;font-family:'Nunito Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:28px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9A5000">Texto · ler</p>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;color:#1B2430">Lendo um arquivo</h2>
+</div>
+<div style="display:flex;gap:48px;align-items:stretch">
+<div style="flex:1.5;display:flex;flex-direction:column;background:#1B2430;border-radius:20px;padding:40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F6F1E7;white-space:nowrap"><span style="color:#F2A33A">with</span> open(<span style="color:#7FD1C4">"anotacoes.txt"</span>, <span style="color:#7FD1C4">"r"</span>) <span style="color:#F2A33A">as</span> arq:</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F6F1E7;white-space:nowrap;padding-left:64px">texto = arq.read()</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F6F1E7;white-space:nowrap">print(texto)</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;justify-content:center">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;color:#1B2430">Na tela aparece</h3>
+<div style="display:flex;flex-direction:column;background:#FFFDF8;border:1px solid #E3DCCB;border-radius:20px;padding:32px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#1B2430;white-space:nowrap">Olá, arquivo!</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#1B2430;white-space:nowrap">Segunda linha</p>
+</div>
+<p style="font-size:32px;line-height:1.4;color:#4A5568">read() devolve o conteúdo inteiro como um texto.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B6472">Arquivos em Python · Fábrica de Ferramentas</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;text-align:right;font-size:24px;color:#5B6472">6</p>
+
+</section>
+<section id="modos" class="slide" data-n="7" role="region" aria-roledescription="slide" aria-label="Slide 7 de 16" data-transition="fade" style="background:#1B2430;color:#F6F1E7;font-family:'Nunito Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;color:#F6F1E7">Os três modos de abrir</h2>
+<table style="width:1664px;font-family:'Nunito Sans', Arial, sans-serif;font-size:32px;color:#F6F1E7">
+<tr><th style="width:14%;text-align:left;color:#F2A33A">Modo</th><th style="width:42%;text-align:left;color:#F2A33A">O que faz</th><th style="width:44%;text-align:left;color:#F2A33A">Como pensar</th></tr>
+<tr style="background:#26313F"><td style="text-align:left"><b>“r”</b></td><td style="text-align:left">Lê o arquivo</td><td style="text-align:left">Abrir o caderno para ler</td></tr>
+<tr><td style="text-align:left"><b>“w”</b></td><td style="text-align:left">Escreve e apaga o que havia</td><td style="text-align:left">Começar uma folha em branco</td></tr>
+<tr style="background:#26313F"><td style="text-align:left"><b>“a”</b></td><td style="text-align:left">Escreve no fim, sem apagar</td><td style="text-align:left">Continuar de onde parou</td></tr>
+</table>
+<div style="display:flex;gap:24px;align-items:center;background:#26313F;border:1px solid #34425A;border-radius:20px;padding:28px 36px">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:64px;height:64px;color:#F2A33A"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+<p style="flex:1;font-size:32px;line-height:1.4;color:#F6F1E7"><b>Cuidado:</b> o modo “w” apaga o conteúdo anterior do arquivo.</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#9AA7B8">Arquivos em Python · Fábrica de Ferramentas</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;text-align:right;font-size:24px;color:#9AA7B8">7</p>
+
+</section>
+<section id="laco" class="slide" data-n="8" role="region" aria-roledescription="slide" aria-label="Slide 8 de 16" data-transition="fade" style="background:#F6F1E7;color:#1B2430;font-family:'Nunito Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:28px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9A5000">Texto · laço</p>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;color:#1B2430">Lendo linha por linha</h2>
+</div>
+<div style="display:flex;gap:48px;align-items:stretch">
+<div style="flex:1.5;display:flex;flex-direction:column;background:#1B2430;border-radius:20px;padding:40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F6F1E7;white-space:nowrap"><span style="color:#F2A33A">with</span> open(<span style="color:#7FD1C4">"anotacoes.txt"</span>, <span style="color:#7FD1C4">"r"</span>) <span style="color:#F2A33A">as</span> arq:</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F6F1E7;white-space:nowrap;padding-left:64px"><span style="color:#F2A33A">for</span> linha <span style="color:#F2A33A">in</span> arq:</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F6F1E7;white-space:nowrap;padding-left:128px">print(linha.strip())</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;justify-content:center">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;color:#1B2430">Um laço, uma linha</h3>
+<p style="font-size:32px;line-height:1.4;color:#4A5568">A cada volta do for, a variável linha recebe a próxima linha do arquivo.</p>
+<p style="font-size:32px;line-height:1.4;color:#4A5568">strip() tira o enter do final.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B6472">Arquivos em Python · Fábrica de Ferramentas</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;text-align:right;font-size:24px;color:#5B6472">8</p>
+
+</section>
+<section id="diario" class="slide" data-n="9" role="region" aria-roledescription="slide" aria-label="Slide 9 de 16" data-transition="fade" style="background:#F6F1E7;color:#1B2430;font-family:'Nunito Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:28px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9A5000">Atividade 1 · 15 min</p>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;color:#1B2430">Diário de bordo</h2>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;gap:28px;align-items:center;background:#FFFDF8;border:1px solid #E3DCCB;border-radius:20px;padding:24px 32px">
+<p style="width:48px;font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:700;color:#9A5000">1</p>
+<p style="flex:1;font-size:32px;line-height:1.4;color:#1B2430">Crie diario.py e peça 3 frases ao usuário com input(), usando um laço for.</p>
+</div>
+<div style="display:flex;gap:28px;align-items:center;background:#FFFDF8;border:1px solid #E3DCCB;border-radius:20px;padding:24px 32px">
+<p style="width:48px;font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:700;color:#9A5000">2</p>
+<p style="flex:1;font-size:32px;line-height:1.4;color:#1B2430">Grave cada frase em diario.txt, abrindo o arquivo no modo “a”.</p>
+</div>
+<div style="display:flex;gap:28px;align-items:center;background:#FFFDF8;border:1px solid #E3DCCB;border-radius:20px;padding:24px 32px">
+<p style="width:48px;font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:700;color:#9A5000">3</p>
+<p style="flex:1;font-size:32px;line-height:1.4;color:#1B2430">Leia o arquivo de volta e mostre cada linha com o seu número.</p>
+</div>
+<div style="display:flex;gap:28px;align-items:center;background:#FFFDF8;border:1px solid #E3DCCB;border-radius:20px;padding:24px 32px">
+<p style="width:48px;font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:700;color:#9A5000">4</p>
+<p style="flex:1;font-size:32px;line-height:1.4;color:#1B2430">Rode o programa duas vezes. Depois troque “a” por “w” e compare o resultado.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B6472">Arquivos em Python · Fábrica de Ferramentas</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;text-align:right;font-size:24px;color:#5B6472">9</p>
+
+</section>
+<section id="ponte" class="slide" data-n="10" role="region" aria-roledescription="slide" aria-label="Slide 10 de 16" data-transition="fade" style="background:#1B2430;color:#F6F1E7;font-family:'Nunito Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:28px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#F2A33A">CSV</p>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;color:#F6F1E7">Do texto à tabela</h2>
+</div>
+<div style="display:flex;gap:56px;align-items:center;justify-content:center">
+<div style="display:flex;flex-direction:column;gap:20px;align-items:center">
+<div style="display:grid;grid-template-columns:repeat(3, 128px);gap:12px">
+<div style="background:#26313F;border-radius:12px;padding:16px"><p style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;text-align:center;color:#F6F1E7">7</p></div>
+<div style="background:#26313F;border-radius:12px;padding:16px"><p style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;text-align:center;color:#F6F1E7">8</p></div>
+<div style="background:#26313F;border-radius:12px;padding:16px"><p style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;text-align:center;color:#F6F1E7">9</p></div>
+<div style="background:#26313F;border-radius:12px;padding:16px"><p style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;text-align:center;color:#F6F1E7">6</p></div>
+<div style="background:#26313F;border-radius:12px;padding:16px"><p style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;text-align:center;color:#F6F1E7">5</p></div>
+<div style="background:#26313F;border-radius:12px;padding:16px"><p style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;text-align:center;color:#F6F1E7">8</p></div>
+<div style="background:#26313F;border-radius:12px;padding:16px"><p style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;text-align:center;color:#F6F1E7">10</p></div>
+<div style="background:#26313F;border-radius:12px;padding:16px"><p style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;text-align:center;color:#F6F1E7">9</p></div>
+<div style="background:#26313F;border-radius:12px;padding:16px"><p style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;text-align:center;color:#F6F1E7">9</p></div>
+</div>
+<p style="font-size:32px;color:#C9D3DF">matriz de notas</p>
+</div>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true" style="flex:none;width:160px;height:80px"><path d="M0 15H60V0L100 25L60 50V35H0Z" fill="#F2A33A"/></svg>
+<div style="display:flex;flex-direction:column;gap:20px;align-items:center">
+<div style="display:flex;flex-direction:column;background:#121923;border:1px solid #34425A;border-radius:20px;padding:32px 56px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:44px;line-height:1.5;color:#F6F1E7;white-space:nowrap">7,8,9</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:44px;line-height:1.5;color:#F6F1E7;white-space:nowrap">6,5,8</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:44px;line-height:1.5;color:#F6F1E7;white-space:nowrap">10,9,9</p>
+</div>
+<p style="font-size:32px;color:#C9D3DF">arquivo notas.csv</p>
+</div>
+</div>
+<p style="font-size:32px;line-height:1.4;color:#C9D3DF;text-align:center">CSV significa valores separados por vírgula. Cada linha da tabela vira uma linha do arquivo.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#9AA7B8">Arquivos em Python · Fábrica de Ferramentas</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;text-align:right;font-size:24px;color:#9AA7B8">10</p>
+
+</section>
+<section id="csvescrever" class="slide" data-n="11" role="region" aria-roledescription="slide" aria-label="Slide 11 de 16" data-transition="fade" style="background:#F6F1E7;color:#1B2430;font-family:'Nunito Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:28px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9A5000">CSV · escrever</p>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;color:#1B2430">Gravando a matriz em CSV</h2>
+</div>
+<div style="display:flex;gap:48px;align-items:stretch">
+<div style="width:1100px;display:flex;flex-direction:column;gap:20px;background:#1B2430;border-radius:20px;padding:40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F6F1E7;white-space:nowrap"><span style="color:#F2A33A">import</span> csv</p>
+<div style="display:flex;flex-direction:column">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F6F1E7;white-space:nowrap">notas = [[7, 8, 9], [6, 5, 8], [10, 9, 9]]</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F6F1E7;white-space:nowrap"><span style="color:#F2A33A">with</span> open(<span style="color:#7FD1C4">"notas.csv"</span>, <span style="color:#7FD1C4">"w"</span>, newline=<span style="color:#7FD1C4">""</span>) <span style="color:#F2A33A">as</span> arq:</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F6F1E7;white-space:nowrap;padding-left:64px">escritor = csv.writer(arq)</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F6F1E7;white-space:nowrap;padding-left:64px"><span style="color:#F2A33A">for</span> linha <span style="color:#F2A33A">in</span> notas:</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F6F1E7;white-space:nowrap;padding-left:128px">escritor.writerow(linha)</p>
+</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;justify-content:center">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;color:#1B2430">Como funciona</h3>
+<p style="font-size:32px;line-height:1.4;color:#4A5568">O laço percorre as linhas da matriz.</p>
+<p style="font-size:32px;line-height:1.4;color:#4A5568">writerow grava uma linha por vez.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B6472">Arquivos em Python · Fábrica de Ferramentas</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;text-align:right;font-size:24px;color:#5B6472">11</p>
+
+</section>
+<section id="csvler" class="slide" data-n="12" role="region" aria-roledescription="slide" aria-label="Slide 12 de 16" data-transition="fade" style="background:#F6F1E7;color:#1B2430;font-family:'Nunito Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:28px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9A5000">CSV · ler</p>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;color:#1B2430">Lendo um arquivo CSV</h2>
+</div>
+<div style="display:flex;gap:48px;align-items:stretch">
+<div style="flex:1.3;display:flex;flex-direction:column;gap:20px;background:#1B2430;border-radius:20px;padding:40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F6F1E7;white-space:nowrap"><span style="color:#F2A33A">import</span> csv</p>
+<div style="display:flex;flex-direction:column">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F6F1E7;white-space:nowrap"><span style="color:#F2A33A">with</span> open(<span style="color:#7FD1C4">"notas.csv"</span>, <span style="color:#7FD1C4">"r"</span>) <span style="color:#F2A33A">as</span> arq:</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F6F1E7;white-space:nowrap;padding-left:64px">leitor = csv.reader(arq)</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F6F1E7;white-space:nowrap;padding-left:64px"><span style="color:#F2A33A">for</span> linha <span style="color:#F2A33A">in</span> leitor:</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F6F1E7;white-space:nowrap;padding-left:128px">print(linha)</p>
+</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;justify-content:center">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;color:#1B2430">Na tela aparece</h3>
+<div style="display:flex;flex-direction:column;background:#FFFDF8;border:1px solid #E3DCCB;border-radius:20px;padding:32px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#1B2430;white-space:nowrap">['7', '8', '9']</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#1B2430;white-space:nowrap">['6', '5', '8']</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#1B2430;white-space:nowrap">['10', '9', '9']</p>
+</div>
+<p style="font-size:32px;line-height:1.4;color:#4A5568"><b>Atenção:</b> tudo chega como texto. Use int() para fazer contas.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B6472">Arquivos em Python · Fábrica de Ferramentas</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;text-align:right;font-size:24px;color:#5B6472">12</p>
+
+</section>
+<section id="boletim" class="slide" data-n="13" role="region" aria-roledescription="slide" aria-label="Slide 13 de 16" data-transition="fade" style="background:#1B2430;color:#F6F1E7;font-family:'Nunito Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:28px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#F2A33A">Atividade 2 · 25 min</p>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;color:#F6F1E7">Boletim da turma</h2>
+</div>
+<div style="display:flex;gap:32px;align-items:stretch">
+<div style="flex:1.6;display:flex;flex-direction:column;gap:16px;background:#26313F;border:1px solid #34425A;border-radius:20px;padding:40px">
+<p style="font-size:32px;line-height:1.4;color:#F6F1E7"><b>1.</b> Monte uma matriz com 4 alunos e 3 notas cada.</p>
+<p style="font-size:32px;line-height:1.4;color:#F6F1E7"><b>2.</b> Salve em notas.csv usando um laço.</p>
+<p style="font-size:32px;line-height:1.4;color:#F6F1E7"><b>3.</b> Leia o arquivo e converta cada valor com int().</p>
+<p style="font-size:32px;line-height:1.4;color:#F6F1E7"><b>4.</b> Calcule e mostre a média de cada aluno.</p>
+<p style="font-size:32px;line-height:1.4;color:#F6F1E7"><b>5.</b> Salve as médias em medias.csv.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#F2A33A;border-radius:20px;padding:40px">
+<p style="font-size:28px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1B2430">Bônus</p>
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:44px;font-weight:600;line-height:1.2;color:#1B2430">Reuse o seu módulo</h3>
+<p style="font-size:32px;line-height:1.4;color:#1B2430">Calcule as médias com ferramentas.media(), da aula anterior.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#9AA7B8">Arquivos em Python · Fábrica de Ferramentas</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;text-align:right;font-size:24px;color:#9AA7B8">13</p>
+
+</section>
+<section id="erros" class="slide" data-n="14" role="region" aria-roledescription="slide" aria-label="Slide 14 de 16" data-transition="fade" style="background:#F6F1E7;color:#1B2430;font-family:'Nunito Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;color:#1B2430">Erros comuns para evitar</h2>
+<div style="display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;gap:40px;align-items:center;background:#FFFDF8;border:1px solid #E3DCCB;border-radius:20px;padding:32px">
+<div style="width:620px;background:#1B2430;border-radius:12px;padding:20px 28px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.4;color:#F2A33A;white-space:nowrap">FileNotFoundError</p>
+</div>
+<p style="flex:1;font-size:32px;line-height:1.4;color:#4A5568">O arquivo não existe ou está em outra pasta.</p>
+</div>
+<div style="display:flex;gap:40px;align-items:center;background:#FFFDF8;border:1px solid #E3DCCB;border-radius:20px;padding:32px">
+<div style="width:620px;background:#1B2430;border-radius:12px;padding:20px 28px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.4;color:#F2A33A;white-space:nowrap">open(..., "w")</p>
+</div>
+<p style="flex:1;font-size:32px;line-height:1.4;color:#4A5568">O modo “w” apagou o conteúdo anterior. Use “a” para acrescentar.</p>
+</div>
+<div style="display:flex;gap:40px;align-items:center;background:#FFFDF8;border:1px solid #E3DCCB;border-radius:20px;padding:32px">
+<div style="width:620px;background:#1B2430;border-radius:12px;padding:20px 28px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.4;color:#F2A33A;white-space:nowrap">'7' + '8'</p>
+</div>
+<p style="flex:1;font-size:32px;line-height:1.4;color:#4A5568">Valores do CSV são texto e dão '78'. Converta com int() antes de somar.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B6472">Arquivos em Python · Fábrica de Ferramentas</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;text-align:right;font-size:24px;color:#5B6472">14</p>
+
+</section>
+<section id="fechamento" class="slide" data-n="15" role="region" aria-roledescription="slide" aria-label="Slide 15 de 16" data-transition="fade" style="background:#F6F1E7;color:#1B2430;font-family:'Nunito Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:28px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9A5000">Fechamento · 5 min</p>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;color:#1B2430">Perguntas de verificação</h2>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px">
+<div style="display:flex;gap:24px;align-items:flex-start;background:#FFFDF8;border:1px solid #E3DCCB;border-radius:20px;padding:32px">
+<p style="width:56px;font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;color:#9A5000">1</p>
+<p style="flex:1;font-size:32px;line-height:1.4;color:#1B2430">Por que um arquivo guarda dados que uma variável perde?</p>
+</div>
+<div style="display:flex;gap:24px;align-items:flex-start;background:#FFFDF8;border:1px solid #E3DCCB;border-radius:20px;padding:32px">
+<p style="width:56px;font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;color:#9A5000">2</p>
+<p style="flex:1;font-size:32px;line-height:1.4;color:#1B2430">Qual a diferença entre os modos “r”, “w” e “a”?</p>
+</div>
+<div style="display:flex;gap:24px;align-items:flex-start;background:#FFFDF8;border:1px solid #E3DCCB;border-radius:20px;padding:32px">
+<p style="width:56px;font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;color:#9A5000">3</p>
+<p style="flex:1;font-size:32px;line-height:1.4;color:#1B2430">Para que serve o with ao abrir um arquivo?</p>
+</div>
+<div style="display:flex;gap:24px;align-items:flex-start;background:#FFFDF8;border:1px solid #E3DCCB;border-radius:20px;padding:32px">
+<p style="width:56px;font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;color:#9A5000">4</p>
+<p style="flex:1;font-size:32px;line-height:1.4;color:#1B2430">O que significa CSV e por que precisamos de int() ao ler?</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#5B6472">Arquivos em Python · Fábrica de Ferramentas</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;text-align:right;font-size:24px;color:#5B6472">15</p>
+
+</section>
+<section id="avaliacao" class="slide" data-n="16" role="region" aria-roledescription="slide" aria-label="Slide 16 de 16" data-transition="fade" style="background:#1B2430;color:#F6F1E7;font-family:'Nunito Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;color:#F6F1E7">Critérios de avaliação</h2>
+<table style="width:1400px;font-family:'Nunito Sans', Arial, sans-serif;font-size:32px;color:#F6F1E7">
+<tr><th style="width:85%;text-align:left;color:#F2A33A">Critério</th><th style="width:15%;text-align:right;color:#F2A33A">Peso</th></tr>
+<tr style="background:#26313F"><td style="text-align:left">Explicou a diferença entre variável e arquivo</td><td style="text-align:right">2</td></tr>
+<tr><td style="text-align:left">Escreveu e leu texto com laço (diário)</td><td style="text-align:right">3</td></tr>
+<tr style="background:#26313F"><td style="text-align:left">Gravou a matriz em CSV</td><td style="text-align:right">2</td></tr>
+<tr><td style="text-align:left">Leu o CSV e calculou as médias</td><td style="text-align:right">3</td></tr>
+<tr style="background:#26313F"><td style="text-align:left">Bônus: média com o módulo ferramentas</td><td style="text-align:right">+1</td></tr>
+</table>
+<p style="font-size:32px;line-height:1.4;color:#C9D3DF">Total de 10 pontos, mais 1 ponto de bônus.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:900px;font-size:24px;color:#9AA7B8">Arquivos em Python · Fábrica de Ferramentas</p>
+<p style="position:absolute;right:128px;bottom:64px;width:200px;text-align:right;font-size:24px;color:#9AA7B8">16</p>
+
+</section>
+</div></div></div>
+<nav id="barra" aria-label="Navegação da aula">
+  <a href="../index.html" aria-label="Voltar para as aulas">Aulas</a>
+  <button id="ant" type="button" aria-label="Slide anterior">&larr;</button>
+  <span id="contador" aria-hidden="true"></span>
+  <button id="prox" type="button" aria-label="Próximo slide">&rarr;</button>
+  <button id="tela" type="button" aria-label="Tela cheia (F)">&#x26F6;</button>
+</nav>
+<p id="anuncio" class="sr" aria-live="polite"></p>
+<script>
+(function () {
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length;
+  var moldura = document.getElementById('moldura');
+  var palco = document.getElementById('palco');
+  var area = document.getElementById('area');
+  var atual = 0;
+
+  function escalar() {
+    var s = Math.min(area.clientWidth / 1920, area.clientHeight / 1080);
+    palco.style.transform = 'scale(' + s + ')';
+    moldura.style.width = Math.floor(1920 * s) + 'px';
+    moldura.style.height = Math.floor(1080 * s) + 'px';
+  }
+
+  function indiceDoHash() {
+    var n = parseInt(location.hash.replace('#', ''), 10);
+    return isNaN(n) ? 0 : Math.max(0, Math.min(total - 1, n - 1));
+  }
+
+  function mostrar(i) {
+    atual = i;
+    slides.forEach(function (el, k) { el.classList.toggle('on', k === i); });
+    document.getElementById('contador').textContent = (i + 1) + ' / ' + total;
+    document.getElementById('ant').disabled = i === 0;
+    document.getElementById('prox').disabled = i === total - 1;
+    var t = slides[i].querySelector('h1, h2');
+    document.getElementById('anuncio').textContent =
+      'Slide ' + (i + 1) + ' de ' + total + (t ? ': ' + t.textContent : '');
+  }
+
+  function ir(i) {
+    i = Math.max(0, Math.min(total - 1, i));
+    if (i + 1 === parseInt(location.hash.replace('#', ''), 10)) { mostrar(i); return; }
+    location.hash = String(i + 1);
+  }
+
+  function telaCheia() {
+    if (document.fullscreenElement) { document.exitFullscreen(); }
+    else if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen(); }
+  }
+
+  document.getElementById('ant').addEventListener('click', function () { ir(atual - 1); });
+  document.getElementById('prox').addEventListener('click', function () { ir(atual + 1); });
+  document.getElementById('tela').addEventListener('click', telaCheia);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) { return; }
+    var k = e.key;
+    if (k === 'ArrowRight' || k === 'PageDown' || (k === ' ' && !e.shiftKey)) { ir(atual + 1); }
+    else if (k === 'ArrowLeft' || k === 'PageUp' || (k === ' ' && e.shiftKey)) { ir(atual - 1); }
+    else if (k === 'Home') { ir(0); }
+    else if (k === 'End') { ir(total - 1); }
+    else if (k === 'f' || k === 'F') { telaCheia(); }
+    else { return; }
+    e.preventDefault();
+  });
+
+  var x0 = null;
+  moldura.addEventListener('touchstart', function (e) { x0 = e.changedTouches[0].clientX; }, { passive: true });
+  moldura.addEventListener('touchend', function (e) {
+    if (x0 === null) { return; }
+    var dx = e.changedTouches[0].clientX - x0;
+    x0 = null;
+    if (Math.abs(dx) > 50) { ir(atual + (dx < 0 ? 1 : -1)); }
+  }, { passive: true });
+
+  window.addEventListener('hashchange', function () { mostrar(indiceDoHash()); });
+  window.addEventListener('resize', escalar);
+  document.addEventListener('fullscreenchange', escalar);
+
+  escalar();
+  mostrar(indiceDoHash());
+})();
+</script>
+</body>
+</html>
