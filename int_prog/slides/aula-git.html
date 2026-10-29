@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Git em dupla — Introdução à Programação</title>
+<meta name="description" content="Aula 05: Git em dupla, do terminal ao VS Code, com mini-projeto de inventário de jogo. IFRN, Ensino Médio Técnico.">
+<style>
+:root {
+  --bg: #0d1117; --panel: #161b22; --panel2: #1c2330; --border: #30363d;
+  --text: #e6edf3; --muted: #9da7b3; --green: #3fb950; --blue: #58a6ff;
+  --orange: #f0883e; --purple: #bc8cff; --red: #ff7b72; --yellow: #e3b341; --cyan: #4fc1ff;
+  --btn: #238636; --btn-hover: #2ea043;
+  --c-intro: var(--green); --c-areas: var(--blue); --c-terminal: var(--yellow);
+  --c-vscode: var(--cyan); --c-dupla: var(--red); --c-projeto: var(--orange);
+  --c-fecho: var(--green); --c-apendice: var(--muted);
+  --mono: ui-monospace, "Cascadia Code", "Cascadia Mono", Consolas, Menlo, "DejaVu Sans Mono", monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html { font-size: clamp(15px, 0.9vw + 8px, 24px); }
+body { margin: 0; height: 100vh; background: var(--bg); color: var(--text);
+  font-family: var(--sans); line-height: 1.45; display: flex; flex-direction: column; overflow: hidden; }
+a { color: var(--blue); }
+code, pre, kbd { font-family: var(--mono); }
+code { background: var(--panel2); border: 1px solid var(--border); border-radius: 6px;
+  padding: 0.05em 0.4em; font-size: 0.92em; color: #ffd8a8; white-space: nowrap; }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+
+/* barra de progresso e rodapé */
+#progress { height: 5px; background: var(--panel); flex: none; }
+#progress > i { display: block; height: 100%; width: 0; background: var(--green); transition: width .25s; }
+#stage { flex: 1; min-height: 0; overflow: auto; }
+#nav { flex: none; display: flex; align-items: center; gap: .75rem; padding: .5rem 1rem;
+  background: var(--panel); border-top: 1px solid var(--border); font-size: .8rem; color: var(--muted); }
+#nav .sp { flex: 1; }
+#nav .pace { font-family: var(--mono); }
+.navbtn { background: var(--panel2); color: var(--text); border: 1px solid var(--border);
+  border-radius: 6px; padding: .3rem .8rem; cursor: pointer; font: inherit; }
+.navbtn:hover { border-color: var(--blue); }
+
+/* slides */
+.slide { display: none; min-height: 100%; padding: clamp(1rem, 2.5vw, 2.4rem) clamp(1rem, 4vw, 3.5rem) 1.5rem;
+  --tc: var(--green); border-top: 0; }
+.slide.active { display: block; animation: entra .35s ease-out; }
+@keyframes entra { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.slide[data-t="intro"] { --tc: var(--c-intro); } .slide[data-t="areas"] { --tc: var(--c-areas); }
+.slide[data-t="terminal"] { --tc: var(--c-terminal); } .slide[data-t="vscode"] { --tc: var(--c-vscode); }
+.slide[data-t="dupla"] { --tc: var(--c-dupla); } .slide[data-t="projeto"] { --tc: var(--c-projeto); }
+.slide[data-t="fecho"] { --tc: var(--c-fecho); } .slide[data-t="apendice"] { --tc: var(--c-apendice); }
+.slide.cover .cols { min-height: 70vh; align-items: center; }
+.slide.cover .st { font-size: clamp(2.4rem, 6vw, 5.2rem); }
+.slide.cover .sub { font-size: 1.3rem; }
+.eyebrow { margin: 0 0 .3rem; font-family: var(--mono); font-size: .8rem; color: var(--tc);
+  letter-spacing: .04em; text-transform: uppercase; }
+.st { margin: 0 0 .5rem; font-size: clamp(1.6rem, 3.1vw, 3rem); line-height: 1.12; }
+.st:focus { outline: none; }
+.st::before { content: "$ "; color: var(--tc); font-family: var(--mono); }
+.sub { margin: 0 0 1rem; color: var(--muted); font-size: 1.1rem; }
+.cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: clamp(1rem, 3vw, 2.5rem); align-items: start; }
+.cols.rev { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
+.stack { display: grid; gap: 1rem; }
+@media (max-width: 900px) {
+  .cols, .cols.rev { grid-template-columns: 1fr; }
+  code { white-space: normal; overflow-wrap: anywhere; }   /* telas estreitas: o código quebra em vez de rolar */
+  .files li { overflow-wrap: anywhere; }
+}
+@media (max-width: 700px) { #nav .hint { display: none; } #nav .pace { font-size: .7rem; } }
+.bullets { list-style: none; margin: 0; padding: 0; display: grid; gap: .65rem; font-size: 1.05rem; }
+.bullets li { padding-left: 1.4rem; position: relative; }
+.bullets li::before { content: "›"; position: absolute; left: 0; color: var(--tc); font-weight: 700; }
+.badge { display: inline-block; font-family: var(--mono); font-size: .72rem; color: var(--bg);
+  background: var(--tc); border-radius: 999px; padding: .1rem .6rem; margin-left: .6rem; vertical-align: middle; }
+.notes { display: none; }
+
+/* painéis e terminal */
+.panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: .9rem 1rem; }
+.term { background: #010409; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.term-bar { display: flex; gap: .4rem; padding: .45rem .7rem; background: var(--panel); border-bottom: 1px solid var(--border); align-items: center; }
+.term-bar i { width: .7rem; height: .7rem; border-radius: 50%; background: var(--border); }
+.term-bar i:nth-child(1) { background: #ff5f56; } .term-bar i:nth-child(2) { background: #ffbd2e; } .term-bar i:nth-child(3) { background: #27c93f; }
+.term-bar span { margin-left: .5rem; font-size: .75rem; color: var(--muted); font-family: var(--mono); }
+.term pre { margin: 0; padding: .8rem 1rem; font-size: .82rem; line-height: 1.5; overflow: auto; white-space: pre-wrap; word-break: break-word; min-height: 9rem; max-height: 42vh; }
+.ps { color: var(--green); } .cmd { color: var(--text); font-weight: 600; } .out { color: var(--muted); }
+.err-t { color: var(--red); } .ok-t { color: var(--green); } .cm { color: #8b949e; font-style: italic; }
+pre.code { background: #010409; border: 1px solid var(--border); border-radius: 10px; padding: .9rem 1rem;
+  font-size: .85rem; line-height: 1.55; margin: 0; overflow: auto; }
+.kw { color: var(--red); } .str { color: #a5d6ff; } .num { color: var(--blue); } .cmt { color: #8b949e; font-style: italic; }
+.hl { background: rgba(227, 179, 65, .18); outline: 1px solid var(--yellow); border-radius: 3px; padding: 0 .2rem; }
+
+/* botões */
+.btn { background: var(--btn); color: #fff; border: 1px solid rgba(240, 246, 252, .1); border-radius: 8px;
+  padding: .5rem 1rem; font: inherit; font-weight: 600; cursor: pointer; }
+.btn:hover:not(:disabled) { background: var(--btn-hover); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.ghost { background: var(--panel2); color: var(--text); border-color: var(--border); }
+.btn.git { background: var(--panel2); border-color: var(--tc); font-family: var(--mono); font-size: .9rem; }
+.row { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+.steps { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin-top: .8rem; }
+.step-cnt { font-family: var(--mono); font-size: .8rem; color: var(--muted); }
+.hidden { display: none !important; }
+[hidden] { display: none !important; }
+
+/* quiz */
+.quiz-container { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin-top: 1rem; }
+.quiz-q { margin: 0 0 .6rem; font-weight: 700; }
+.quiz-opts { display: grid; gap: .5rem; }
+.quiz-opt { text-align: left; background: var(--panel2); color: var(--text); border: 1px solid var(--border);
+  border-radius: 8px; padding: .55rem .8rem; font: inherit; cursor: pointer; }
+.quiz-opt:hover:not(:disabled) { border-color: var(--blue); }
+.quiz-opt.ok { border-color: var(--green); background: rgba(63, 185, 80, .15); }
+.quiz-opt.err { border-color: var(--red); background: rgba(255, 123, 114, .12); }
+.quiz-opt:disabled { cursor: default; }
+.quiz-fb { margin: .6rem 0 0; min-height: 1.4em; font-weight: 600; }
+.quiz-fb.ok { color: var(--green); } .quiz-fb.err { color: var(--red); }
+
+/* I1: linha do tempo */
+.frames { display: flex; gap: .6rem; overflow-x: auto; padding: .3rem .1rem .8rem; min-height: 4.2rem; }
+.frame { flex: none; background: var(--panel2); color: var(--text); border: 2px solid var(--border); border-radius: 10px;
+  padding: .45rem .7rem; font-family: var(--mono); font-size: .78rem; cursor: pointer; text-align: left; animation: pop .25s ease-out; }
+.frame b { display: block; color: var(--tc); } .frame[aria-pressed="true"] { border-color: var(--yellow); }
+@keyframes pop { from { transform: scale(.7); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* I2: áreas */
+.areas { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; }
+.area { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: .5rem; min-height: 8.5rem; }
+.area h3 { margin: 0 0 .4rem; font-size: .72rem; color: var(--tc); text-transform: uppercase; letter-spacing: .03em; }
+.area:nth-child(2) h3 { color: var(--yellow); } .area:nth-child(3) h3 { color: var(--green); } .area:nth-child(4) h3 { color: var(--purple); }
+.card { background: var(--panel2); border: 1px solid var(--blue); border-radius: 6px; padding: .25rem .4rem;
+  font-family: var(--mono); font-size: .72rem; margin-bottom: .3rem; animation: pop .25s ease-out; word-break: break-all; }
+.card.colega { border-color: var(--orange); }
+@media (max-width: 700px) { .areas { grid-template-columns: 1fr 1fr; } }
+
+/* mockups */
+.mock { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: .8rem 1rem; }
+.stp { opacity: .3; transition: opacity .25s, outline-color .25s; border-radius: 10px; outline: 3px solid transparent; outline-offset: 3px; }
+.stp.on { opacity: 1; } .stp.cur { outline-color: var(--yellow); }
+.fake { display: inline-block; border: 1px solid var(--border); border-radius: 6px; padding: .2rem .7rem; background: var(--panel2); font-size: .85rem; }
+.fake.green { background: var(--btn); color: #fff; border-color: transparent; font-weight: 600; }
+.mock h4 { margin: 0 0 .4rem; font-size: .85rem; color: var(--muted); font-weight: 600; }
+.mock .line { margin: .3rem 0; font-size: .85rem; }
+.step-n { display: inline-block; background: var(--yellow); color: var(--bg); border-radius: 50%; width: 1.4rem; height: 1.4rem;
+  text-align: center; font-weight: 800; font-size: .8rem; line-height: 1.4rem; margin-right: .4rem; }
+.login { background: var(--panel); border: 2px solid var(--blue); border-radius: 10px; padding: .8rem 1rem; margin: .6rem 0 0; animation: pop .25s ease-out; }
+.login p { margin: .2rem 0; font-size: .85rem; }
+
+/* I4: VS Code */
+.vsc { background: #1f1f1f; border: 1px solid #3c3c3c; border-radius: 8px; padding: .6rem; font-size: .85rem; }
+.vsc-title { font-size: .7rem; letter-spacing: .08em; color: #bbb; margin-bottom: .5rem; }
+.vsc-msg { background: #313131; border: 1px solid #3c3c3c; border-radius: 3px; padding: .35rem .5rem; color: #8e8e8e; min-height: 2rem; }
+.vsc-msg.has { color: #e6e6e6; }
+.vsc-commit { margin: .5rem 0; background: #0e639c; color: #fff; text-align: center; border-radius: 3px; padding: .35rem; font-weight: 600; }
+.vsc-commit.dim { background: #3a3d41; color: #9d9d9d; }
+.vsc-sec { color: #ccc; font-weight: 700; font-size: .72rem; text-transform: uppercase; margin-top: .5rem; }
+.vsc ul { list-style: none; margin: .2rem 0; padding: 0; } .vsc li { padding: .15rem .3rem; display: flex; justify-content: space-between; color: #ddd; }
+.vsc .m { color: #e2c08d; } .vsc .plus { color: #ddd; border: 1px solid #666; border-radius: 3px; padding: 0 .35rem; }
+.vsc-status { background: #007acc; color: #fff; padding: .25rem .5rem; margin: .6rem -.6rem -.6rem; border-radius: 0 0 8px 8px; font-size: .78rem; }
+.vsc .hl2 { outline: 2px solid var(--yellow); outline-offset: 1px; }
+.equiv { margin-top: .6rem; }
+.equiv .lab { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+
+/* I5: dupla */
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+.pc { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: .5rem; min-height: 4.2rem; }
+#i5-out { max-height: none; font-size: .74rem; min-height: 7rem; }
+#t6-body, #t7-body { max-height: 50vh; }   /* como num terminal de verdade: o fim fica à vista */
+.pc h3 { margin: 0 0 .4rem; font-size: .75rem; text-transform: uppercase; color: var(--tc); }
+.pc.gh h3 { color: var(--purple); }
+.dots { display: flex; flex-wrap: wrap; gap: .3rem; }
+.dot { font-family: var(--mono); font-size: .7rem; border-radius: 999px; padding: .15rem .55rem; border: 1px solid var(--green); animation: pop .25s ease-out; }
+.dot.a { border-color: var(--blue); } .dot.b { border-color: var(--orange); }
+.alert-box { border: 1px solid var(--red); border-radius: 8px; padding: .3rem .6rem; margin: 0 0 .4rem; color: var(--red); font-weight: 700; font-size: .85rem; }
+@media (max-width: 700px) { .trio { grid-template-columns: 1fr; } }
+
+/* projeto */
+#timer { font-family: var(--mono); font-size: 3rem; font-weight: 700; color: var(--orange); }
+.cycle { list-style: none; margin: 0; padding: 0; display: grid; gap: .35rem; counter-reset: c; }
+.cycle li { counter-increment: c; }
+.cyc { width: 100%; text-align: left; background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 8px;
+  padding: .4rem .7rem; font-family: var(--mono); font-size: .85rem; cursor: pointer; }
+.cyc::before { content: counter(c) ". "; color: var(--muted); }
+.cyc[aria-current="step"] { border-color: var(--yellow); background: rgba(227, 179, 65, .15); }
+.checks { display: grid; gap: .5rem; }
+.checks label { display: flex; align-items: center; gap: .6rem; background: var(--panel); border: 1px solid var(--border);
+  border-radius: 8px; padding: .5rem .8rem; cursor: pointer; }
+.checks input { width: 1.2rem; height: 1.2rem; accent-color: var(--green); }
+.checks label:has(input:checked) { border-color: var(--green); text-decoration: line-through; color: var(--muted); }
+.flow { display: flex; flex-wrap: wrap; gap: .4rem; }
+.chip { font-family: var(--mono); font-size: .8rem; border: 1px solid var(--tc); border-radius: 999px; padding: .2rem .7rem; }
+.flow .arrow { color: var(--muted); }
+.cover-term { font-size: 1.05rem; }
+.type { overflow: hidden; white-space: nowrap; width: 0; border-right: .5em solid var(--green); display: inline-block; vertical-align: bottom;
+  animation: type 2.6s steps(33) .3s forwards, blink .8s step-end infinite; }
+@keyframes type { to { width: 33ch; } } @keyframes blink { 50% { border-color: transparent; } }
+.files { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; font-family: var(--mono); }
+.files li { background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; padding: .5rem .8rem; opacity: 0; }
+.slide.active .files li { animation: aparece .5s ease-out forwards; }
+.slide.active .files li:nth-child(2) { animation-delay: .5s; } .slide.active .files li:nth-child(3) { animation-delay: 1s; }
+.slide.active .files li:nth-child(4) { animation-delay: 1.5s; }
+.q { font-size: 3rem; color: var(--red); font-weight: 800; }
+@keyframes aparece { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: none; } }
+
+/* notas do professor */
+#notes { position: fixed; left: 0; right: 0; bottom: 2.6rem; max-height: 40vh; overflow: auto; background: #000; color: #fff;
+  border-top: 3px solid var(--yellow); padding: .8rem 1.2rem; font-size: .95rem; z-index: 5; }
+#notes b { color: var(--yellow); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .type { width: auto; border-right: 0; } .files li { opacity: 1; }
+}
+</style>
+</head>
+<body>
+<div id="progress" role="progressbar" aria-label="Progresso da aula" aria-valuemin="1" aria-valuemax="16" aria-valuenow="1"><i></i></div>
+<main id="stage">
+<noscript><p style="padding:2rem">Esta aula precisa de JavaScript ativado para funcionar.</p></noscript>
+
+<!-- ============ S1 · capa ============ -->
+<section class="slide cover" data-idx="0" data-t="intro" data-block="B1" data-seconds="45">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">Aula 05 · Introdução à Programação</p>
+      <h1 class="st">Git em dupla</h1>
+      <p class="sub">Do terminal ao VS Code, com um projeto de verdade</p>
+      <ul class="bullets">
+        <li>Aula 05 · Introdução à Programação · INFO1M e INFO1V</li>
+        <li>40 minutos: terminal, VS Code e mini-projeto em dupla</li>
+      </ul>
+    </div>
+    <div class="term cover-term" role="img" aria-label="Janela de terminal escura com o comando git commit sendo digitado e uma linha de círculos verdes ligados, como uma sequência de commits.">
+      <div class="term-bar"><i></i><i></i><i></i><span>inventario-git — bash</span></div>
+      <pre aria-hidden="true"><span class="ps">$ </span><span class="type cmd">git commit -m "primeira aula"</span>
+
+<span class="ok-t">●────●────●────●</span>
+<span class="out">  commits, um depois do outro</span></pre>
+    </div>
+  </div>
+  <aside class="notes">Confirme que todos já têm conta no GitHub (tarefa de casa) e que o computador do laboratório está com Git e VS Code abertos.</aside>
+</section>
+
+<!-- ============ S2 · problema ============ -->
+<section class="slide" data-idx="1" data-t="intro" data-block="B1" data-seconds="75">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">Por quê?</p>
+      <h2 class="st">Qual é a versão certa?</h2>
+      <ul class="bullets">
+        <li><code>projeto_final.py</code>, <code>projeto_final_v2.py</code>, <code>projeto_final_v2_AGORAVAI_final.py</code></li>
+        <li>Controle de versão registra as mudanças nos arquivos ao longo do tempo.</li>
+        <li>Permite recuperar versões anteriores quando algo quebra.</li>
+      </ul>
+    </div>
+    <div class="row" role="img" aria-label="Pilha de arquivos Python com nomes como projeto_final_v2_AGORAVAI_final, sem indicar qual é a versão certa.">
+      <ul class="files" aria-hidden="true" style="flex:1">
+        <li>projeto_final.py</li><li>projeto_final_v2.py</li><li>projeto_final_v2_AGORAVAI_final.py</li><li>projeto_final_v2_AGORAVAI_final_ESSE.py</li>
+      </ul>
+      <span class="q" aria-hidden="true">?</span>
+    </div>
+  </div>
+  <aside class="notes">Pergunte quem já mandou "versão_final_2" por WhatsApp. A ideia é a turma sentir o problema antes da solução.</aside>
+</section>
+
+<!-- ============ S3 · I1 commit é uma foto ============ -->
+<section class="slide" data-idx="2" data-t="intro" data-block="B1" data-seconds="300">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">Conceito <span class="badge">I1</span></p>
+      <h2 class="st">Commit é uma foto do projeto</h2>
+      <ul class="bullets">
+        <li>O Git guarda o projeto como uma sequência de fotos.</li>
+        <li>Repositório é o álbum; o GitHub é a cópia na nuvem.</li>
+        <li>Cada clone é um backup completo do projeto.</li>
+      </ul>
+      <div class="quiz-container" hidden>
+        <p class="quiz-q">Quiz 1 · Um commit é…</p>
+        <div class="quiz-opts">
+          <button class="quiz-opt" type="button" data-correct="false" data-fb="Isso seria só copiar o arquivo; o commit guarda o projeto inteiro naquele momento.">uma cópia do arquivo num pen drive</button>
+          <button class="quiz-opt" type="button" data-correct="true" data-fb="Cada commit é uma foto do projeto naquele momento, e dá para voltar a ela.">uma foto do projeto naquele momento</button>
+          <button class="quiz-opt" type="button" data-correct="false" data-fb="Commit não apaga nada: ele registra o estado atual do projeto.">um comando que apaga arquivos antigos</button>
+          <button class="quiz-opt" type="button" data-correct="false" data-fb="O site onde o código fica guardado é o GitHub, não o commit.">o site onde o código fica guardado</button>
+        </div>
+        <p class="quiz-fb" aria-live="polite"></p>
+      </div>
+    </div>
+    <div id="i1-timeline" class="stack">
+      <div class="frames" id="i1-frames" role="list" aria-label="Fotos (commits) do projeto"></div>
+      <div class="panel" id="i1-detail" aria-live="polite">Clique em "Tirar foto" para fazer o primeiro commit.</div>
+      <div class="row">
+        <button class="btn" id="i1-add" type="button">Tirar foto (commit)</button>
+        <button class="btn ghost" id="i1-reset" type="button">Recomeçar</button>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">Passos do I1: clique em "Tirar foto" três vezes e depois em uma foto antiga para voltar no tempo. O quiz 1 aparece depois da terceira foto.</aside>
+</section>
+
+<!-- ============ S4 · I2 quatro áreas ============ -->
+<section class="slide" data-idx="3" data-t="areas" data-block="B2" data-seconds="180">
+  <div class="cols rev">
+    <div id="i2-areas" class="stack">
+      <div class="areas">
+        <div class="area" id="area-0"><h3>Pasta de trabalho</h3><div class="cards"></div></div>
+        <div class="area" id="area-1"><h3>Preparação</h3><div class="cards"></div></div>
+        <div class="area" id="area-2"><h3>Repositório local</h3><div class="cards"></div></div>
+        <div class="area" id="area-3"><h3>GitHub</h3><div class="cards"></div></div>
+      </div>
+      <div class="row">
+        <button class="btn git" id="i2-edit" type="button">editar remover.py</button>
+        <button class="btn git" id="i2-add" type="button">git add</button>
+        <button class="btn git" id="i2-commit" type="button">git commit</button>
+        <button class="btn git" id="i2-push" type="button">git push</button>
+        <button class="btn git" id="i2-pull" type="button">git pull</button>
+        <button class="btn ghost" id="i2-reset" type="button">Recomeçar</button>
+      </div>
+      <p id="i2-msg" aria-live="polite" class="sub" style="margin:0"></p>
+      <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>git status</span></div><pre id="i2-status" style="min-height:6rem"></pre></div>
+    </div>
+    <div>
+      <p class="eyebrow">Mapa <span class="badge">I2</span></p>
+      <h2 class="st">As quatro áreas do Git</h2>
+      <ul class="bullets">
+        <li>Pasta de trabalho, preparação, repositório local, GitHub.</li>
+        <li><code>git add</code> prepara, <code>git commit</code> grava e <code>git push</code> envia.</li>
+        <li><code>git status</code> mostra o que mudou e o que está preparado.</li>
+      </ul>
+      <div class="quiz-container" hidden>
+        <p class="quiz-q">Quiz 2 · Depois do <code>git add</code>, onde o arquivo está?</p>
+        <div class="quiz-opts">
+          <button class="quiz-opt" type="button" data-correct="false" data-fb="Ele saiu da pasta de trabalho para a preparação; ainda é preciso o commit.">na pasta de trabalho, como antes</button>
+          <button class="quiz-opt" type="button" data-correct="true" data-fb="O add coloca o arquivo na área de preparação, esperando o commit.">na área de preparação</button>
+          <button class="quiz-opt" type="button" data-correct="false" data-fb="Só depois do commit ele entra no repositório local.">já no repositório local</button>
+          <button class="quiz-opt" type="button" data-correct="false" data-fb="O GitHub só recebe o arquivo no push.">já no GitHub</button>
+        </div>
+        <p class="quiz-fb" aria-live="polite"></p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">Demonstração do professor com o I2. O livro Pro Git chama a pasta de trabalho de "árvore de trabalho"; cite uma vez. O quiz 2 aparece depois do primeiro push.</aside>
+</section>
+
+<!-- ============ S5 · criar o repositório da dupla ============ -->
+<section class="slide" data-idx="4" data-t="terminal" data-block="B3" data-seconds="180" data-step-slide="4" data-max-steps="4">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">Terminal · passo 1 de 3</p>
+      <h2 class="st">Criar o repositório da dupla</h2>
+      <ul class="bullets">
+        <li>Aluno A: <strong>Use this template</strong> e <strong>Create a new repository</strong>.</li>
+        <li>Marque <strong>Private</strong>: só a dupla vê o projeto.</li>
+        <li><strong>Settings &gt; Collaborators</strong>: convide o colega, que precisa aceitar o convite.</li>
+        <li>O colaborador pode gravar (push) no repositório.</li>
+      </ul>
+      <div class="steps">
+        <button class="btn step-btn" type="button">Próximo passo ▸</button>
+        <button class="btn ghost step-rst" type="button">Reiniciar</button>
+        <span class="step-cnt"></span>
+      </div>
+    </div>
+    <div class="stack" role="img" aria-label="Telas simplificadas do GitHub mostrando Use this template, a opção Private e a tela de colaboradores, com o botão do passo atual destacado.">
+      <div class="mock stp" data-s="0"><h4><span class="step-n">1</span>Repositório-modelo inventario-git-template</h4>
+        <div class="line"><span class="fake">Code</span> <span class="fake green">Use this template ▾</span></div></div>
+      <div class="mock stp" data-s="1"><h4><span class="step-n">2</span>Create a new repository</h4>
+        <div class="line">Repository name: <code>inventario-ana-beto</code></div>
+        <div class="line">( ) Public &nbsp; <strong>(●) Private</strong></div></div>
+      <div class="mock stp" data-s="2"><h4><span class="step-n">3</span>Settings &gt; Collaborators</h4>
+        <div class="line"><span class="fake green">Add people</span></div></div>
+      <div class="mock stp" data-s="3"><h4><span class="step-n">4</span>Convite enviado</h4>
+        <div class="line">Pending invite: <code>beto</code> — o colega precisa aceitar.</div></div>
+    </div>
+  </div>
+  <aside class="notes">Teste antes da aula o link github.com/USUARIO/REPO/invitations (não consta nos GitHub Docs); o link do e-mail é o plano B. O repositório novo nasce com um único commit.</aside>
+</section>
+
+<!-- ============ S6 · clonar e configurar ============ -->
+<section class="slide" data-idx="5" data-t="terminal" data-block="B3" data-seconds="150" data-step-slide="5" data-max-steps="6">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">Terminal · passo 2 de 3</p>
+      <h2 class="st">Clonar e configurar o Git</h2>
+      <ul class="bullets">
+        <li><code>git clone</code> com a URL do repositório copia o projeto.</li>
+        <li><code>git config</code> sem <code>--global</code> vale só para este repositório.</li>
+        <li>No <code>user.email</code> entra o endereço noreply do GitHub.</li>
+        <li><code>git config pull.rebase true</code> evita erro e editor no <code>git pull</code>.</li>
+      </ul>
+      <div class="steps">
+        <button class="btn step-btn" type="button">Próximo passo ▸</button>
+        <button class="btn ghost step-rst" type="button">Reiniciar</button>
+        <span class="step-cnt"></span>
+      </div>
+    </div>
+    <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span></div><pre id="t6-body" aria-live="polite"></pre></div>
+  </div>
+  <aside class="notes">O computador é compartilhado, por isso nada de --global. O endereço noreply tem o formato ID+USUARIO@users.noreply.github.com e fica em Settings &gt; Emails da conta.</aside>
+</section>
+
+<!-- ============ S7 · I3 commit e push no terminal ============ -->
+<section class="slide" data-idx="6" data-t="terminal" data-block="B3" data-seconds="210" data-step-slide="6" data-max-steps="6">
+  <div class="cols">
+    <div id="i3-terminal">
+      <p class="eyebrow">Terminal · passo 3 de 3 <span class="badge">I3</span></p>
+      <h2 class="st">Commit e push no terminal</h2>
+      <ul class="bullets">
+        <li><code>git add</code> prepara, <code>git commit -m</code> grava, <code>git push</code> envia.</li>
+        <li>Primeiro commit: escreva seu nome na linha <code># Autor:</code>.</li>
+        <li>No primeiro push, o Windows abre o login do GitHub.</li>
+      </ul>
+      <div class="steps">
+        <button class="btn step-btn" type="button">Próximo passo ▸</button>
+        <button class="btn ghost step-rst" type="button">Reiniciar</button>
+        <span class="step-cnt"></span>
+      </div>
+    </div>
+    <div>
+      <p class="sub" style="margin:0 0 .4rem">Antes: em <code>adicionar.py</code>, escreva <code># Autor: Ana</code>.</p>
+      <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal (saída resumida)</span></div><pre id="t7-body" aria-live="polite"></pre></div>
+      <div class="login" id="i3-login" hidden>
+        <p><strong>Janela de login do GitHub</strong> (o visual pode variar)</p>
+        <p>Connect to GitHub — <span class="fake green">Sign in with your browser</span></p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">I3 passo a passo. Mostre a janela de login e diga que a credencial fica guardada. Entregue a colinha de comandos. As saídas são resumidas a partir de uma execução real com Git 2.54; confira a versão do laboratório.</aside>
+</section>
+
+<!-- ============ S8 · I4 VS Code ============ -->
+<section class="slide" data-idx="7" data-t="vscode" data-block="B4" data-seconds="240" data-step-slide="7" data-max-steps="5">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">VS Code <span class="badge">I4</span></p>
+      <h2 class="st">O mesmo fluxo no VS Code</h2>
+      <ul class="bullets">
+        <li>Painel Source Control (<kbd>Ctrl+Shift+G</kbd>): Changes e Staged Changes.</li>
+        <li>O <code>+</code> faz o stage; escreva a mensagem e clique em Commit.</li>
+        <li>Sync Changes faz pull e depois push.</li>
+        <li>Clonar pelo VS Code não dá permissão de escrita ao colega.</li>
+      </ul>
+      <div class="steps">
+        <button class="btn step-btn" type="button">Próximo passo ▸</button>
+        <button class="btn ghost step-rst" type="button">Reiniciar</button>
+        <span class="step-cnt"></span>
+      </div>
+    </div>
+    <div class="stack">
+      <div id="i4-vscode" class="vsc" role="img" aria-label="Painel Source Control do VS Code com um arquivo em Changes, caixa de mensagem e botões Commit e Sync Changes, ao lado do comando git equivalente.">
+        <div class="vsc-title">SOURCE CONTROL</div>
+        <div class="vsc-msg" id="i4-msg">Message (Ctrl+Enter to commit on "main")</div>
+        <div class="vsc-commit dim" id="i4-commit">✓ Commit</div>
+        <div class="vsc-sec">Staged Changes <span id="i4-nst">0</span></div>
+        <ul id="i4-staged"></ul>
+        <div class="vsc-sec">Changes <span id="i4-nch">1</span></div>
+        <ul id="i4-changes"><li><span>adicionar.py</span><span><span class="m">M</span> <span class="plus" id="i4-plus">+</span></span></li></ul>
+        <div class="vsc-status" id="i4-status">⎇ main &nbsp; ⟳ 0↓ 0↑</div>
+      </div>
+      <div class="equiv panel"><div class="lab">Comando equivalente no terminal</div><pre class="code" style="margin:.4rem 0 0;border:0;padding:0;background:none" id="i4-equiv"></pre></div>
+    </div>
+  </div>
+  <aside class="notes">A documentação do VS Code está só em inglês; confira o idioma instalado no laboratório antes da aula (Source Control pode aparecer traduzido). Os rótulos do mockup são os da documentação.</aside>
+</section>
+
+<!-- ============ S9 · I5 pull antes de push ============ -->
+<section class="slide" data-idx="8" data-t="dupla" data-block="B5" data-seconds="120">
+  <div class="cols rev">
+    <div id="i5-dupla" class="stack">
+      <div class="trio">
+        <div class="pc"><h3>PC de Ana (A)</h3><div class="dots" id="i5-a"></div></div>
+        <div class="pc gh"><h3>GitHub</h3><div class="dots" id="i5-gh"></div></div>
+        <div class="pc"><h3>PC de Beto (B)</h3><div class="dots" id="i5-b"></div></div>
+      </div>
+      <div class="row">
+        <button class="btn git" id="i5-run" type="button">Executar: A faz git push</button>
+        <button class="btn ghost" id="i5-reset" type="button">Reiniciar</button>
+      </div>
+      <div id="i5-alert" class="alert-box" hidden>Erro: push rejeitado</div>
+      <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>saída do terminal</span></div><pre id="i5-out" aria-live="polite" style="min-height:7rem"></pre></div>
+    </div>
+    <div>
+      <p class="eyebrow">Em dupla <span class="badge">I5</span></p>
+      <h2 class="st">Em dupla: pull antes de push</h2>
+      <ul class="bullets">
+        <li>Se o colega enviou antes, o push é rejeitado.</li>
+        <li>A saída mostra: <code>! [rejected] main -&gt; main (fetch first)</code>.</li>
+        <li><code>git pull</code> traz o trabalho dele; depois o <code>git push</code> funciona.</li>
+        <li>Com <code>pull.rebase true</code>, arquivos diferentes não geram conflito.</li>
+      </ul>
+      <div class="quiz-container" hidden>
+        <p class="quiz-q">Quiz 3 · Seu push foi rejeitado com "fetch first". O que fazer?</p>
+        <div class="quiz-opts">
+          <button class="quiz-opt" type="button" data-correct="false" data-fb="Apagar tudo joga fora o seu trabalho e não resolve a causa.">apagar o repositório e clonar de novo</button>
+          <button class="quiz-opt" type="button" data-correct="true" data-fb="O pull traz o que o colega enviou; depois o push funciona.">rodar <code>git pull</code> e depois <code>git push</code></button>
+          <button class="quiz-opt" type="button" data-correct="false" data-fb="Repetir o push não muda nada: o remoto continua com commits que você não tem.">repetir o <code>git push</code> até funcionar</button>
+          <button class="quiz-opt" type="button" data-correct="false" data-fb="Não precisa: o commit do colega é bem-vindo, basta trazê-lo com pull.">pedir para o colega apagar o commit dele</button>
+        </div>
+        <p class="quiz-fb" aria-live="polite"></p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">I5: A envia, B tenta enviar e é rejeitado, B faz pull e envia. O quiz 3 aparece no fim. Se faltar tempo, mostre só o quiz. A saída é a de uma execução real com Git 2.54.</aside>
+</section>
+
+<!-- ============ S10 · missão ============ -->
+<section class="slide" data-idx="9" data-t="projeto" data-block="B6" data-seconds="150">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">Mini-projeto · 12 min</p>
+      <h2 class="st">Missão: inventário de jogo</h2>
+      <ul class="bullets">
+        <li>Programa de terminal: matriz <code>[item, quantidade, raridade]</code> e menu.</li>
+        <li>O <code>main.py</code> vem pronto; cada aluno completa as próprias funções.</li>
+        <li>A: <code>adicionar.py</code> e <code>remover.py</code>. B: <code>listar.py</code> e <code>editar.py</code>.</li>
+        <li>Em trio, C fica com <code>listar.py</code>.</li>
+      </ul>
+    </div>
+    <svg viewBox="0 0 520 330" role="img" aria-label="Diagrama: main.py ao centro; adicionar.py e remover.py do aluno A; listar.py e editar.py do aluno B." style="width:100%;height:auto">
+      <g stroke="#9da7b3" stroke-width="2"><line x1="150" y1="75" x2="215" y2="140"/><line x1="150" y1="255" x2="215" y2="190"/><line x1="370" y1="75" x2="305" y2="140"/><line x1="370" y1="255" x2="305" y2="190"/></g>
+      <rect x="190" y="125" width="140" height="80" rx="10" fill="#161b22" stroke="#e6edf3" stroke-width="2"/>
+      <text x="260" y="160" text-anchor="middle" fill="#e6edf3" font-family="monospace" font-size="18">main.py</text>
+      <text x="260" y="186" text-anchor="middle" fill="#9da7b3" font-size="12">pronto: ninguém edita</text>
+      <rect x="20" y="30" width="160" height="60" rx="10" fill="#161b22" stroke="#58a6ff" stroke-width="3"/>
+      <text x="100" y="56" text-anchor="middle" fill="#58a6ff" font-size="12">A</text>
+      <text x="100" y="76" text-anchor="middle" fill="#e6edf3" font-family="monospace" font-size="16">adicionar.py</text>
+      <rect x="20" y="240" width="160" height="60" rx="10" fill="#161b22" stroke="#58a6ff" stroke-width="3"/>
+      <text x="100" y="266" text-anchor="middle" fill="#58a6ff" font-size="12">A</text>
+      <text x="100" y="286" text-anchor="middle" fill="#e6edf3" font-family="monospace" font-size="16">remover.py</text>
+      <rect x="340" y="30" width="160" height="60" rx="10" fill="#161b22" stroke="#f0883e" stroke-width="3"/>
+      <text x="420" y="56" text-anchor="middle" fill="#f0883e" font-size="12">B</text>
+      <text x="420" y="76" text-anchor="middle" fill="#e6edf3" font-family="monospace" font-size="16">listar.py</text>
+      <rect x="340" y="240" width="160" height="60" rx="10" fill="#161b22" stroke="#f0883e" stroke-width="3"/>
+      <text x="420" y="266" text-anchor="middle" fill="#f0883e" font-size="12">B</text>
+      <text x="420" y="286" text-anchor="middle" fill="#e6edf3" font-family="monospace" font-size="16">editar.py</text>
+    </svg>
+  </div>
+  <aside class="notes">Quem edita arquivos diferentes nunca tem conflito. Ninguém mexe no main.py. O passo a passo da dupla está no README do repositório-modelo.</aside>
+</section>
+
+<!-- ============ S11 · seu arquivo, sua função ============ -->
+<section class="slide" data-idx="10" data-t="projeto" data-block="B6" data-seconds="150">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">Mini-projeto</p>
+      <h2 class="st">Seu arquivo, sua função</h2>
+      <ul class="bullets">
+        <li>A matriz é sempre o primeiro parâmetro, como na atividade de matrizes.</li>
+        <li>Cada função mora num módulo; <code>main.py</code> usa <code>from modulo import funcao</code>.</li>
+        <li>Remover pelo índice: <code>del lista[i]</code>, que não devolve o valor.</li>
+        <li>Exemplo: com dois itens em <code>m</code>, <code>del m[0]</code> deixa só o segundo.</li>
+      </ul>
+    </div>
+    <div class="stack">
+      <pre class="code" role="img" aria-label="Código da função remover com a linha del inventario[i] destacada e a matriz antes e depois da remoção do primeiro item."><span class="kw">def</span> remover(inventario, i):
+    <span class="str">"""Apaga a linha da posicao i. As linhas
+    seguintes sobem uma posicao.
+    Ex.: m = [["a", 1, "x"], ["b", 2, "y"]]
+         remover(m, 0)
+         -> m == [["b", 2, "y"]]
+    """</span>
+    <span class="hl"><span class="kw">del</span> inventario[i]</span>   <span class="cmt"># novo</span></pre>
+      <div class="panel"><span class="cmt">antes: </span><code>[["a", 1, "x"], ["b", 2, "y"]]</code><br><span class="cmt">depois de del m[0]: </span><code>[["b", 2, "y"]]</code></div>
+    </div>
+  </div>
+  <aside class="notes">Mostre o remover.py do repositório-modelo, com a docstring e o exemplo "Ex.:". A aula 03 mostrou from modulo import funcao como variação do import modulo.</aside>
+</section>
+
+<!-- ============ S12 · mão na massa ============ -->
+<section class="slide" data-idx="11" data-t="projeto" data-block="B6" data-seconds="420">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">Mini-projeto · prática</p>
+      <h2 class="st">Mão na massa: um commit por função</h2>
+      <ul class="bullets">
+        <li>Ciclo: <code>git pull</code>, editar, <code>git add</code>, <code>git commit</code>, <code>git pull</code>, <code>git push</code>.</li>
+        <li>Um commit por função, com mensagem curta, como "adicionar: guarda o item".</li>
+        <li>No fim, os dois rodam <code>git pull</code> e depois <code>python main.py</code>.</li>
+      </ul>
+      <div class="row" style="margin-top:1rem">
+        <span id="timer" role="timer" aria-live="off">07:00</span>
+        <button class="btn" id="tm-start" type="button">Iniciar</button>
+        <button class="btn ghost" id="tm-reset" type="button">Zerar</button>
+      </div>
+    </div>
+    <div id="i6-painel" class="stack">
+      <div class="checks" role="group" aria-label="Funções da dupla">
+        <label><input type="checkbox"> adicionar.py (A)</label>
+        <label><input type="checkbox"> remover.py (A)</label>
+        <label><input type="checkbox"> listar.py (B)</label>
+        <label><input type="checkbox"> editar.py (B)</label>
+      </div>
+      <ol class="cycle" id="cycle">
+        <li><button class="cyc" type="button">git pull</button></li>
+        <li><button class="cyc" type="button">editar o seu arquivo</button></li>
+        <li><button class="cyc" type="button">git add arquivo.py</button></li>
+        <li><button class="cyc" type="button">git commit -m "função: o que fez"</button></li>
+        <li><button class="cyc" type="button">git pull</button></li>
+        <li><button class="cyc" type="button">git push</button></li>
+      </ol>
+    </div>
+  </div>
+  <aside class="notes">Circule pela sala. Quem terminar a função primeiro ajuda o colega, sem digitar no computador dele. Tempo de trabalho real: cerca de 7 minutos. Tecla P pausa o contador.</aside>
+</section>
+
+<!-- ============ S13 · checklist e próximos passos ============ -->
+<section class="slide" data-idx="12" data-t="fecho" data-block="B7" data-seconds="120">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">Fechamento</p>
+      <h2 class="st">Checklist de entrega e próximos passos</h2>
+      <ul class="bullets">
+        <li>Pelo menos 4 commits e 2 autores em <code>git log --oneline</code>.</li>
+        <li><code>python main.py</code> roda depois de um <code>git pull</code> final.</li>
+        <li><code>__pycache__</code> e <code>*.csv</code> ficam fora do repositório: é o <code>.gitignore</code>.</li>
+        <li>No projeto final, o programa vai ler e escrever arquivos CSV.</li>
+        <li>Fluxo diário: pull, editar, add, commit, pull, push.</li>
+      </ul>
+    </div>
+    <div class="stack">
+      <div class="checks" role="group" aria-label="Checklist de entrega">
+        <label><input type="checkbox"> 4 commits ou mais</label>
+        <label><input type="checkbox"> 2 autores no <code>git log</code></label>
+        <label><input type="checkbox"> <code>python main.py</code> roda</label>
+        <label><input type="checkbox"> nada de <code>__pycache__</code> no repositório</label>
+        <label><input type="checkbox"> último <code>git push</code> feito</label>
+      </div>
+      <div class="flow" aria-label="Fluxo diário"><span class="chip">pull</span><span class="arrow">→</span><span class="chip">editar</span><span class="arrow">→</span><span class="chip">add</span><span class="arrow">→</span><span class="chip">commit</span><span class="arrow">→</span><span class="chip">pull</span><span class="arrow">→</span><span class="chip">push</span></div>
+    </div>
+  </div>
+  <aside class="notes">Confira o checklist com as duplas. O CSV foi assunto das aulas 03 e 04; aqui só aparece como próximo passo do projeto final.</aside>
+</section>
+
+<!-- ============ S14 · saia da conta ============ -->
+<section class="slide" data-idx="13" data-t="fecho" data-block="B7" data-seconds="60">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">Antes de levantar</p>
+      <h2 class="st">Antes de sair: saia da conta</h2>
+      <ul class="bullets">
+        <li>O computador do laboratório é usado por várias turmas.</li>
+        <li>Remova a credencial no Gerenciador de Credenciais do Windows.</li>
+        <li>Saia também da sua conta do GitHub no VS Code.</li>
+      </ul>
+    </div>
+    <div class="stack">
+      <div class="mock" role="img" aria-label="Tela simplificada do Gerenciador de Credenciais do Windows com uma entrada do GitHub e a opção de remover.">
+        <h4><span class="step-n">1</span>Painel de Controle &gt; Contas de Usuário &gt; Gerenciador de Credenciais</h4>
+        <div class="line">Entrada do GitHub &nbsp; <span class="fake">Remover</span></div></div>
+      <div class="mock" role="img" aria-label="Menu de contas do VS Code com a opção de sair da conta do GitHub.">
+        <h4><span class="step-n">2</span>VS Code &gt; menu Accounts</h4>
+        <div class="line">Sua conta do GitHub &nbsp; <span class="fake">Sign Out</span></div></div>
+    </div>
+  </div>
+  <aside class="notes">Teste antes da aula como a credencial é removida: a documentação do Git Credential Manager não descreve o passo a passo. Confira também se o Windows do laboratório está em português.</aside>
+</section>
+
+<!-- ============ S15 · apêndice conta ============ -->
+<section class="slide" data-idx="14" data-t="apendice" data-block="B0" data-seconds="0">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">Tarefa de casa, antes da aula</p>
+      <h2 class="st">Apêndice: sua conta no GitHub</h2>
+      <ul class="bullets">
+        <li>Crie a conta pessoal e verifique o e-mail; sem isso não dá para criar repositório.</li>
+        <li>Ative <strong>Keep my email address private</strong> nas configurações de e-mail.</li>
+        <li>Anote o e-mail noreply: <code>ID+USUARIO@users.noreply.github.com</code>.</li>
+      </ul>
+      <p class="sub" style="margin-top:1rem">Guia oficial: <a href="https://docs.github.com/en/get-started/start-your-journey/creating-an-account-on-github" target="_blank" rel="noopener">Creating an account on GitHub (GitHub Docs)</a></p>
+    </div>
+    <div class="stack" role="img" aria-label="Telas simplificadas de cadastro no GitHub e de configurações de e-mail, com a opção de manter o e-mail privado marcada.">
+      <div class="mock"><h4><span class="step-n">1</span>Cadastro</h4><div class="line">E-mail e senha, depois verificar o e-mail</div></div>
+      <div class="mock"><h4><span class="step-n">2</span>Settings &gt; Emails</h4><div class="line">[x] Keep my email address private</div><div class="line">Seu endereço noreply: <code>ID+USUARIO@users.noreply.github.com</code></div></div>
+    </div>
+  </div>
+  <aside class="notes">A política da escola e a autorização dos responsáveis para contas de menores são decisão do professor; a documentação do GitHub consultada não trata de idade mínima. Confira em Settings &gt; Emails onde aparece o endereço noreply.</aside>
+</section>
+
+<!-- ============ S16 · apêndice instalar ============ -->
+<section class="slide" data-idx="15" data-t="apendice" data-block="B0" data-seconds="0">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">Tarefa de casa, no seu computador</p>
+      <h2 class="st">Apêndice: instalar Git e VS Code</h2>
+      <ul class="bullets">
+        <li>Git for Windows: baixe o instalador oficial e mantenha as opções padrão.</li>
+        <li>VS Code: escolha o <strong>User setup</strong>, que não pede administrador.</li>
+        <li>O instalador do VS Code já adiciona o programa ao PATH.</li>
+      </ul>
+      <p class="sub" style="margin-top:1rem">Links oficiais:
+        <a href="https://git-scm.com/install/windows" target="_blank" rel="noopener">Git — Install for Windows</a> ·
+        <a href="https://code.visualstudio.com/docs/setup/windows" target="_blank" rel="noopener">Installing Visual Studio Code on Windows</a></p>
+    </div>
+    <div class="stack" role="img" aria-label="Duas colunas simplificadas com o download do Git for Windows e a escolha do User setup do VS Code.">
+      <div class="mock"><h4><span class="step-n">1</span>Git for Windows</h4><div class="line"><span class="fake green">Click here to download</span> → abra o instalador → Next, Next…</div></div>
+      <div class="mock"><h4><span class="step-n">2</span>VS Code</h4><div class="line">Baixe o <strong>User setup</strong> → abra o instalador</div></div>
+    </div>
+  </div>
+  <aside class="notes">No laboratório os dois já estão instalados. Esse slide é só para quem quiser praticar em casa. Peça para escolherem as opções padrão do instalador do Git.</aside>
+</section>
+</main>
+
+<div id="notes" hidden role="region" aria-label="Notas do professor"></div>
+<nav id="nav" aria-label="Navegação da aula">
+  <button class="navbtn" id="prev" type="button" aria-label="Slide anterior">◀</button>
+  <button class="navbtn" id="next" type="button" aria-label="Próximo slide ou passo">▶</button>
+  <span id="count">1 / 16</span>
+  <span class="pace" id="pace"></span>
+  <span class="sp"></span>
+  <span class="hint">← → navegar · N notas · F tela cheia · P pausa o contador</span>
+</nav>
+
+<script>
+const TOTAL = 16;
+const slides = Array.from(document.querySelectorAll('.slide'));
+let cur = 0;
+const STEPS = {};
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+
+/* ---------- navegação ---------- */
+const startSec = [];
+(function () { let t = 0; slides.forEach(s => { startSec.push(t); if (s.dataset.t !== 'apendice') t += +s.dataset.seconds; }); })();
+const mmss = s => String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+
+function show(i) {
+  cur = Math.max(0, Math.min(TOTAL - 1, i));
+  slides.forEach((s, k) => s.classList.toggle('active', k === cur));
+  const s = slides[cur];
+  $('#progress > i').style.width = ((cur + 1) / TOTAL * 100) + '%';
+  $('#progress').setAttribute('aria-valuenow', cur + 1);
+  $('#count').textContent = (cur + 1) + ' / ' + TOTAL;
+  $('#pace').textContent = s.dataset.t === 'apendice'
+    ? 'apêndice · em casa'
+    : 'planejado ' + mmss(startSec[cur]) + '–' + mmss(startSec[cur] + +s.dataset.seconds);
+  if (!$('#notes').hidden) showNotes();
+  const url = '#/' + (cur + 1);
+  // Em iframe about:srcdoc (ex.: pré-visualização no claude.ai) o navegador recusa mexer no histórico.
+  try { if (location.hash !== url) history.replaceState(null, '', url); } catch (_) { /* sem link por slide, o resto funciona */ }
+  const h = $('.st', s); if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); }
+  $('#stage').scrollTop = 0;
+}
+function next() {
+  const st = STEPS[cur];
+  if (st && st.s < st.max) { st.s++; st.render(); return; }
+  show(cur + 1);
+}
+function prev() {
+  const st = STEPS[cur];
+  if (st && st.s > 0) { st.s--; st.render(); return; }
+  show(cur - 1);
+}
+function telaCheia() {
+  // Em iframe sem permissão a tela cheia é rejeitada; sem o catch vira erro não tratado.
+  const raiz = document.documentElement;
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  else if (raiz.requestFullscreen) raiz.requestFullscreen().catch(() => {});
+}
+function showNotes() {
+  const box = $('#notes'); const n = $('.notes', slides[cur]);
+  box.innerHTML = '<b>Notas do professor · slide ' + (cur + 1) + ':</b> ' + (n ? esc(n.textContent) : '');
+}
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  const tag = document.activeElement && document.activeElement.tagName;
+  const emControle = tag === 'BUTTON' || tag === 'INPUT' || tag === 'A';
+  switch (e.key) {
+    case 'ArrowRight': case 'PageDown': next(); e.preventDefault(); break;
+    case ' ': if (!emControle) { next(); e.preventDefault(); } break;
+    case 'ArrowLeft': case 'PageUp': prev(); e.preventDefault(); break;
+    case 'Home': show(0); e.preventDefault(); break;
+    case 'End': show(TOTAL - 1); e.preventDefault(); break;
+    case 'n': case 'N': $('#notes').hidden = !$('#notes').hidden; if (!$('#notes').hidden) showNotes(); break;
+    case 'f': case 'F': telaCheia(); break;
+    case 'p': case 'P': if (cur === 11) timer.toggle(); break;
+    case 'Escape': $('#notes').hidden = true; break;
+  }
+});
+$('#prev').addEventListener('click', prev);
+$('#next').addEventListener('click', next);
+window.addEventListener('hashchange', () => { const m = location.hash.match(/^#\/(\d+)$/); if (m) show(+m[1] - 1); });
+
+/* ---------- passo a passo (contrato: data-max-steps = maxSteps + 1) ---------- */
+function makeStep({ slide, maxSteps, onStep }) {
+  const el = slides[slide];
+  const st = { s: 0, max: maxSteps };
+  const btn = $('.step-btn', el), rst = $('.step-rst', el), cnt = $('.step-cnt', el);
+  st.render = () => {
+    cnt.textContent = 'Passo ' + (st.s + 1) + ' de ' + el.dataset.maxSteps;
+    btn.disabled = st.s >= st.max;
+    onStep(st.s);
+  };
+  btn.addEventListener('click', () => { if (st.s < st.max) { st.s++; st.render(); } });
+  rst.addEventListener('click', () => { st.s = 0; st.render(); });
+  STEPS[slide] = st; st.render();
+  return st;
+}
+
+/* ---------- quiz (um listener para todos) ---------- */
+document.addEventListener('click', e => {
+  const opt = e.target.closest('.quiz-opt'); if (!opt) return;
+  const box = opt.closest('.quiz-container'); if (box.dataset.done) return;
+  const ok = opt.dataset.correct === 'true', fb = $('.quiz-fb', box);
+  opt.classList.add(ok ? 'ok' : 'err');
+  fb.textContent = (ok ? 'Isso mesmo! ' : 'Ainda não. ') + opt.dataset.fb;
+  fb.className = 'quiz-fb ' + (ok ? 'ok' : 'err');
+  if (ok) { box.dataset.done = '1'; box.querySelectorAll('.quiz-opt').forEach(o => o.disabled = true); }
+  else opt.disabled = true;
+});
+function revealQuiz(slideIdx) { const q = $('.quiz-container', slides[slideIdx]); if (q) q.hidden = false; }
+function resetQuiz(slideIdx) {
+  const q = $('.quiz-container', slides[slideIdx]); if (!q) return;
+  q.hidden = true; delete q.dataset.done;
+  q.querySelectorAll('.quiz-opt').forEach(o => { o.disabled = false; o.classList.remove('ok', 'err'); });
+  const fb = $('.quiz-fb', q); fb.textContent = ''; fb.className = 'quiz-fb';
+}
+
+/* ---------- S5: criar o repositório (mockup em passos) ---------- */
+makeStep({ slide: 4, maxSteps: 3, onStep(s) {
+  slides[4].querySelectorAll('.stp').forEach(m => {
+    const k = +m.dataset.s; m.classList.toggle('on', k <= s); m.classList.toggle('cur', k === s);
+  });
+} });
+
+/* ---------- S6: clonar e configurar (terminal em passos, com botão copiar) ---------- */
+const L6 = [
+  ['git clone https://github.com/USUARIO/REPO.git', '# copia o projeto para o seu computador'],
+  ['cd REPO', '# entra na pasta do projeto'],
+  ['git config user.name "Seu Nome"', '# seu nome nos commits, só neste repositório'],
+  ['git config user.email "ID+USUARIO@users.noreply.github.com"', '# e-mail noreply: o pessoal fica escondido'],
+  ['git config pull.rebase true', '# evita o erro do git pull e o editor de mensagem']
+];
+makeStep({ slide: 5, maxSteps: 5, onStep(s) {
+  $('#t6-body').innerHTML = L6.slice(0, s).map(([c, d]) =>
+    '<span class="ps">$ </span><span class="cmd">' + esc(c) + '</span> <button class="navbtn copy" type="button" data-cmd="' + esc(c).replace(/"/g, '&quot;') + '">Copiar</button>\n<span class="cm">' + esc(d) + '</span>\n').join('') ||
+    '<span class="ps">$ </span><span class="out">(clique em "Próximo passo")</span>';
+  fimDoTerminal($('#t6-body'));
+} });
+function fimDoTerminal(pre) { pre.scrollTop = pre.scrollHeight; }
+document.addEventListener('click', e => {
+  const b = e.target.closest('.copy'); if (!b) return;
+  const txt = b.dataset.cmd;
+  const ok = () => { b.textContent = 'Copiado!'; setTimeout(() => b.textContent = 'Copiar', 1200); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok, () => { b.textContent = 'Selecione e copie'; });
+  else { const t = document.createElement('textarea'); t.value = txt; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); ok(); } catch (_) { b.textContent = 'Selecione e copie'; } t.remove(); }
+});
+
+/* ---------- S7 · I3: commit e push no terminal ---------- */
+const P = c => '<span class="ps">$ </span><span class="cmd">' + esc(c) + '</span>\n';
+const O = t => '<span class="out">' + esc(t) + '</span>\n';
+const STATUS_MOD = "On branch main\nYour branch is up to date with 'origin/main'.\n\nChanges not staged for commit:\n  (use \"git add <file>...\" to update what will be committed)\n  (use \"git restore <file>...\" to discard changes in working directory)\n\tmodified:   adicionar.py\n\nno changes added to commit (use \"git add\" and/or \"git commit -a\")\n";
+const STATUS_ADD = "On branch main\nYour branch is up to date with 'origin/main'.\n\nChanges to be committed:\n  (use \"git restore --staged <file>...\" to unstage)\n\tmodified:   adicionar.py\n";
+makeStep({ slide: 6, maxSteps: 5, onStep(s) {
+  let h = '';
+  if (s >= 1) h += P('git status') + O(STATUS_MOD);
+  if (s >= 2) h += P('git add adicionar.py') + P('git status') + O(STATUS_ADD);
+  if (s >= 3) h += P('git commit -m "adicionar: escreve o autor"') + O('[main e4f5a6b] adicionar: escreve o autor\n 1 file changed, 1 insertion(+), 1 deletion(-)');
+  if (s >= 4) h += P('git push origin main');
+  if (s >= 5) h += O('To https://github.com/ana/inventario-ana-beto.git\n   a1b2c3d..e4f5a6b  main -> main');
+  $('#t7-body').innerHTML = h || '<span class="ps">$ </span><span class="out">(clique em "Próximo passo")</span>';
+  fimDoTerminal($('#t7-body'));
+  $('#i3-login').hidden = s !== 4;
+} });
+
+/* ---------- S8 · I4: painel Source Control do VS Code ---------- */
+const EQ4 = [
+  '# Ctrl+Shift+G abre o painel Source Control',
+  'git add adicionar.py',
+  '# a mensagem vira o -m do commit',
+  'git commit -m "adicionar: escreve o autor"',
+  'git pull\ngit push'
+];
+makeStep({ slide: 7, maxSteps: 4, onStep(s) {
+  const staged = $('#i4-staged'), ch = $('#i4-changes'), msg = $('#i4-msg'), cm = $('#i4-commit'), stt = $('#i4-status');
+  const li = '<li><span>adicionar.py</span><span class="m">M</span></li>';
+  const liPlus = '<li><span>adicionar.py</span><span><span class="m">M</span> <span class="plus hl2" id="i4-plus">+</span></span></li>';
+  ch.innerHTML = s === 0 ? liPlus : (s >= 1 ? '' : li);
+  staged.innerHTML = s >= 1 && s < 3 ? li : '';
+  $('#i4-nch').textContent = s >= 1 ? 0 : 1;
+  $('#i4-nst').textContent = s >= 1 && s < 3 ? 1 : 0;
+  const digitada = s === 2;  // mensagem escrita, ainda sem commit
+  msg.textContent = digitada ? 'adicionar: escreve o autor' : 'Message (Ctrl+Enter to commit on "main")';
+  msg.classList.toggle('has', digitada);
+  msg.classList.toggle('hl2', s === 1);   // passo 1: escreva a mensagem
+  // Depois do commit o VS Code troca o botão Commit por Sync Changes.
+  cm.textContent = s >= 3 ? '⟳ Sync Changes' + (s === 3 ? ' 1↑' : '') : '✓ Commit';
+  cm.classList.toggle('dim', s < 2);
+  cm.classList.toggle('hl2', s === 2 || s === 3);   // clicar em Commit e depois em Sync
+  stt.textContent = s === 3 ? '⎇ main   ⟳ 0↓ 1↑' : '⎇ main   ⟳ 0↓ 0↑';
+  $('#i4-equiv').textContent = EQ4[s];
+} });
+
+/* ---------- S3 · I1: linha do tempo de commits ---------- */
+(function () {
+  const C = [
+    { h: '3f9a1c2', m: 'primeiro commit', f: ['main.py'] },
+    { h: '8b04d7e', m: 'adiciona a função adicionar', f: ['main.py', 'adicionar.py'] },
+    { h: 'c51e9a0', m: 'adiciona a função listar', f: ['main.py', 'adicionar.py', 'listar.py'] },
+    { h: '1d7f6b3', m: 'conserta um erro no listar', f: ['main.py', 'adicionar.py', 'listar.py'] },
+    { h: 'a92c40e', m: 'adiciona remover e editar', f: ['main.py', 'adicionar.py', 'listar.py', 'remover.py', 'editar.py'] }
+  ];
+  let n = 0;
+  const box = $('#i1-frames'), det = $('#i1-detail'), add = $('#i1-add');
+  function draw(sel) {
+    box.innerHTML = '';
+    C.slice(0, n).forEach((c, k) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'frame'; b.setAttribute('role', 'listitem');
+      b.setAttribute('aria-pressed', k === sel ? 'true' : 'false');
+      b.innerHTML = '<b>foto ' + (k + 1) + '</b>' + c.h;
+      b.addEventListener('click', () => { draw(k); describe(k); });
+      box.appendChild(b);
+    });
+    add.disabled = n >= C.length;
+    add.textContent = n >= C.length ? 'Álbum completo' : 'Tirar foto (commit)';
+    if (n >= 3) revealQuiz(2);
+  }
+  function describe(k) {
+    const c = C[k];
+    det.textContent = 'Foto ' + (k + 1) + ' (' + c.h + '): "' + c.m + '". Arquivos nesta foto: ' + c.f.join(', ') + '.' +
+      (k < n - 1 ? ' Voltar para esta foto devolve o projeto a este estado.' : '');
+  }
+  add.addEventListener('click', () => { n++; draw(n - 1); describe(n - 1); });
+  $('#i1-reset').addEventListener('click', () => { n = 0; draw(-1); det.textContent = 'Clique em "Tirar foto" para fazer o primeiro commit.'; resetQuiz(2); });
+  draw(-1);
+})();
+
+/* ---------- S4 · I2: simulador das quatro áreas ---------- */
+(function () {
+  let st; const areas = [0, 1, 2, 3].map(i => $('#area-' + i + ' .cards'));
+  const out = $('#i2-status'), msg = $('#i2-msg');
+  function status() {
+    const staged = st.files.filter(f => f.a === 1), mod = st.files.filter(f => f.a === 0 && !f.colega), ahead = st.commits - st.pushed;
+    let t = 'On branch main\n';
+    t += ahead > 0 ? "Your branch is ahead of 'origin/main' by " + ahead + ' commit' + (ahead > 1 ? 's' : '') + '.\n  (use "git push" to publish your local commits)\n'
+      : "Your branch is up to date with 'origin/main'.\n";
+    if (staged.length) { t += '\nChanges to be committed:\n'; staged.forEach(f => t += '\tmodified:   ' + f.n + '\n'); }
+    if (mod.length) { t += '\nChanges not staged for commit:\n'; mod.forEach(f => t += '\tmodified:   ' + f.n + '\n'); }
+    if (!staged.length && !mod.length) t += '\nnothing to commit, working tree clean\n';
+    out.textContent = t;
+  }
+  function draw(m) {
+    areas.forEach(a => a.innerHTML = '');
+    st.files.forEach(f => { const c = document.createElement('div'); c.className = 'card' + (f.colega ? ' colega' : ''); c.textContent = f.n + (f.colega ? ' (do colega)' : ''); areas[f.a].appendChild(c); });
+    status(); msg.textContent = m;
+  }
+  function reset() { st = { files: [{ n: 'adicionar.py', a: 0 }], commits: 0, pushed: 0, colega: true, extra: false }; draw('adicionar.py foi modificado e está na pasta de trabalho.'); resetQuiz(3); }
+  const move = (from, to) => { const m = st.files.filter(f => f.a === from); m.forEach(f => f.a = to); return m.length; };
+  $('#i2-edit').addEventListener('click', () => {
+    if (st.extra) return draw('remover.py já foi editado.');
+    st.extra = true; st.files.push({ n: 'remover.py', a: 0 }); draw('remover.py foi modificado e chegou à pasta de trabalho.');
+  });
+  $('#i2-add').addEventListener('click', () => { const k = move(0, 1); st.files.forEach(f => { if (f.colega && f.a === 1) f.a = 0; }); draw(k ? 'git add: ' + k + ' arquivo(s) foram para a área de preparação.' : 'git add: não há nada modificado para preparar.'); });
+  $('#i2-commit').addEventListener('click', () => { const k = move(1, 2); if (k) st.commits++; draw(k ? 'git commit: a foto foi gravada no repositório local.' : 'git commit: nada preparado. Use git add antes.'); });
+  $('#i2-push').addEventListener('click', () => {
+    const k = move(2, 3);
+    if (k) { st.pushed = st.commits; revealQuiz(3); }
+    draw(k ? 'git push: o commit foi enviado ao GitHub.' : 'git push: nada novo para enviar (Everything up-to-date).');
+  });
+  $('#i2-pull').addEventListener('click', () => {
+    if (st.colega) { st.colega = false; st.files.push({ n: 'listar.py', a: 0, colega: true }); draw('git pull: listar.py, que o colega enviou, chegou à sua pasta.'); }
+    else draw('git pull: Already up to date.');
+  });
+  $('#i2-reset').addEventListener('click', reset);
+  reset();
+})();
+
+/* ---------- S9 · I5: simulador de dupla ---------- */
+(function () {
+  const URL = 'https://github.com/ana/inventario-ana-beto.git';
+  const REJ = 'To ' + URL + "\n ! [rejected]        main -> main (fetch first)\nerror: failed to push some refs to '" + URL + "'\nhint: Updates were rejected because the remote contains work that you do not\nhint: have locally. This is usually caused by another repository pushing to\nhint: the same ref. If you want to integrate the remote changes, use\nhint: 'git pull' before pushing again.\nhint: See the 'Note about fast-forwards' in 'git push --help' for details.\n";
+  const A = [
+    { rotulo: 'Executar: A faz git push', cmd: 'A$ git push origin main', out: 'To ' + URL + '\n   a1b2c3d..9f8e7d6  main -> main\n' },
+    { rotulo: 'Executar: B faz git push (sem pull)', cmd: 'B$ git push origin main', out: REJ, erro: true },
+    { rotulo: 'Executar: B faz git pull', cmd: 'B$ git pull', out: 'Successfully rebased and updated refs/heads/main.\n' },
+    { rotulo: 'Executar: B faz git push', cmd: 'B$ git push origin main', out: 'To ' + URL + '\n   9f8e7d6..c3d4e5f  main -> main\n' }
+  ];
+  let k;
+  const run = $('#i5-run'), out = $('#i5-out'), al = $('#i5-alert');
+  const dots = (id, arr) => { $(id).innerHTML = arr.map(d => '<span class="dot ' + d[1] + '">' + d[0] + '</span>').join(''); };
+  const base = ['base', ''];
+  function draw() {
+    dots('#i5-a', [base, ['A1', 'a']]);
+    dots('#i5-gh', k >= 1 ? [base, ['A1', 'a']].concat(k >= 4 ? [['B1', 'b']] : []) : [base]);
+    dots('#i5-b', k >= 3 ? [base, ['A1', 'a'], ['B1', 'b']] : [base, ['B1', 'b']]);
+  }
+  function reset() { k = 0; out.textContent = ''; al.hidden = true; run.disabled = false; run.textContent = A[0].rotulo; draw(); resetQuiz(8); }
+  run.addEventListener('click', () => {
+    const a = A[k]; if (!a) return;
+    out.textContent = a.cmd + '\n' + a.out;
+    al.hidden = !a.erro; if (a.erro) al.textContent = 'Erro: push rejeitado (fetch first)';
+    k++;
+    draw();
+    if (k >= A.length) { run.disabled = true; run.textContent = 'Pronto: os dois commits estão no GitHub'; revealQuiz(8); }
+    else run.textContent = A[k].rotulo;
+  });
+  $('#i5-reset').addEventListener('click', reset);
+  reset();
+})();
+
+/* ---------- S12: contador de 7 minutos e ciclo de comandos ---------- */
+const timer = (function () {
+  const el = $('#timer'), go = $('#tm-start'); let t = 420, id = null;
+  const draw = () => { el.textContent = t > 0 ? mmss(t) : 'Tempo!'; };
+  function stop() { clearInterval(id); id = null; go.textContent = t > 0 ? 'Continuar' : 'Iniciar'; }
+  function start() { if (id || t <= 0) return; go.textContent = 'Pausar'; id = setInterval(() => { t--; draw(); if (t <= 0) stop(); }, 1000); }
+  const toggle = () => id ? stop() : start();
+  go.addEventListener('click', toggle);
+  $('#tm-reset').addEventListener('click', () => { stop(); t = 420; draw(); go.textContent = 'Iniciar'; });
+  draw();
+  return { toggle };
+})();
+document.querySelectorAll('.cyc').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.cyc').forEach(o => o.removeAttribute('aria-current')); b.setAttribute('aria-current', 'step');
+}));
+
+/* ---------- início ---------- */
+if (slides.length !== TOTAL) console.error('TOTAL (' + TOTAL + ') difere do número de slides (' + slides.length + ')');
+(function () { const m = location.hash.match(/^#\/(\d+)$/); show(m ? +m[1] - 1 : 0); })();
+</script>
+</body>
+</html>
