@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projeto Final — Introdução à Programação</title>
+<meta name="description" content="Lançamento do Projeto Final: requisitos, uso de IA, prazos e tempo de apresentação. IFRN, Ensino Médio Técnico.">
+<style>
+:root {
+  --bg: #0d1117; --panel: #161b22; --panel2: #1c2330; --border: #30363d;
+  --text: #e6edf3; --muted: #9da7b3; --green: #3fb950; --blue: #58a6ff;
+  --orange: #f0883e; --purple: #bc8cff; --red: #ff7b72; --yellow: #e3b341; --cyan: #4fc1ff;
+  --btn: #238636; --btn-hover: #2ea043;
+  --mono: ui-monospace, "Cascadia Code", "Cascadia Mono", Consolas, Menlo, "DejaVu Sans Mono", monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html { font-size: clamp(15px, 0.9vw + 8px, 24px); }
+body { margin: 0; height: 100vh; background: var(--bg); color: var(--text); font-family: var(--sans);
+  line-height: 1.45; display: flex; flex-direction: column; overflow: hidden; }
+code, pre, kbd { font-family: var(--mono); }
+code { background: var(--panel2); border: 1px solid var(--border); border-radius: 6px; padding: .05em .4em;
+  font-size: .92em; color: #ffd8a8; }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+
+#progress { height: 5px; background: var(--panel); flex: none; }
+#progress > i { display: block; height: 100%; width: 0; background: var(--green); transition: width .25s; }
+#stage { flex: 1; min-height: 0; overflow: auto; }
+#nav { flex: none; display: flex; align-items: center; gap: .75rem; padding: .5rem 1rem; background: var(--panel);
+  border-top: 1px solid var(--border); font-size: .8rem; color: var(--muted); }
+#nav .sp { flex: 1; }
+.navbtn { background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 6px;
+  padding: .3rem .8rem; cursor: pointer; font: inherit; }
+.navbtn:hover { border-color: var(--blue); }
+
+.slide { display: none; min-height: 100%; padding: clamp(1rem, 2.5vw, 2.4rem) clamp(1rem, 4vw, 3.5rem) 1.5rem; --tc: var(--green); }
+.slide.active { display: block; animation: entra .35s ease-out; }
+@keyframes entra { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.slide[data-t="missao"] { --tc: var(--blue); } .slide[data-t="exemplos"] { --tc: var(--purple); }
+.slide[data-t="req"] { --tc: var(--green); } .slide[data-t="ia"] { --tc: var(--cyan); }
+.slide[data-t="prazos"] { --tc: var(--orange); } .slide[data-t="apres"] { --tc: var(--red); }
+.slide[data-t="barema"] { --tc: var(--yellow); } .slide[data-t="calc"] { --tc: var(--cyan); }
+.slide[data-t="fim"] { --tc: var(--green); }
+.eyebrow { margin: 0 0 .3rem; font-family: var(--mono); font-size: .8rem; color: var(--tc); letter-spacing: .04em; text-transform: uppercase; }
+.st { margin: 0 0 .5rem; font-size: clamp(1.6rem, 3.1vw, 3rem); line-height: 1.12; }
+.st:focus { outline: none; }
+.st::before { content: "$ "; color: var(--tc); font-family: var(--mono); }
+.sub { margin: 0 0 1rem; color: var(--muted); font-size: 1.1rem; }
+.cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: clamp(1rem, 3vw, 2.5rem); align-items: start; }
+.cover .cols { min-height: 70vh; align-items: center; }
+.cover .st { font-size: clamp(2.4rem, 6vw, 5.2rem); }
+.stack { display: grid; gap: 1rem; }
+@media (max-width: 900px) { .cols { grid-template-columns: 1fr; } code { overflow-wrap: anywhere; } }
+@media (max-width: 700px) { #nav .hint { display: none; } }
+.bullets { list-style: none; margin: 0; padding: 0; display: grid; gap: .65rem; font-size: 1.05rem; }
+.bullets li { padding-left: 1.4rem; position: relative; }
+.bullets li::before { content: "›"; position: absolute; left: 0; color: var(--tc); font-weight: 700; }
+.panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: .9rem 1rem; }
+.term { background: #010409; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.term-bar { display: flex; gap: .4rem; padding: .45rem .7rem; background: var(--panel); border-bottom: 1px solid var(--border); align-items: center; }
+.term-bar i { width: .7rem; height: .7rem; border-radius: 50%; background: #ff5f56; }
+.term-bar i:nth-child(2) { background: #ffbd2e; } .term-bar i:nth-child(3) { background: #27c93f; }
+.term-bar span { margin-left: .5rem; font-size: .75rem; color: var(--muted); font-family: var(--mono); }
+.term pre { margin: 0; padding: .8rem 1rem; font-size: .85rem; line-height: 1.5; white-space: pre-wrap; min-height: 11rem; }
+.btn { background: var(--btn); color: #fff; border: 1px solid rgba(240, 246, 252, .1); border-radius: 8px; padding: .5rem 1rem;
+  font: inherit; font-weight: 600; cursor: pointer; }
+.btn:hover { background: var(--btn-hover); }
+.btn.ghost { background: var(--panel2); color: var(--text); border-color: var(--border); }
+.btn.on { border-color: var(--tc); color: var(--tc); }
+.row { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+.hidden { display: none !important; }
+
+/* capa: cursor piscando */
+.blink { display: inline-block; width: .6em; height: 1.1em; background: var(--green); vertical-align: -.15em; animation: pisca 1s steps(1) infinite; }
+@keyframes pisca { 50% { opacity: 0; } }
+
+/* galeria */
+.apps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+.apps .btn { text-align: left; }
+.apps small { display: block; font-weight: 400; color: var(--muted); }
+
+/* checklist */
+.check { display: grid; gap: .5rem; }
+.check label { display: flex; gap: .7rem; align-items: center; background: var(--panel); border: 1px solid var(--border);
+  border-radius: 10px; padding: .6rem .9rem; cursor: pointer; font-size: 1.02rem; }
+.check input { width: 1.2rem; height: 1.2rem; accent-color: var(--green); }
+.check label:has(input:checked) { border-color: var(--green); background: rgba(63, 185, 80, .12); }
+.meter { height: .7rem; background: var(--panel2); border-radius: 999px; overflow: hidden; margin: .8rem 0 .3rem; }
+.meter > i { display: block; height: 100%; width: 0; background: var(--green); transition: width .3s; }
+
+/* IA */
+.duo { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 700px) { .duo { grid-template-columns: 1fr; } }
+.pode { border-color: var(--green); } .nao { border-color: var(--red); }
+.pode h3 { color: var(--green); } .nao h3 { color: var(--red); }
+.duo h3 { margin: 0 0 .5rem; }
+.duo ul { margin: 0; padding-left: 1.2rem; display: grid; gap: .4rem; }
+.diario { font-family: var(--mono); font-size: .85rem; white-space: pre-wrap; margin: 0; color: var(--muted); }
+.regra { margin-top: 1rem; padding: .8rem 1rem; border-left: 5px solid var(--yellow); background: var(--panel); font-weight: 700; font-size: 1.1rem; }
+
+/* linha do tempo */
+.tl { list-style: none; margin: 0; padding: 0 0 0 1.2rem; border-left: 3px solid var(--border); display: grid; gap: .55rem; }
+.tl li { position: relative; padding: .35rem .8rem; background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+  opacity: 0; transform: translateX(-12px); animation: surge .45s ease-out forwards; }
+.tl li::before { content: ""; position: absolute; left: -1.62rem; top: .9rem; width: .75rem; height: .75rem; border-radius: 50%; background: var(--tc); }
+.tl li b { font-family: var(--mono); color: var(--tc); margin-right: .5rem; }
+.tl li.forte { border-color: var(--orange); } .tl li.fim { border-color: var(--red); }
+.tl li.aviso { opacity: 0; color: var(--muted); }
+@keyframes surge { to { opacity: 1; transform: none; } }
+.slide:not(.active) .tl li { animation: none; }
+
+/* cronômetro */
+.cron { font-family: var(--mono); font-size: clamp(3rem, 9vw, 7rem); font-weight: 700; line-height: 1; margin: .2rem 0; }
+.fase { font-size: 1.2rem; font-weight: 700; }
+.cron.f1 { color: var(--green); } .cron.f2 { color: var(--orange); } .cron.f3 { color: var(--red); }
+
+/* barema */
+.barras { display: grid; gap: .8rem; }
+.barra .rot { display: flex; justify-content: space-between; margin-bottom: .2rem; }
+.barra .trilho { height: 1.1rem; background: var(--panel2); border-radius: 999px; overflow: hidden; }
+.barra .trilho i { display: block; height: 100%; width: 0; background: var(--yellow); border-radius: 999px; transition: width .9s ease-out; }
+.slide.active .barra .trilho i { width: var(--w); }
+
+/* calculadora */
+.campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+.campos label { display: grid; gap: .2rem; font-size: .85rem; color: var(--muted); }
+.campos input { background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: .4rem .6rem;
+  font: inherit; font-size: 1.05rem; }
+.res { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+.res div { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: .6rem .8rem; }
+.res b { display: block; font-size: 1.7rem; font-family: var(--mono); }
+.res span { font-size: .78rem; color: var(--muted); }
+#veredito { margin-top: .8rem; padding: .7rem 1rem; border-radius: 10px; font-weight: 700; }
+#veredito.ok { background: rgba(63, 185, 80, .15); border: 1px solid var(--green); color: var(--green); }
+#veredito.ruim { background: rgba(255, 123, 114, .15); border: 1px solid var(--red); color: var(--red); }
+.nota { color: var(--muted); font-size: .88rem; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } .tl li { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+<div id="progress"><i></i></div>
+<main id="stage">
+
+<!-- 0: capa -->
+<section class="slide cover" data-idx="0" data-t="missao" aria-labelledby="t0">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">Introdução à Programação · IFRN</p>
+      <h1 class="st" id="t0" tabindex="-1">Projeto Final</h1>
+      <p class="sub">Vocês vão construir um sistema de verdade<span class="blink" aria-hidden="true"></span></p>
+    </div>
+    <div class="term" aria-hidden="true">
+      <div class="term-bar"><i></i><i></i><i></i><span>python main.py</span></div>
+<pre id="capaTerm"></pre>
+    </div>
+  </div>
+</section>
+
+<!-- 1: missão -->
+<section class="slide" data-idx="1" data-t="missao" aria-labelledby="t1">
+  <p class="eyebrow">Missão</p>
+  <h2 class="st" id="t1" tabindex="-1">Resolva um problema real</h2>
+  <p class="sub">“O que ainda não está automatizado no dia a dia?”</p>
+  <div class="cols">
+    <ul class="bullets">
+      <li>Grupos de até 3 pessoas, cada um no próprio computador</li>
+      <li>Um programa em Python que roda de verdade, com menu</li>
+      <li>Guarda os dados em arquivo, para não perder tudo ao fechar</li>
+      <li>Código no GitHub, com commits de todos do grupo</li>
+      <li>Apresentação na sala: explica, mostra o código e executa</li>
+    </ul>
+    <div class="panel"><strong>Temas sugeridos</strong>
+      <p>Agenda telefônica · Locadora · Lanchonete · Controle de estoque · Sistema bancário · Simulador · ou proponha o seu (o professor aprova).</p>
+    </div>
+  </div>
+</section>
+
+<!-- 2: galeria -->
+<section class="slide" data-idx="2" data-t="exemplos" aria-labelledby="t2">
+  <p class="eyebrow">Inspiração (exemplos inventados)</p>
+  <h2 class="st" id="t2" tabindex="-1">Como pode ficar</h2>
+  <div class="cols">
+    <div class="stack">
+      <div class="apps" role="group" aria-label="Escolha um exemplo">
+        <button class="btn on" type="button" data-app="cantina">CantinaBot<small>pedidos, desconto e gorjeta</small></button>
+        <button class="btn ghost" type="button" data-app="locadora">Locadora Retrô<small>alugar e devolver</small></button>
+        <button class="btn ghost" type="button" data-app="estoque">Estoque do Lab<small>matriz produto × bancada</small></button>
+        <button class="btn ghost" type="button" data-app="agenda">Agenda do Grêmio<small>contatos e eventos</small></button>
+      </div>
+      <p class="nota">Clique para ver o menu de cada um. Os nomes são só exemplos: inventem o de vocês.</p>
+    </div>
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i><span id="appNome">cantina.py</span></div>
+<pre id="appTerm" aria-live="polite"></pre>
+    </div>
+  </div>
+</section>
+
+<!-- 3: requisitos -->
+<section class="slide" data-idx="3" data-t="req" aria-labelledby="t3">
+  <p class="eyebrow">Requisitos</p>
+  <h2 class="st" id="t3" tabindex="-1">Checklist do projeto</h2>
+  <div class="cols">
+    <div class="check" id="checklist">
+      <label><input type="checkbox"> CRUD: incluir, consultar, alterar e excluir</label>
+      <label><input type="checkbox"> Gerencia pelo menos 50 itens (na apresentação, 5 bastam)</label>
+      <label><input type="checkbox"> Dados salvos em arquivo (.csv ou .txt)</label>
+      <label><input type="checkbox"> Código organizado em funções e em um módulo seu (<code>lib.py</code>)</label>
+      <label><input type="checkbox"> Condicionais e laços bem usados</label>
+      <label><input type="checkbox"> Repositório no GitHub com commits de todos</label>
+      <label><input type="checkbox"> Diário de IA em dia</label>
+    </div>
+    <div class="panel">
+      <strong id="checkTxt">0 de 7 prontos</strong>
+      <div class="meter" aria-hidden="true"><i id="checkBar"></i></div>
+      <p class="nota">Marcar aqui é só para vocês se organizarem: nada é enviado a lugar nenhum.</p>
+      <p id="checkMsg" class="hidden">🎉 Tudo pronto! Agora é ensaiar a apresentação.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 4: IA -->
+<section class="slide" data-idx="4" data-t="ia" aria-labelledby="t4">
+  <p class="eyebrow">Inteligência artificial</p>
+  <h2 class="st" id="t4" tabindex="-1">IA ajuda a aprender, não escreve o código</h2>
+  <div class="duo">
+    <div class="panel pode"><h3>PODE ✅</h3>
+      <ul>
+        <li>Pedir para explicar uma mensagem de erro</li>
+        <li>Pedir para explicar um conceito (laço, função, CSV)</li>
+        <li>Comparar a sua ideia com outra forma de resolver</li>
+      </ul></div>
+    <div class="panel nao"><h3>NÃO PODE ❌</h3>
+      <ul>
+        <li>Pedir o código pronto ou colar código gerado por IA</li>
+        <li>Gerar o projeto ou funções inteiras</li>
+        <li>Usar IA sem registrar no Diário de IA</li>
+      </ul></div>
+  </div>
+  <div class="cols" style="margin-top:1rem">
+    <div class="panel"><strong>Diário de IA (exemplo de uma linha)</strong>
+<pre class="diario">Pergunta: "o que significa KeyError: 'preco'?"
+Aprendi: o dicionário não tem essa chave;
+corrigi o nome no cadastro e testei de novo.</pre></div>
+    <div class="regra">Se você não consegue explicar na entrevista, não é seu. Código de IA copiado vale zero.</div>
+  </div>
+</section>
+
+<!-- 5: prazos -->
+<section class="slide" data-idx="5" data-t="prazos" aria-labelledby="t5">
+  <p class="eyebrow">Prazos</p>
+  <h2 class="st" id="t5" tabindex="-1">Do primeiro dia às provas finais</h2>
+  <div class="cols">
+    <ol class="tl" id="timeline" style="--tc:var(--orange)">
+      <li style="animation-delay:.05s"><b>Hoje</b> Formar o grupo e escolher o tema</li>
+      <li style="animation-delay:.2s"><b>27/11</b> Planejamento Inicial: ideia, integrantes, funções e divisão de tarefas</li>
+      <li style="animation-delay:.35s"><b>04/12</b> Checkpoint: commits de todos no GitHub</li>
+      <li class="forte" style="animation-delay:.5s"><b>08/12 23:59</b> Entrega: código e slides</li>
+      <li class="forte" style="animation-delay:.65s"><b>09/12, 11/12 e 16/12</b> Apresentações</li>
+      <li style="animation-delay:.8s"><b>18/12</b> Quem faltou apresenta e as notas são fechadas</li>
+      <li class="fim" style="animation-delay:.95s"><b>21 a 23/12</b> Provas finais</li>
+    </ol>
+    <div class="stack">
+      <div class="panel"><strong>Atenção ao calendário</strong>
+        <ul class="bullets">
+          <li>20/11 é feriado (Zumbi): sem aula</li>
+          <li>28/11 é sábado letivo: aula de desenvolvimento, sem apresentação</li>
+          <li>As notas precisam estar lançadas antes das provas finais</li>
+        </ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6: dia da apresentação -->
+<section class="slide" data-idx="6" data-t="apres" aria-labelledby="t6">
+  <p class="eyebrow">Dia da apresentação</p>
+  <h2 class="st" id="t6" tabindex="-1">12 min por grupo, sem enrolar</h2>
+  <div class="cols">
+    <div class="stack">
+      <ul class="bullets">
+        <li><strong>7 min</strong> apresentam: o problema, os trechos principais do código e o programa rodando</li>
+        <li><strong>5 min</strong> de entrevista individual: qualquer integrante explica qualquer parte</li>
+        <li>Tudo testado antes: projetor, arquivo de dados com 5 itens e o repositório aberto</li>
+      </ul>
+    </div>
+    <div class="panel" style="text-align:center">
+      <div class="cron f1" id="cron" role="timer" aria-live="off">12:00</div>
+      <div class="fase" id="fase">Pronto para começar</div>
+      <div class="row" style="justify-content:center;margin-top:.8rem">
+        <button class="btn" type="button" id="cronGo">Iniciar</button>
+        <button class="btn ghost" type="button" id="cronReset">Zerar</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7: barema -->
+<section class="slide" data-idx="7" data-t="barema" aria-labelledby="t7">
+  <p class="eyebrow">Avaliação</p>
+  <h2 class="st" id="t7" tabindex="-1">Como vale a nota (100 pontos)</h2>
+  <div class="cols">
+    <div class="barras">
+      <div class="barra"><div class="rot"><span>Organização do código</span><b>10</b></div><div class="trilho"><i style="--w:10%"></i></div></div>
+      <div class="barra"><div class="rot"><span>Originalidade (sem cópias)</span><b>20</b></div><div class="trilho"><i style="--w:20%"></i></div></div>
+      <div class="barra"><div class="rot"><span>Uso correto dos conceitos</span><b>50</b></div><div class="trilho"><i style="--w:50%"></i></div></div>
+      <div class="barra"><div class="rot"><span>Qualidade da apresentação</span><b>20</b></div><div class="trilho"><i style="--w:20%"></i></div></div>
+    </div>
+    <div class="panel"><strong>Atenção</strong>
+      <ul class="bullets">
+        <li>Plágio ou código de IA copiado: nota zero</li>
+        <li>Todos conhecem todas as partes: a entrevista individual confirma</li>
+        <li>O acompanhamento em sala também conta</li>
+      </ul></div>
+  </div>
+</section>
+
+<!-- 8: calculadora -->
+<section class="slide" data-idx="8" data-t="calc" aria-labelledby="t8">
+  <p class="eyebrow">Planejamento</p>
+  <h2 class="st" id="t8" tabindex="-1">Quanto tempo temos?</h2>
+  <div class="cols">
+    <div class="stack">
+      <div class="row" role="group" aria-label="Turma">
+        <button class="btn on" type="button" data-turma="36">INFO 1M (36 presentes)</button>
+        <button class="btn ghost" type="button" data-turma="37">INFO 1V (37 presentes)</button>
+      </div>
+      <div class="campos">
+        <label>Alunos presentes<input id="cPres" type="number" min="0" value="36"></label>
+        <label>Pessoas por grupo<input id="cGrupo" type="number" min="1" value="3"></label>
+        <label>Blocos de apresentação<input id="cBlocos" type="number" min="1" value="3"></label>
+        <label>Fatia interna por grupo (min)<input id="cFatia" type="number" min="1" value="15"></label>
+      </div>
+      <p class="nota">Cada bloco tem 90 min; 15 min saem para chamada, projetor e atrasos. A fatia interna (15 min) é maior que os 12 min anunciados: sobram 3 min de troca entre grupos.</p>
+    </div>
+    <div>
+      <div class="res" aria-live="polite">
+        <div><b id="rGrupos">–</b><span>grupos</span></div>
+        <div><b id="rUtil">–</b><span>min úteis nos blocos</span></div>
+        <div><b id="rNec">–</b><span>min necessários</span></div>
+        <div><b id="rFolga">–</b><span>min de folga</span></div>
+      </div>
+      <p class="nota" id="rDia" style="margin-top:.6rem"></p>
+      <div id="veredito" class="ok"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 9: fim -->
+<section class="slide" data-idx="9" data-t="fim" aria-labelledby="t9">
+  <p class="eyebrow">Agora é com vocês</p>
+  <h2 class="st" id="t9" tabindex="-1">Primeiros 10 minutos</h2>
+  <ol class="bullets" style="counter-reset:n">
+    <li>Formem o grupo (até 3) e anotem os nomes</li>
+    <li>Escolham o tema e escrevam em uma frase o problema que ele resolve</li>
+    <li>Criem o repositório no GitHub e convidem o grupo</li>
+    <li>Comecem o Diário de IA, mesmo que a primeira linha seja “ainda não usei”</li>
+    <li>Rascunhem 3 funções do programa: nome e responsabilidade</li>
+  </ol>
+</section>
+
+</main>
+<nav id="nav" aria-label="Navegação da aula">
+  <button class="navbtn" id="prev" type="button" aria-label="Slide anterior">◀</button>
+  <button class="navbtn" id="next" type="button" aria-label="Próximo slide">▶</button>
+  <span id="count">1 / 10</span>
+  <span class="sp"></span>
+  <span class="hint">← → navegar · F tela cheia</span>
+</nav>
+
+<script id="calc">
+/* Mesma fórmula de calc.py: os testes conferem que as duas concordam. */
+function calcular(presentes, tamGrupo = 3, blocos = 3, blocoMin = 90, aberturaMin = 15, fatiaMin = 15) {
+  if (presentes < 0 || tamGrupo < 1 || blocos < 1 || fatiaMin < 1 || aberturaMin < 0 || blocoMin <= aberturaMin) {
+    throw new Error("parâmetros inválidos");
+  }
+  const grupos = Math.ceil(presentes / tamGrupo);
+  const util = blocos * (blocoMin - aberturaMin);
+  const necessario = grupos * fatiaMin;
+  const base = Math.floor(grupos / blocos), resto = grupos % blocos;
+  const por_dia = Array.from({ length: blocos }, (_, i) => base + (i < resto ? 1 : 0));
+  const cabe = necessario <= util;
+  const sugestao = cabe ? "" : `Não cabe: reduza a fatia para ${Math.floor(util / grupos)} min ou abra um ${blocos + 1}º bloco.`;
+  return { grupos, util, necessario, folga: util - necessario, cabe, por_dia, sugestao };
+}
+</script>
+<script>
+const TOTAL = 10;
+const slides = Array.from(document.querySelectorAll('.slide'));
+const $ = (s, r = document) => r.querySelector(s);
+let cur = 0;
+
+/* ---------- navegação ---------- */
+function show(i) {
+  cur = Math.max(0, Math.min(TOTAL - 1, i));
+  slides.forEach((s, k) => s.classList.toggle('active', k === cur));
+  $('#count').textContent = (cur + 1) + ' / ' + TOTAL;
+  $('#progress i').style.width = ((cur + 1) / TOTAL * 100) + '%';
+  $('#prev').disabled = cur === 0; $('#next').disabled = cur === TOTAL - 1;
+  const t = slides[cur].querySelector('.st'); if (t) t.focus({ preventScroll: true });
+  $('#stage').scrollTop = 0;
+  try { history.replaceState(null, '', '#' + (cur + 1)); } catch (e) { /* arquivo local sem histórico */ }
+}
+$('#prev').onclick = () => show(cur - 1);
+$('#next').onclick = () => show(cur + 1);
+document.addEventListener('keydown', e => {
+  if (/INPUT|TEXTAREA/.test(e.target.tagName)) return;
+  if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); show(cur + 1); }
+  else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(cur - 1); }
+  else if (e.key.toLowerCase() === 'f') { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); }
+});
+
+/* ---------- capa: digita um menu ---------- */
+(function () {
+  const linhas = ['📋 Meu Sistema', '1. Cadastrar', '2. Consultar', '3. Alterar', '4. Excluir', '5. Sair', '', 'Escolha: _'];
+  const el = $('#capaTerm'); let i = 0, j = 0, txt = '';
+  const reduz = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduz) { el.textContent = linhas.join('\n'); return; }
+  (function passo() {
+    if (i >= linhas.length) return;
+    txt += linhas[i][j++] || ''; el.textContent = txt;
+    if (j >= linhas[i].length) { i++; j = 0; txt += '\n'; setTimeout(passo, 250); } else setTimeout(passo, 35);
+  })();
+})();
+
+/* ---------- galeria ---------- */
+const APPS = {
+  cantina: ['cantina.py', '🍔 CantinaBot\n1. Novo pedido\n2. Cardápio\n3. Alterar preço\n4. Remover item\n5. Fechar conta\n\nPedido #12: 2 x Coxinha (R$ 8,00)\nDesconto aluno 10%: -R$ 0,80\nGorjeta sugerida: R$ 0,72'],
+  locadora: ['locadora.py', '🎞  Locadora Retrô\n1. Cadastrar filme\n2. Buscar filme\n3. Alugar\n4. Devolver\n5. Excluir\n\nBusca: "Matrix"\n✔ Matrix (1999): DISPONÍVEL\nAlugar? (s/n) _'],
+  estoque: ['estoque.py', '🧪 Estoque do Lab\n          Bancada0 Bancada1 Bancada2\nResistor        10       20       30\nLED              5       15       25\nCabo             0       50       60\n\n1. Editar quantidade   2. Novo produto'],
+  agenda: ['agenda.py', '📒 Agenda do Grêmio\n1. Novo contato\n2. Buscar por nome\n3. Alterar telefone\n4. Excluir\n\nBusca: "Ana"\nAna Souza · (84) 9xxxx-0000\nSalvo em contatos.csv'],
+};
+function mostraApp(k) {
+  $('#appNome').textContent = APPS[k][0]; $('#appTerm').textContent = APPS[k][1];
+  document.querySelectorAll('[data-app]').forEach(b => { const on = b.dataset.app === k; b.classList.toggle('on', on); b.classList.toggle('ghost', !on); });
+}
+document.querySelectorAll('[data-app]').forEach(b => b.onclick = () => mostraApp(b.dataset.app));
+mostraApp('cantina');
+
+/* ---------- checklist ---------- */
+const caixas = Array.from(document.querySelectorAll('#checklist input'));
+function atualizaCheck() {
+  const n = caixas.filter(c => c.checked).length;
+  $('#checkTxt').textContent = n + ' de ' + caixas.length + ' prontos';
+  $('#checkBar').style.width = (n / caixas.length * 100) + '%';
+  $('#checkMsg').classList.toggle('hidden', n !== caixas.length);
+}
+caixas.forEach(c => c.onchange = atualizaCheck);
+
+/* ---------- cronômetro: 12 min = 7 apresentam + 5 entrevista ---------- */
+let seg = 720, timer = null;
+function pinta() {
+  const m = String(Math.floor(seg / 60)).padStart(2, '0'), s = String(seg % 60).padStart(2, '0');
+  $('#cron').textContent = m + ':' + s;
+  const dec = 720 - seg, c = $('#cron');
+  c.className = 'cron ' + (dec < 420 ? 'f1' : (seg > 0 ? 'f2' : 'f3'));
+  $('#fase').textContent = !timer && seg === 720 ? 'Pronto para começar' : seg === 0 ? 'Tempo esgotado' : dec < 420 ? 'Apresentação e demonstração' : 'Entrevista individual';
+}
+$('#cronGo').onclick = () => {
+  if (timer) { clearInterval(timer); timer = null; $('#cronGo').textContent = 'Continuar'; return; }
+  if (seg === 0) seg = 720;
+  $('#cronGo').textContent = 'Pausar';
+  timer = setInterval(() => { seg = Math.max(0, seg - 1); pinta(); if (seg === 0) { clearInterval(timer); timer = null; $('#cronGo').textContent = 'Iniciar'; } }, 1000);
+  pinta();
+};
+$('#cronReset').onclick = () => { clearInterval(timer); timer = null; seg = 720; $('#cronGo').textContent = 'Iniciar'; pinta(); };
+pinta();
+
+/* ---------- calculadora ---------- */
+const num = id => parseInt($(id).value, 10);
+function recalcula() {
+  const p = num('#cPres'), g = num('#cGrupo'), b = num('#cBlocos'), f = num('#cFatia');
+  const v = $('#veredito');
+  let r;
+  try { if ([p, g, b, f].some(Number.isNaN)) throw new Error('vazio'); r = calcular(p, g, b, 90, 15, f); }
+  catch (e) { ['#rGrupos', '#rUtil', '#rNec', '#rFolga'].forEach(i => $(i).textContent = '–'); $('#rDia').textContent = ''; v.className = 'ruim'; v.textContent = 'Preencha números válidos.'; return; }
+  $('#rGrupos').textContent = r.grupos; $('#rUtil').textContent = r.util; $('#rNec').textContent = r.necessario; $('#rFolga').textContent = r.folga;
+  $('#rDia').textContent = 'Grupos por dia de apresentação: ' + r.por_dia.join(' / ');
+  v.className = r.cabe ? 'ok' : 'ruim';
+  v.textContent = r.cabe ? 'Cabe nos ' + b + ' blocos, com ' + r.folga + ' min de folga.' : r.sugestao;
+}
+['#cPres', '#cGrupo', '#cBlocos', '#cFatia'].forEach(i => $(i).addEventListener('input', recalcula));
+document.querySelectorAll('[data-turma]').forEach(bt => bt.onclick = () => {
+  $('#cPres').value = bt.dataset.turma;
+  document.querySelectorAll('[data-turma]').forEach(x => { x.classList.toggle('on', x === bt); x.classList.toggle('ghost', x !== bt); });
+  recalcula();
+});
+recalcula();
+
+show(parseInt(location.hash.slice(1), 10) - 1 || 0);
+</script>
+</body>
+</html>
