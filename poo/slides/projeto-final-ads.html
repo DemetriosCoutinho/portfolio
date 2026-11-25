@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projeto Final — Programação Orientada a Objetos (ADS 2026.2)</title>
+<meta name="description" content="Lançamento do Projeto Final de POO: regras, vá além com ferramentas novas, IA, cronograma até 18/12, Etapa 2 e barema. IFRN, Tecnologia em Análise e Desenvolvimento de Sistemas.">
+<style>
+:root {
+  --bg: #0d1117; --panel: #161b22; --panel2: #1c2330; --border: #30363d;
+  --text: #e6edf3; --muted: #9da7b3; --green: #3fb950; --blue: #58a6ff;
+  --orange: #f0883e; --purple: #bc8cff; --red: #ff7b72; --yellow: #e3b341; --cyan: #4fc1ff;
+  --btn: #238636; --btn-hover: #2ea043;
+  --mono: ui-monospace, "Cascadia Code", "Cascadia Mono", Consolas, Menlo, "DejaVu Sans Mono", monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html { font-size: clamp(15px, 0.9vw + 8px, 24px); }
+/* projetor de baixa resolução: telas baixas encolhem a fonte base para o slide caber sem rolagem */
+@media (max-height: 800px) { html { font-size: clamp(12px, 1.8vh + 3px, 18px); } }
+body { margin: 0; height: 100vh; background: var(--bg); color: var(--text); font-family: var(--sans);
+  line-height: 1.45; display: flex; flex-direction: column; overflow: hidden; }
+code, pre, kbd { font-family: var(--mono); }
+code { background: var(--panel2); border: 1px solid var(--border); border-radius: 6px; padding: .05em .4em;
+  font-size: .92em; color: #ffd8a8; }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+
+#progress { height: 5px; background: var(--panel); flex: none; }
+#progress > i { display: block; height: 100%; width: 0; background: var(--green); transition: width .25s; }
+#stage { flex: 1; min-height: 0; overflow: auto; }
+#nav { flex: none; display: flex; align-items: center; gap: .75rem; padding: .5rem 1rem; background: var(--panel);
+  border-top: 1px solid var(--border); font-size: .8rem; color: var(--muted); }
+#nav .sp { flex: 1; }
+.navbtn { background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 6px;
+  padding: .3rem .8rem; cursor: pointer; font: inherit; }
+.navbtn:hover { border-color: var(--blue); }
+.navbtn:disabled { opacity: .4; cursor: default; }
+
+.slide { display: none; min-height: 100%; padding: clamp(1rem, 2.5vw, 2.4rem) clamp(1rem, 4vw, 3.5rem) 1.5rem; --tc: var(--green); }
+.slide.active { display: block; animation: entra .35s ease-out; }
+@keyframes entra { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.slide[data-t="missao"] { --tc: var(--blue); } .slide[data-t="exemplos"] { --tc: var(--purple); }
+.slide[data-t="req"] { --tc: var(--green); } .slide[data-t="alem"] { --tc: var(--purple); }
+.slide[data-t="ia"] { --tc: var(--cyan); } .slide[data-t="entrega"] { --tc: var(--blue); }
+.slide[data-t="prazos"] { --tc: var(--orange); } .slide[data-t="etapa"] { --tc: var(--yellow); }
+.slide[data-t="barema"] { --tc: var(--yellow); } .slide[data-t="apres"] { --tc: var(--red); }
+.slide[data-t="calc"] { --tc: var(--cyan); } .slide[data-t="fim"] { --tc: var(--green); }
+.eyebrow { margin: 0 0 .3rem; font-family: var(--mono); font-size: .8rem; color: var(--tc); letter-spacing: .04em; text-transform: uppercase; }
+.st { margin: 0 0 .5rem; font-size: clamp(1.5rem, 2.9vw, 2.8rem); line-height: 1.12; }
+.st:focus { outline: none; }
+.st::before { content: "$ "; color: var(--tc); font-family: var(--mono); }
+.sub { margin: 0 0 1rem; color: var(--muted); font-size: 1.1rem; }
+.cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: clamp(1rem, 3vw, 2.5rem); align-items: start; }
+.cols.eq { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.cover .cols { min-height: 70vh; align-items: center; }
+.cover .st { font-size: clamp(2.4rem, 6vw, 5.2rem); }
+.stack { display: grid; gap: 1rem; }
+@media (max-width: 900px) { .cols, .cols.eq { grid-template-columns: 1fr; } code { overflow-wrap: anywhere; } }
+@media (max-width: 700px) { #nav .hint { display: none; } }
+.bullets { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; font-size: 1.05rem; }
+.bullets li { padding-left: 1.4rem; position: relative; }
+.bullets li::before { content: "›"; position: absolute; left: 0; color: var(--tc); font-weight: 700; }
+.bullets.tight { gap: .35rem; font-size: .95rem; }
+.panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: .9rem 1rem; }
+.term { background: #010409; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.term-bar { display: flex; gap: .4rem; padding: .45rem .7rem; background: var(--panel); border-bottom: 1px solid var(--border); align-items: center; }
+.term-bar i { width: .7rem; height: .7rem; border-radius: 50%; background: #ff5f56; }
+.term-bar i:nth-child(2) { background: #ffbd2e; } .term-bar i:nth-child(3) { background: #27c93f; }
+.term-bar span { margin-left: .5rem; font-size: .75rem; color: var(--muted); font-family: var(--mono); }
+.term pre { margin: 0; padding: .8rem 1rem; font-size: .85rem; line-height: 1.5; white-space: pre-wrap; min-height: 11rem; }
+.btn { background: var(--btn); color: #fff; border: 1px solid rgba(240, 246, 252, .1); border-radius: 8px; padding: .5rem 1rem;
+  font: inherit; font-weight: 600; cursor: pointer; }
+.btn:hover { background: var(--btn-hover); }
+.btn.ghost { background: var(--panel2); color: var(--text); border-color: var(--border); }
+.btn.on { border-color: var(--tc); color: var(--tc); }
+.row { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+.hidden { display: none !important; }
+
+/* capa: cursor piscando */
+.blink { display: inline-block; width: .6em; height: 1.1em; background: var(--green); vertical-align: -.15em; animation: pisca 1s steps(1) infinite; }
+@keyframes pisca { 50% { opacity: 0; } }
+
+/* galeria */
+.apps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+.apps .btn { text-align: left; }
+.apps small { display: block; font-weight: 400; color: var(--muted); }
+
+/* checklist */
+.check { display: grid; gap: .4rem; }
+.check label { display: flex; gap: .7rem; align-items: center; background: var(--panel); border: 1px solid var(--border);
+  border-radius: 10px; padding: .45rem .9rem; cursor: pointer; font-size: 1rem; }
+.check input { width: 1.2rem; height: 1.2rem; accent-color: var(--green); flex: none; }
+.check label:has(input:checked) { border-color: var(--green); background: rgba(63, 185, 80, .12); }
+.meter { height: .7rem; background: var(--panel2); border-radius: 999px; overflow: hidden; margin: .8rem 0 .3rem; }
+.meter > i { display: block; height: 100%; width: 0; background: var(--green); transition: width .3s; }
+
+/* vá além */
+.cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+.card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: .5rem .75rem; font-size: .92rem; }
+.card b { color: var(--purple); font-family: var(--mono); }
+.card span { display: block; color: var(--muted); font-size: .82rem; }
+.regra-ouro { padding: .7rem 1rem; border-left: 5px solid var(--purple); background: var(--panel); font-weight: 700; font-size: 1.05rem; }
+.camadas { display: grid; gap: 0; justify-items: center; font-family: var(--mono); font-size: .85rem; }
+.camada { width: 100%; text-align: center; border: 2px solid var(--border); border-radius: 10px; padding: .55rem .8rem; background: var(--panel); }
+.camada.top { border-color: var(--purple); color: var(--purple); }
+.camada.base { border-color: var(--green); color: var(--green); }
+.seta { color: var(--muted); font-size: 1.3rem; line-height: 1.1; }
+.par { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+@media (max-width: 700px) { .par { grid-template-columns: 1fr; } }
+.par .panel { padding: .5rem .7rem; }
+.par h3 { margin: 0 0 .2rem; font-size: .9rem; }
+.par .ruim { border-color: var(--red); } .par .ruim h3 { color: var(--red); }
+.par .bom { border-color: var(--green); } .par .bom h3 { color: var(--green); }
+.par pre { margin: 0; font-size: .74rem; line-height: 1.4; white-space: pre-wrap; color: var(--text); }
+.tag-bonus { display: inline-block; background: rgba(227, 179, 65, .15); border: 1px solid var(--yellow); color: var(--yellow);
+  border-radius: 999px; padding: .1rem .7rem; font-weight: 700; font-size: .9rem; }
+
+/* IA */
+.duo { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 700px) { .duo { grid-template-columns: 1fr; } }
+.pode { border-color: var(--green); } .nao { border-color: var(--red); }
+.pode h3 { color: var(--green); } .nao h3 { color: var(--red); }
+.duo h3 { margin: 0 0 .5rem; }
+.duo ul { margin: 0; padding-left: 1.2rem; display: grid; gap: .4rem; }
+.diario { font-family: var(--mono); font-size: .85rem; white-space: pre-wrap; margin: 0; color: var(--muted); }
+.regra { margin-top: 1rem; padding: .8rem 1rem; border-left: 5px solid var(--yellow); background: var(--panel); font-weight: 700; font-size: 1.1rem; }
+
+/* linha do tempo */
+.tl { list-style: none; margin: 0; padding: 0 0 0 1.2rem; border-left: 3px solid var(--border); display: grid; gap: .4rem; }
+.tl li { position: relative; padding: .28rem .8rem; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; font-size: .95rem;
+  opacity: 0; transform: translateX(-12px); animation: surge .45s ease-out forwards; }
+.tl li::before { content: ""; position: absolute; left: -1.62rem; top: .75rem; width: .75rem; height: .75rem; border-radius: 50%; background: var(--tc); }
+.tl li b { font-family: var(--mono); color: var(--tc); margin-right: .5rem; }
+.tl li.forte { border-color: var(--orange); } .tl li.fim { border-color: var(--red); } .tl li.folga { border-color: var(--green); }
+.tl li.folga::before { background: var(--green); }
+@keyframes surge { to { opacity: 1; transform: none; } }
+.slide:not(.active) .tl li { animation: none; }
+
+/* cronômetro */
+.cron { font-family: var(--mono); font-size: clamp(3rem, 9vw, 7rem); font-weight: 700; line-height: 1; margin: .2rem 0; }
+.fase { font-size: 1.2rem; font-weight: 700; }
+.cron.f1 { color: var(--green); } .cron.f2 { color: var(--orange); } .cron.f3 { color: var(--red); }
+
+/* barras (Etapa 2 e barema) */
+.barras { display: grid; gap: .8rem; }
+.barra .rot { display: flex; justify-content: space-between; margin-bottom: .2rem; gap: 1rem; }
+.barra .trilho { height: 1.1rem; background: var(--panel2); border-radius: 999px; overflow: hidden; }
+.barra .trilho i { display: block; height: 100%; width: 0; background: var(--yellow); border-radius: 999px; transition: width .9s ease-out; }
+.barra.bonus .trilho i { background: var(--purple); }
+.slide.active .barra .trilho i { width: var(--w); }
+
+/* calculadora */
+.campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+.campos label { display: grid; gap: .2rem; font-size: .85rem; color: var(--muted); }
+.campos input { background: var(--panel2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: .4rem .6rem;
+  font: inherit; font-size: 1.05rem; }
+.res { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+.res div { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: .6rem .8rem; }
+.res b { display: block; font-size: 1.7rem; font-family: var(--mono); }
+.res span { font-size: .78rem; color: var(--muted); }
+#veredito { margin-top: .8rem; padding: .7rem 1rem; border-radius: 10px; font-weight: 700; }
+#veredito.ok { background: rgba(63, 185, 80, .15); border: 1px solid var(--green); color: var(--green); }
+#veredito.ruim { background: rgba(255, 123, 114, .15); border: 1px solid var(--red); color: var(--red); }
+.nota { color: var(--muted); font-size: .88rem; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } .tl li { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+<div id="progress"><i></i></div>
+<main id="stage">
+
+<!-- 0: capa -->
+<section class="slide cover" data-idx="0" data-t="missao" aria-labelledby="t0">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">Programação Orientada a Objetos · ADS 2º período · 2026.2</p>
+      <h1 class="st" id="t0" tabindex="-1">Projeto Final</h1>
+      <p class="sub">Vocês já sabem POO. Agora é hora de construir algo seu<span class="blink" aria-hidden="true"></span></p>
+      <p class="nota">Prof. Demetrios Coutinho · IFRN-PF</p>
+    </div>
+    <div class="term" aria-hidden="true">
+      <div class="term-bar"><i></i><i></i><i></i><span>projeto_final.py</span></div>
+<pre id="capaTerm"></pre>
+    </div>
+  </div>
+</section>
+
+<!-- 1: missão -->
+<section class="slide" data-idx="1" data-t="missao" aria-labelledby="t1">
+  <p class="eyebrow">Missão</p>
+  <h2 class="st" id="t1" tabindex="-1">Construa um sistema orientado a objetos que resolva um problema real</h2>
+  <p class="sub">“O que do dia a dia ainda não está automatizado?”</p>
+  <div class="cols">
+    <ul class="bullets">
+      <li>Grupos de 3 a 4 pessoas, cada um no próprio computador</li>
+      <li>Todos os conceitos de POO vistos na disciplina: classes, encapsulamento, herança, abstração, polimorfismo e UML</li>
+      <li>Nota individual: quem apresenta explica qualquer parte do código</li>
+      <li>Código no GitHub, com commits de todos do grupo</li>
+      <li>Apresentação na sala: explica, mostra o código e executa</li>
+    </ul>
+    <div class="panel"><strong>Temas sugeridos</strong>
+      <p>Jogos simples · Biblioteca · Clínica · Estacionamento · Estoque de farmácia ou mercado · Banco · Companhia aérea · Simuladores · ou proponha o seu (o professor aprova).</p>
+    </div>
+  </div>
+</section>
+
+<!-- 2: galeria -->
+<section class="slide" data-idx="2" data-t="exemplos" aria-labelledby="t2">
+  <p class="eyebrow">Inspiração (exemplos inventados)</p>
+  <h2 class="st" id="t2" tabindex="-1">Quatro ideias para começar</h2>
+  <div class="cols">
+    <div class="stack">
+      <div class="apps" role="group" aria-label="Escolha um exemplo">
+        <button class="btn on" type="button" data-app="guerra">Guerra de Cartas<small>RPG por turnos · Pygame</small></button>
+        <button class="btn ghost" type="button" data-app="biblioteca">Biblioteca<small>empréstimos e acervo · Flask</small></button>
+        <button class="btn ghost" type="button" data-app="clinica">Clínica Veterinária<small>consultas e tutores · Tkinter</small></button>
+        <button class="btn ghost" type="button" data-app="estacionamento">Estacionamento<small>vagas e tarifa · Rich</small></button>
+      </div>
+      <p class="nota">Clique para ver as classes de cada um. Os nomes são só exemplos: inventem o de vocês.</p>
+    </div>
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i><span id="appNome">guerra_de_cartas/</span></div>
+<pre id="appTerm" aria-live="polite"></pre>
+    </div>
+  </div>
+</section>
+
+<!-- 3: requisitos -->
+<section class="slide" data-idx="3" data-t="req" aria-labelledby="t3">
+  <p class="eyebrow">Requisitos</p>
+  <h2 class="st" id="t3" tabindex="-1">O que não pode faltar</h2>
+  <div class="cols">
+    <div class="check" id="checklist">
+      <label><input type="checkbox"> Pelo menos 5 classes de domínio</label>
+      <label><input type="checkbox"> Encapsulamento: atributos privados e <code>@property</code></label>
+      <label><input type="checkbox"> Herança</label>
+      <label><input type="checkbox"> Classe abstrata (<code>ABC</code>) ou interface/mixin</label>
+      <label><input type="checkbox"> Polimorfismo</label>
+      <label><input type="checkbox"> Associação ou composição visível no UML</label>
+      <label><input type="checkbox"> Menu ou interface que funciona</label>
+      <label><input type="checkbox"> Docstring em todos os métodos</label>
+      <label><input type="checkbox"> UML igual ao código</label>
+      <label><input type="checkbox"> Repositório no GitHub com commits de todos</label>
+      <label><input type="checkbox"> Diário de IA em dia</label>
+    </div>
+    <div class="panel">
+      <strong id="checkTxt">0 de 11 prontos</strong>
+      <div class="meter" aria-hidden="true"><i id="checkBar"></i></div>
+      <p class="nota">Marcar aqui é só para vocês se organizarem: nada é enviado a lugar nenhum.</p>
+      <p class="nota">Sugestões, não exigências: guardar dados em arquivo (JSON ou CSV) e criar exceções próprias.</p>
+      <p id="checkMsg" class="hidden">🎉 Tudo pronto! Agora é ensaiar a apresentação.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 4: vá além -->
+<section class="slide" data-idx="4" data-t="alem" aria-labelledby="t4">
+  <p class="eyebrow">Vá além · opcional</p>
+  <h2 class="st" id="t4" tabindex="-1">Vocês já sabem POO. Agora aprendam uma ferramenta nova em cima dela.</h2>
+  <div class="cols eq">
+    <div class="stack">
+      <div class="cards">
+        <div class="card"><b>Pygame</b><span>jogos: laço, eventos e sprites</span></div>
+        <div class="card"><b>Flask</b><span>web: rotas e páginas</span></div>
+        <div class="card"><b>Tkinter</b><span>desktop: janelas e botões</span></div>
+        <div class="card"><b>Rich / Textual</b><span>terminal bonito e interativo</span></div>
+        <div class="card"><b>SQLite</b><span><code>sqlite3</code>: dados de verdade</span></div>
+        <div class="card"><b>Outra?</b><span>proponha na entrega de 28/11</span></div>
+      </div>
+      <div class="regra-ouro">A ferramenta é a casca, o núcleo é seu.</div>
+      <ul class="bullets tight">
+        <li>Opcional: um menu no terminal tira nota máxima de POO</li>
+        <li>Classes de domínio ficam num pacote próprio (<code>dominio/</code>), sem <code>import pygame</code>, <code>flask</code> ou <code>tkinter</code></li>
+        <li>O framework só cria e chama os seus objetos; o UML descreve o domínio</li>
+        <li>No Checkpoint 2, o domínio roda sozinho (<code>python -m dominio.demo</code>)</li>
+        <li>Herdar de classe do framework é bem-vindo, mas não conta como herança ou abstração do grupo</li>
+      </ul>
+    </div>
+    <div class="stack">
+      <div class="camadas" aria-label="Duas camadas: framework em cima, domínio embaixo">
+        <div class="camada top">Framework (Pygame, Flask, Tkinter…)</div>
+        <div class="seta" aria-hidden="true">▼ só chama</div>
+        <div class="camada base">dominio/ · Personagem, Batalha, Livro, Emprestimo…</div>
+      </div>
+      <div class="par">
+        <div class="panel ruim"><h3>Ruim ❌</h3>
+<pre>while rodando:
+  for ev in pygame.event.get():
+    ...
+  # lógica do combate aqui dentro
+  if hp_a &gt; 0 and hp_b &gt; 0:
+    hp_b -= ataque_a - defesa_b</pre></div>
+        <div class="panel bom"><h3>Bom ✅</h3>
+<pre># dominio/batalha.py
+class Batalha:
+  def turno(self): ...
+
+# jogo.py (só a casca)
+while rodando:
+  batalha.turno()
+  desenha(batalha)</pre></div>
+      </div>
+      <p><span class="tag-bonus">Bônus de até +10 (teto 100)</span> <span class="nota">para ferramenta bem integrada, só com o checklist de POO completo.</span></p>
+      <p class="nota"><strong>Plano B:</strong> se a camada do framework não estiver rodando no Checkpoint 2, volta-se ao menu de terminal sobre as mesmas classes. Nada da nota de POO se perde.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5: IA -->
+<section class="slide" data-idx="5" data-t="ia" aria-labelledby="t5">
+  <p class="eyebrow">Inteligência artificial</p>
+  <h2 class="st" id="t5" tabindex="-1">IA ajuda a aprender, não escreve o código</h2>
+  <div class="duo">
+    <div class="panel pode"><h3>PODE ✅</h3>
+      <ul>
+        <li>Pedir para explicar uma mensagem de erro</li>
+        <li>Pedir para explicar um conceito (herança, mixin, <code>@property</code>)</li>
+        <li>Comparar a sua ideia com outra forma de modelar</li>
+      </ul></div>
+    <div class="panel nao"><h3>NÃO PODE ❌</h3>
+      <ul>
+        <li>Pedir o código pronto ou colar código gerado por IA</li>
+        <li>Gerar o projeto, classes ou métodos inteiros</li>
+        <li>Usar IA sem registrar no Diário de IA</li>
+      </ul></div>
+  </div>
+  <div class="cols" style="margin-top:1rem">
+    <div class="panel"><strong>Diário de IA (exemplo de registro)</strong>
+<pre class="diario">Pergunta: "por que o super().__init__() falha na herança múltipla?"
+Aprendi: a ordem de resolução (MRO) decide quem é chamado;
+ajustei o __init__ das classes e testei de novo.</pre></div>
+    <div class="regra">Se você não consegue explicar na arguição, não é seu. Código de IA copiado vale zero.</div>
+  </div>
+</section>
+
+<!-- 6: entregáveis -->
+<section class="slide" data-idx="6" data-t="entrega" aria-labelledby="t6">
+  <p class="eyebrow">Entregáveis</p>
+  <h2 class="st" id="t6" tabindex="-1">O que vocês entregam</h2>
+  <div class="cols">
+    <ul class="bullets">
+      <li><strong>Documento</strong>: tema, objetivo, descrição, funcionalidades e, se houver, a ferramenta “além”</li>
+      <li><strong>Diagrama de classes (UML)</strong>, atualizado no fim para bater com o código</li>
+      <li><strong>Repositório no GitHub</strong> com commits de todos</li>
+      <li><strong>Slides</strong> da apresentação</li>
+      <li><strong>Diário de IA</strong> em dia</li>
+    </ul>
+    <div class="stack">
+      <div class="panel"><strong>Projeto Final Extra</strong>
+        <p class="nota">Quem não alcançou tudo na apresentação completa o código que faltou e grava um vídeo curto explicando o que implementou e quais conceitos de POO entraram. Fica disponível antes das provas finais.</p></div>
+      <div class="panel"><strong>Dois pontos de entrega</strong>
+        <ul class="bullets tight">
+          <li><b>28/11, 23:59</b> documento e diagrama de classes</li>
+          <li><b>09/12, 23:59</b> código, slides, documento e UML atualizados</li>
+        </ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- 7: cronograma -->
+<section class="slide" data-idx="7" data-t="prazos" aria-labelledby="t7">
+  <p class="eyebrow">Cronograma</p>
+  <h2 class="st" id="t7" tabindex="-1">Nove encontros até o fim, com folga em 18/12</h2>
+  <div class="cols">
+    <ol class="tl" id="timeline" style="--tc:var(--orange)">
+      <li style="animation-delay:.05s"><b>26/11</b> Lançamento: grupo, tema, repositório e Diário de IA</li>
+      <li style="animation-delay:.15s"><b>27/11</b> Oficina: proposta e rascunho do UML</li>
+      <li class="forte" style="animation-delay:.25s"><b>28/11 23:59</b> Entrega: documento e diagrama de classes</li>
+      <li style="animation-delay:.35s"><b>03/12</b> Checkpoint 1: classes do UML no repositório, commits de todos</li>
+      <li style="animation-delay:.45s"><b>04/12</b> Prova teórica da Etapa 2 + Checkpoint 2</li>
+      <li class="forte" style="animation-delay:.55s"><b>09/12 23:59</b> Entrega final: código, slides, documento e UML</li>
+      <li class="forte" style="animation-delay:.65s"><b>10/12, 11/12 e 17/12</b> Apresentações</li>
+      <li class="folga" style="animation-delay:.75s"><b>18/12</b> Folga: reposição para quem faltou e fechamento das notas</li>
+      <li class="fim" style="animation-delay:.85s"><b>21 a 23/12</b> Provas finais</li>
+    </ol>
+    <div class="stack">
+      <div class="panel"><strong>Atenção ao calendário</strong>
+        <ul class="bullets">
+          <li>28/11 é sábado letivo, com horário de sexta: conta como encontro</li>
+          <li>09/12 é quarta: sem aula, a entrega é online</li>
+          <li>Aulas às quintas e sextas, 13:00 às 14:30</li>
+          <li>As notas precisam estar lançadas antes das provas finais</li>
+        </ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8: Etapa 2 -->
+<section class="slide" data-idx="8" data-t="etapa" aria-labelledby="t8">
+  <p class="eyebrow">Etapa 2</p>
+  <h2 class="st" id="t8" tabindex="-1">Como fica a nota da Etapa 2</h2>
+  <div class="cols">
+    <div class="barras">
+      <div class="barra"><div class="rot"><span>Projeto final</span><b>60</b></div><div class="trilho"><i style="--w:60%"></i></div></div>
+      <div class="barra"><div class="rot"><span>Prova teórica (só de marcar, 04/12)</span><b>30</b></div><div class="trilho"><i style="--w:30%"></i></div></div>
+      <div class="barra"><div class="rot"><span>Atividades</span><b>10</b></div><div class="trilho"><i style="--w:10%"></i></div></div>
+    </div>
+    <div class="panel"><strong>O projeto é a maior parte da Etapa</strong>
+      <ul class="bullets">
+        <li>A nota do projeto é individual</li>
+        <li>A prova teórica é de marcar, como na Etapa 1</li>
+        <li>Conteúdo da prova: herança, classes abstratas, interfaces, mixins e UML</li>
+      </ul></div>
+  </div>
+</section>
+
+<!-- 9: barema -->
+<section class="slide" data-idx="9" data-t="barema" aria-labelledby="t9">
+  <p class="eyebrow">Avaliação do projeto</p>
+  <h2 class="st" id="t9" tabindex="-1">Como vale a nota (100 pontos + bônus)</h2>
+  <div class="cols">
+    <div class="barras">
+      <div class="barra"><div class="rot"><span>Proposta e diagrama de classes</span><b>10</b></div><div class="trilho"><i style="--w:10%"></i></div></div>
+      <div class="barra"><div class="rot"><span>Checkpoints em sala (CP1 10, CP2 10)</span><b>20</b></div><div class="trilho"><i style="--w:20%"></i></div></div>
+      <div class="barra"><div class="rot"><span>Uso correto dos conceitos de POO</span><b>40</b></div><div class="trilho"><i style="--w:40%"></i></div></div>
+      <div class="barra"><div class="rot"><span>Qualidade (docstrings, módulos, README, Git, UML igual ao código)</span><b>10</b></div><div class="trilho"><i style="--w:10%"></i></div></div>
+      <div class="barra"><div class="rot"><span>Apresentação e arguição individual</span><b>20</b></div><div class="trilho"><i style="--w:20%"></i></div></div>
+      <div class="barra bonus"><div class="rot"><span>Bônus: ferramenta nova bem integrada (teto 100)</span><b>+10</b></div><div class="trilho"><i style="--w:10%"></i></div></div>
+    </div>
+    <div class="panel"><strong>Atenção</strong>
+      <ul class="bullets">
+        <li>Plágio ou código de IA copiado: nota zero</li>
+        <li>Todos conhecem todas as partes: a arguição individual confirma</li>
+        <li>O bônus só vale com o checklist de POO completo</li>
+        <li>O acompanhamento em sala também conta</li>
+      </ul></div>
+  </div>
+</section>
+
+<!-- 10: dia da apresentação -->
+<section class="slide" data-idx="10" data-t="apres" aria-labelledby="t10">
+  <p class="eyebrow">Dia da apresentação</p>
+  <h2 class="st" id="t10" tabindex="-1">15 min por grupo, em 3 dias</h2>
+  <div class="cols">
+    <div class="stack">
+      <ul class="bullets">
+        <li><strong>8 min</strong> apresentam: o problema, o UML, os trechos principais do código e o sistema rodando</li>
+        <li><strong>7 min</strong> de arguição individual: qualquer integrante explica qualquer parte</li>
+        <li>Ordem por sorteio; todos os membros presentes</li>
+        <li>Dias: 10/12, 11/12 e 17/12. O dia 18/12 é de folga, para quem faltar</li>
+        <li>Tudo testado antes: projetor, repositório aberto e o sistema funcionando</li>
+      </ul>
+    </div>
+    <div class="panel" style="text-align:center">
+      <div class="cron f1" id="cron" role="timer" aria-live="off">15:00</div>
+      <div class="fase" id="fase">Pronto para começar</div>
+      <div class="row" style="justify-content:center;margin-top:.8rem">
+        <button class="btn" type="button" id="cronGo">Iniciar</button>
+        <button class="btn ghost" type="button" id="cronReset">Zerar</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 11: calculadora -->
+<section class="slide" data-idx="11" data-t="calc" aria-labelledby="t11">
+  <p class="eyebrow">Planejamento</p>
+  <h2 class="st" id="t11" tabindex="-1">Cabe todo mundo?</h2>
+  <div class="cols">
+    <div class="stack">
+      <div class="row" role="group" aria-label="Tamanho do grupo">
+        <button class="btn on" type="button" data-tam="4">Grupos de 4</button>
+        <button class="btn ghost" type="button" data-tam="3">Grupos de 3</button>
+      </div>
+      <div class="campos">
+        <label>Alunos presentes<input id="cPres" type="number" min="0" value="22"></label>
+        <label>Pessoas por grupo<input id="cGrupo" type="number" min="1" value="4"></label>
+        <label>Blocos de apresentação<input id="cBlocos" type="number" min="1" value="3"></label>
+        <label>Fatia interna por grupo (min)<input id="cFatia" type="number" min="1" value="15"></label>
+      </div>
+      <p class="nota">Cada bloco tem 90 min; 15 min saem para chamada, projetor e atrasos. Os 3 blocos são 10/12, 11/12 e 17/12; o dia 18/12 fica de folga e não entra na conta.</p>
+    </div>
+    <div>
+      <div class="res" aria-live="polite">
+        <div><b id="rGrupos">–</b><span>grupos</span></div>
+        <div><b id="rUtil">–</b><span>min úteis nos blocos</span></div>
+        <div><b id="rNec">–</b><span>min necessários</span></div>
+        <div><b id="rFolga">–</b><span>min de folga</span></div>
+      </div>
+      <p class="nota" id="rDia" style="margin-top:.6rem"></p>
+      <div id="veredito" class="ok"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 12: fim -->
+<section class="slide" data-idx="12" data-t="fim" aria-labelledby="t12">
+  <p class="eyebrow">Agora é com vocês</p>
+  <h2 class="st" id="t12" tabindex="-1">Primeiros 15 minutos</h2>
+  <ol class="bullets" style="counter-reset:n">
+    <li>Formem o grupo (3 a 4 pessoas) e anotem os nomes</li>
+    <li>Escolham o tema e escrevam em uma frase o problema que ele resolve</li>
+    <li>Criem o repositório no GitHub e convidem o grupo</li>
+    <li>Comecem o Diário de IA, mesmo que a primeira linha seja “ainda não usei”</li>
+    <li>Listem 3 classes candidatas: nome e responsabilidade</li>
+    <li>Pensem se querem uma ferramenta “além” (Pygame, Flask…). Dá para decidir até 28/11</li>
+  </ol>
+</section>
+
+</main>
+<nav id="nav" aria-label="Navegação da aula">
+  <button class="navbtn" id="prev" type="button" aria-label="Slide anterior">◀</button>
+  <button class="navbtn" id="next" type="button" aria-label="Próximo slide">▶</button>
+  <span id="count">1 / 13</span>
+  <span class="sp"></span>
+  <span class="hint">← → navegar · F tela cheia</span>
+</nav>
+
+<script id="calc">
+/* Mesma fórmula de calc.py: os testes conferem que as duas concordam. */
+function calcular(presentes, tamGrupo = 4, blocos = 3, blocoMin = 90, aberturaMin = 15, fatiaMin = 15) {
+  if (presentes < 0 || tamGrupo < 1 || blocos < 1 || fatiaMin < 1 || aberturaMin < 0 || blocoMin <= aberturaMin) {
+    throw new Error("parâmetros inválidos");
+  }
+  const grupos = Math.ceil(presentes / tamGrupo);
+  const util = blocos * (blocoMin - aberturaMin);
+  const necessario = grupos * fatiaMin;
+  const base = Math.floor(grupos / blocos), resto = grupos % blocos;
+  const por_dia = Array.from({ length: blocos }, (_, i) => base + (i < resto ? 1 : 0));
+  const cabe = necessario <= util;
+  const sugestao = cabe ? "" : `Não cabe: reduza a fatia para ${Math.floor(util / grupos)} min ou abra um ${blocos + 1}º bloco.`;
+  return { grupos, util, necessario, folga: util - necessario, cabe, por_dia, sugestao };
+}
+</script>
+<script>
+const TOTAL = 13;
+const slides = Array.from(document.querySelectorAll('.slide'));
+const $ = (s, r = document) => r.querySelector(s);
+let cur = 0;
+
+/* ---------- navegação ---------- */
+function show(i) {
+  cur = Math.max(0, Math.min(TOTAL - 1, i));
+  slides.forEach((s, k) => s.classList.toggle('active', k === cur));
+  $('#count').textContent = (cur + 1) + ' / ' + TOTAL;
+  $('#progress i').style.width = ((cur + 1) / TOTAL * 100) + '%';
+  $('#prev').disabled = cur === 0; $('#next').disabled = cur === TOTAL - 1;
+  const t = slides[cur].querySelector('.st'); if (t) t.focus({ preventScroll: true });
+  $('#stage').scrollTop = 0;
+  try { history.replaceState(null, '', '#' + (cur + 1)); } catch (e) { /* arquivo local sem histórico */ }
+}
+$('#prev').onclick = () => show(cur - 1);
+$('#next').onclick = () => show(cur + 1);
+document.addEventListener('keydown', e => {
+  if (/INPUT|TEXTAREA/.test(e.target.tagName)) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); show(cur + 1); }
+  else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(cur - 1); }
+  else if (e.key.toLowerCase() === 'f') { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); }
+});
+
+/* ---------- capa: digita a classe ---------- */
+(function () {
+  const linhas = ['class ProjetoFinal(POO):', '    def menu(self):', '        1) Regras', '        2) Prazos', '        3) Vá além', '', 'Escolha: _'];
+  const el = $('#capaTerm'); let i = 0, j = 0, txt = '';
+  const reduz = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduz) { el.textContent = linhas.join('\n'); return; }
+  (function passo() {
+    if (i >= linhas.length) return;
+    txt += linhas[i][j++] || ''; el.textContent = txt;
+    if (j >= linhas[i].length) { i++; j = 0; txt += '\n'; setTimeout(passo, 250); } else setTimeout(passo, 35);
+  })();
+})();
+
+/* ---------- galeria ---------- */
+const APPS = {
+  guerra: ['guerra_de_cartas/', '⚔  Guerra de Cartas · ferramenta: Pygame\n\nPersonagem (abstrata)\n  ├─ Guerreiro\n  └─ Mago\nBatalha ◇── Personagem (2)\n\ndominio/  personagem.py  batalha.py\njogo.py   (só a casca: laço e desenho)\n\nTurno 3: Mago lança Bola de Fogo\nGuerreiro: 40 → 22 de vida'],
+  biblioteca: ['biblioteca/', '📚 Biblioteca · ferramenta: Flask\n\nAcervo ◆── Livro\nUsuario ──► Emprestimo ──► Livro\n  Aluno ◄── Usuario ──► Professor\n\ndominio/  livro.py  usuario.py  emprestimo.py\napp.py    (rotas Flask chamam o domínio)\n\nGET /livros → Acervo.buscar("Python")\nPOST /emprestimos → Emprestimo(livro, usuario)'],
+  clinica: ['clinica_vet/', '🐾 Clínica Veterinária · ferramenta: Tkinter\n\nAnimal (abstrata)\n  ├─ Cachorro\n  └─ Gato\nTutor ◆── Animal\nConsulta ──► Animal, Veterinario\n\ndominio/  animal.py  tutor.py  consulta.py\njanela.py (botões chamam o domínio)\n\nConsulta #8: Mel (Cachorro) · vacina\nTutor avisado: retorno em 30 dias'],
+  estacionamento: ['estacionamento/', '🚗 Estacionamento · ferramenta: Rich\n\nVeiculo (abstrata)\n  ├─ Carro\n  └─ Moto\nVaga ◇── Veiculo\nTicket ──► Vaga, Tarifa\n\ndominio/  veiculo.py  vaga.py  ticket.py\npainel.py (tabela colorida com Rich)\n\nVaga 12: Moto ABC-1234 · 01h40\nTarifa: R$ 6,00 (fração de 30 min)'],
+};
+function mostraApp(k) {
+  $('#appNome').textContent = APPS[k][0]; $('#appTerm').textContent = APPS[k][1];
+  document.querySelectorAll('[data-app]').forEach(b => { const on = b.dataset.app === k; b.classList.toggle('on', on); b.classList.toggle('ghost', !on); });
+}
+document.querySelectorAll('[data-app]').forEach(b => b.onclick = () => mostraApp(b.dataset.app));
+mostraApp('guerra');
+
+/* ---------- checklist ---------- */
+const caixas = Array.from(document.querySelectorAll('#checklist input'));
+function atualizaCheck() {
+  const n = caixas.filter(c => c.checked).length;
+  $('#checkTxt').textContent = n + ' de ' + caixas.length + ' prontos';
+  $('#checkBar').style.width = (n / caixas.length * 100) + '%';
+  $('#checkMsg').classList.toggle('hidden', n !== caixas.length);
+}
+caixas.forEach(c => c.onchange = atualizaCheck);
+
+/* ---------- cronômetro: 15 min = 8 apresentam + 7 arguição ---------- */
+const TOTAL_SEG = 900, FASE1_SEG = 480;
+let seg = TOTAL_SEG, timer = null;
+function pinta() {
+  const m = String(Math.floor(seg / 60)).padStart(2, '0'), s = String(seg % 60).padStart(2, '0');
+  $('#cron').textContent = m + ':' + s;
+  const dec = TOTAL_SEG - seg, c = $('#cron');
+  c.className = 'cron ' + (dec < FASE1_SEG ? 'f1' : (seg > 0 ? 'f2' : 'f3'));
+  $('#fase').textContent = !timer && seg === TOTAL_SEG ? 'Pronto para começar' : seg === 0 ? 'Tempo esgotado' : dec < FASE1_SEG ? 'Apresentação e demonstração' : 'Arguição individual';
+}
+$('#cronGo').onclick = () => {
+  if (timer) { clearInterval(timer); timer = null; $('#cronGo').textContent = 'Continuar'; return; }
+  if (seg === 0) seg = TOTAL_SEG;
+  $('#cronGo').textContent = 'Pausar';
+  timer = setInterval(() => { seg = Math.max(0, seg - 1); pinta(); if (seg === 0) { clearInterval(timer); timer = null; $('#cronGo').textContent = 'Iniciar'; } }, 1000);
+  pinta();
+};
+$('#cronReset').onclick = () => { clearInterval(timer); timer = null; seg = TOTAL_SEG; $('#cronGo').textContent = 'Iniciar'; pinta(); };
+pinta();
+
+/* ---------- calculadora ---------- */
+const num = id => parseInt($(id).value, 10);
+function recalcula() {
+  const p = num('#cPres'), g = num('#cGrupo'), b = num('#cBlocos'), f = num('#cFatia');
+  const v = $('#veredito');
+  let r;
+  try { if ([p, g, b, f].some(Number.isNaN)) throw new Error('vazio'); r = calcular(p, g, b, 90, 15, f); }
+  catch (e) { ['#rGrupos', '#rUtil', '#rNec', '#rFolga'].forEach(i => $(i).textContent = '–'); $('#rDia').textContent = ''; v.className = 'ruim'; v.textContent = 'Preencha números válidos.'; return; }
+  $('#rGrupos').textContent = r.grupos; $('#rUtil').textContent = r.util; $('#rNec').textContent = r.necessario; $('#rFolga').textContent = r.folga;
+  $('#rDia').textContent = 'Grupos por dia de apresentação: ' + r.por_dia.join(' / ');
+  v.className = r.cabe ? 'ok' : 'ruim';
+  v.textContent = r.cabe ? 'Cabe nos ' + b + ' blocos, com ' + r.folga + ' min de folga.' : r.sugestao;
+}
+['#cPres', '#cGrupo', '#cBlocos', '#cFatia'].forEach(i => $(i).addEventListener('input', recalcula));
+document.querySelectorAll('[data-tam]').forEach(bt => bt.onclick = () => {
+  $('#cGrupo').value = bt.dataset.tam;
+  document.querySelectorAll('[data-tam]').forEach(x => { x.classList.toggle('on', x === bt); x.classList.toggle('ghost', x !== bt); });
+  recalcula();
+});
+recalcula();
+
+show(parseInt(location.hash.slice(1), 10) - 1 || 0);
+</script>
+</body>
+</html>
